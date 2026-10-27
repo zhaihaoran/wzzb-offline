@@ -1,0 +1,71 @@
+(function () {
+  'use strict';
+  const nativeFetch = window.fetch.bind(window);
+  const modules = new Map();
+  const cache = new Map();
+  const progress = document.getElementById('loading-progress');
+  const label = document.getElementById('loading-text');
+  const records = [];
+  const local = window.__LOCAL_GAME__ = {
+    origin: location.origin, phase: 'scripts', exports: new Map(), records,
+    native: { fetch: nativeFetch, XMLHttpRequest: window.XMLHttpRequest, Image: window.Image, WebSocket: window.WebSocket, Audio: window.Audio },
+    mapUrl(input) {
+      const value = String(input ?? '');
+      if (/^(?:data:|blob:)/.test(value)) return value;
+      if (/^wss?:/.test(value)) return location.origin.replace(/^http/, 'ws') + '/socket';
+      if (value.startsWith('wxfile://usr/')) return location.origin + '/__wxfile__/' + value.slice(13);
+      if (value.startsWith('wxfile://')) return location.origin + '/__wxfile__/' + value.slice(9);
+      if (/^https?:/.test(value)) {
+        const url = new URL(value);
+        if (url.origin === location.origin) return value;
+        return location.origin + '/cdn/' + url.hostname + url.pathname + url.search;
+      }
+      return new URL(value.replace(/^project:\/\//, '/'), location.origin + '/').href;
+    },
+    setProgress(message, percent) { label.textContent = message; progress.value = percent; local.phase = message; },
+    log(type, message, detail) {
+      const entry = { type, message: String(message).slice(0, 1800), detail, time: Date.now() };
+      records.push(entry); if (records.length > 200) records.shift();
+      nativeFetch('/api/client-log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) }).catch(() => {});
+    },
+    fail(error) {
+      const message = error?.stack || String(error);
+      local.log('error', message);
+      document.getElementById('loading').style.display = 'flex';
+      label.textContent = '本地运行遇到问题';
+      const details = document.getElementById('error-details'); details.hidden = false; details.textContent = message;
+    },
+    async loadSubpackage() { requireModule('src/bundle-scripts/main/index.37313.js'); },
+    require: requireModule,
+  };
+  function normalize(id, parent = '') {
+    let value = String(id).replace(/^(?:project:\/\/|no-schema:\/?)/, '').replace(/^\//, '');
+    if (/^https?:/.test(value)) value = new URL(value).pathname.slice(1);
+    if (value.startsWith('.')) value = parent.split('/').slice(0, -1).concat(value.split('/')).join('/');
+    const parts = [];
+    for (const part of value.split('/')) { if (!part || part === '.') continue; if (part === '..') parts.pop(); else parts.push(part); }
+    return parts.join('/');
+  }
+  function requireModule(id, parent = '') {
+    const key = normalize(id, parent);
+    if (key === 'game.js') return {}; // The local bootstrap replaces only the platform entry.
+    const selected = [key, key + '.js', key + '/index.js'].find(candidate => modules.has(candidate));
+    if (!selected) throw new Error('Local module not found: ' + key + ' (from ' + parent + ')');
+    if (cache.has(selected)) return cache.get(selected).exports;
+    const module = { exports: {} }; cache.set(selected, module);
+    try { modules.get(selected)(request => requireModule(request, selected), module, module.exports); }
+    catch (error) { cache.delete(selected); throw error; }
+    return module.exports;
+  }
+  window.define = function (id, factory) { modules.set(normalize(id), factory); };
+  window.require = id => requireModule(id);
+  window.__wxRequire = window.require;
+  window.GameGlobal = window;
+  window.global = window;
+  window.canvas = document.getElementById('GameCanvas');
+  window.addEventListener('error', event => local.log('error', event.error?.stack || event.message));
+  window.addEventListener('unhandledrejection', event => local.fail(event.reason));
+  document.getElementById('restart').addEventListener('click', () => location.reload());
+  const originalError = console.error.bind(console);
+  console.error = (...args) => { originalError(...args); local.log('console-error', args.map(item => item?.stack || String(item)).join(' ')); };
+})();

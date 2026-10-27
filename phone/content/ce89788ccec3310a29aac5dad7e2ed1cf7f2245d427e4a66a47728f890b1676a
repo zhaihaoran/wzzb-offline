@@ -1,0 +1,93 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("./dn-sdk-minigame-1.5.5.dd4d0.js"),
+  n = GameGlobal;
+function t() {
+  ((globalThis.__wxRequire = require), require("./web-adapter.0ec91.js"));
+  var e2 = require("./first-screen");
+  (require("src/polyfills.bundle.43263.js"), require("src/system.bundle.f45da.js"));
+  var t2 = wx.getSystemInfoSync();
+  if (canvas) {
+    var r = canvas.width,
+      i = canvas.height;
+    (t2.screenWidth < t2.screenHeight
+      ? canvas.width > canvas.height && ((r = canvas.height), (i = canvas.width))
+      : canvas.width < canvas.height && ((r = canvas.height), (i = canvas.width)),
+      (canvas.width = r),
+      (canvas.height = i));
+  }
+  canvas &&
+    n.devicePixelRatio >= 2 &&
+    ((canvas.width *= t2.devicePixelRatio), (canvas.height *= t2.devicePixelRatio));
+  var a = require("src/import-map.df97e.js").default;
+  (System.warmup({
+    importMap: a,
+    importMapUrl: "src/import-map.df97e.js",
+    defaultHandler: function (e3) {
+      require("." + e3);
+    },
+    handlers: {
+      "plugin:": function (e3) {
+        requirePlugin(e3);
+      },
+      "project:": function (e3) {
+        require(e3);
+      },
+    },
+  }),
+    e2
+      .start("default", "false", "false")
+      .then(function () {
+        return new Promise(function (e3, n2) {
+          wx.loadSubpackage({
+            name: "gameLogic",
+            fail: function () {},
+            success: function () {
+              (console.log("引擎分包加载完成"), e3());
+            },
+            complete: function () {},
+          });
+        });
+      })
+      .then(function () {
+        return System.import("./Application.js");
+      })
+      .then(function (n2) {
+        return e2.setProgress(0.2).then(function () {
+          return Promise.resolve(n2);
+        });
+      })
+      .then(function (e3) {
+        return new (0, e3.Application)();
+      })
+      .then(function (n2) {
+        return e2.setProgress(0.4).then(function () {
+          return Promise.resolve(n2);
+        });
+      })
+      .then(function (n2) {
+        return (function (n3) {
+          return System.import("cc")
+            .then(function (n4) {
+              return e2.setProgress(0.6).then(function () {
+                return Promise.resolve(n4);
+              });
+            })
+            .then(function (e3) {
+              return (require("./engine-adapter.be25e.js"), n3.init(e3));
+            })
+            .then(function () {
+              return e2.end().then(function () {
+                return n3.start();
+              });
+            });
+        })(n2);
+      })
+      .catch(function (e3) {
+        console.error(e3);
+      }));
+}
+((n.SDK = e.SDK),
+  "android" === wx.getSystemInfoSync().platform.toLocaleLowerCase()
+    ? GameGlobal.requestAnimationFrame(t)
+    : t());

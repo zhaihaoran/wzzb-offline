@@ -1,0 +1,51 @@
+(function () {
+  'use strict';
+  const button = document.getElementById('original-battle');
+  const message = document.getElementById('control-message');
+  const levelSelect = document.getElementById('battle-level');
+  const local = window.__LOCAL_GAME__;
+  import('/local/testing-selector.js').then(module => module.setupTestingSelector(local)).catch(error => local.log('testing-selector-error', error.message));
+  for (const [id, open] of [
+    ['open-heroes', get => get('HeroTool').openHeroCKPanel()],
+    ['open-altar', async get => get('PanelTween').pushPanel(await get('DrawMainPanel').createInstance())],
+  ]) document.getElementById(id).addEventListener('click', async event => {
+    const get = local.getExport;
+    if (!get || !get('AccountData')?.getSessionToken()) { message.textContent = '请先进入本地模拟服。'; return; }
+    if (!get('PanelTween')?.rootPanel) { message.textContent = '正在进入主城，请等待界面加载完成。'; return; }
+    if (get('BattleConstant')?.fightPanel?.isCurrentBattleContext?.(true)) { message.textContent = '请先结束当前对战，再打开英雄或祭坛。'; return; }
+    const target = event.currentTarget;
+    target.disabled = true;
+    try { await open(get); message.textContent = id === 'open-altar' ? '本地祭坛：单抽、十连与每日免费。' : '英雄测试：选择英雄，再切换部队卡组。'; }
+    catch (error) { message.textContent = error?.message || '界面暂时无法打开，请重新载入。'; local.log('local-entry-error', message.textContent); }
+    finally { target.disabled = false; }
+  });
+  button.addEventListener('click', async () => {
+    const get = local.getExport;
+    if (!get || !get('AccountData')?.getSessionToken()) { message.textContent = '请先进入本地模拟服。'; return; }
+    const battle = get('BattleConstant');
+    if (battle?.fightPanel?.isCurrentBattleContext?.(true)) { message.textContent = '已在原版对战中。'; return; }
+    const api = get('ZhanyiApi');
+    const creator = get('FightCreatorEvents');
+    if (!api || !creator) { message.textContent = '原版战斗模块尚未加载完成。'; return; }
+    button.disabled = true;
+    message.textContent = '正在加载原版战斗场景…';
+    try {
+      let levelId = Number(levelSelect.value) || 100001;
+      const battleApi = get('BattleApi');
+      const previous = await new Promise((resolve, reject) => battleApi.getBattleInfo(resolve, reject));
+      const resuming = previous.battleGround?.id && previous.battleGround.lost === -1;
+      const data = resuming
+        ? previous
+        : await new Promise((resolve, reject) => api.startLevel(levelId, 0, resolve, reject));
+      levelId = Number(data.battleGround?.extData?.level_id) || levelId;
+      get('ZhanyiMapData').curFightLevelId = levelId;
+      get('FightData')?.setZhanyiLevelId?.(levelId);
+      creator.create(data);
+      local.log('original-battle', 'Original FightCreator opened', { levelId, battleId: data.battleGround?.id });
+      message.textContent = (resuming ? '已恢复上次战斗。' : '原版对战：') + '拖动手牌布阵，再点击出战。';
+    } catch (error) {
+      message.textContent = error?.message || '当前无法进入战斗，请先完成或结束已有战斗。';
+      local.log('original-battle-error', message.textContent);
+    } finally { button.disabled = false; }
+  });
+})();

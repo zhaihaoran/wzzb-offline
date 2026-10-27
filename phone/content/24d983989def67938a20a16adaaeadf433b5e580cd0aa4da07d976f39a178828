@@ -1,0 +1,3296 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+(Object.defineProperty(exports, "__esModule", { value: true }),
+  (exports.SDK = void 0),
+  require("@babel/runtime/helpers/Arrayincludes"));
+var t = require("@babel/runtime/helpers/typeof");
+/**
+ * @dn-sdk/minigame v1.5.5
+ * (c) 2025
+ * @license ISC
+ */
+function e(t2, e2, n2) {
+  return (
+    (e2 = h(e2)) in t2
+      ? Object.defineProperty(t2, e2, {
+          value: n2,
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        })
+      : (t2[e2] = n2),
+    t2
+  );
+}
+function n(t2) {
+  return (
+    (function (t3) {
+      if (Array.isArray(t3)) return o(t3);
+    })(t2) ||
+    (function (t3) {
+      if (("undefined" != typeof Symbol && null != t3[Symbol.iterator]) || null != t3["@@iterator"])
+        return Array.from(t3);
+    })(t2) ||
+    r(t2) ||
+    (function () {
+      throw new TypeError(
+        "Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.",
+      );
+    })()
+  );
+}
+function r(t2, e2) {
+  if (t2) {
+    if ("string" == typeof t2) return o(t2, e2);
+    var n2 = Object.prototype.toString.call(t2).slice(8, -1);
+    return (
+      "Object" === n2 && t2.constructor && (n2 = t2.constructor.name),
+      "Map" === n2 || "Set" === n2
+        ? Array.from(t2)
+        : "Arguments" === n2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n2)
+          ? o(t2, e2)
+          : void 0
+    );
+  }
+}
+function o(t2, e2) {
+  (null == e2 || e2 > t2.length) && (e2 = t2.length);
+  for (var n2 = 0, r2 = new Array(e2); n2 < e2; n2++) r2[n2] = t2[n2];
+  return r2;
+}
+function i(t2, e2) {
+  if ("function" != typeof e2 && null !== e2)
+    throw new TypeError("Super expression must either be null or a function");
+  ((t2.prototype = Object.create(e2 && e2.prototype, {
+    constructor: { value: t2, writable: true, configurable: true },
+  })),
+    Object.defineProperty(t2, "prototype", { writable: false }),
+    e2 && a(t2, e2));
+}
+function a(t2, e2) {
+  return (a = Object.setPrototypeOf
+    ? Object.setPrototypeOf.bind()
+    : function (t3, e3) {
+        return ((t3.__proto__ = e3), t3);
+      })(t2, e2);
+}
+function u(t2) {
+  var e2 = (function () {
+    if ("undefined" == typeof Reflect || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if ("function" == typeof Proxy) return true;
+    try {
+      return (Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})), true);
+    } catch (t3) {
+      return false;
+    }
+  })();
+  return function () {
+    var n2,
+      r2 = l(t2);
+    if (e2) {
+      var o2 = l(this).constructor;
+      n2 = Reflect.construct(r2, arguments, o2);
+    } else n2 = r2.apply(this, arguments);
+    return c(this, n2);
+  };
+}
+function c(t2, e2) {
+  if (e2 && ("object" === f(e2) || "function" == typeof e2)) return e2;
+  if (void 0 !== e2)
+    throw new TypeError("Derived constructors may only return object or undefined");
+  return s(t2);
+}
+function s(t2) {
+  if (void 0 === t2)
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  return t2;
+}
+function l(t2) {
+  return (l = Object.setPrototypeOf
+    ? Object.getPrototypeOf.bind()
+    : function (t3) {
+        return t3.__proto__ || Object.getPrototypeOf(t3);
+      })(t2);
+}
+function f(e2) {
+  return (f =
+    "function" == typeof Symbol && "symbol" == t(Symbol.iterator)
+      ? function (e3) {
+          return t(e3);
+        }
+      : function (e3) {
+          return e3 &&
+            "function" == typeof Symbol &&
+            e3.constructor === Symbol &&
+            e3 !== Symbol.prototype
+            ? "symbol"
+            : t(e3);
+        })(e2);
+}
+function d(t2, e2) {
+  if (!(t2 instanceof e2)) throw new TypeError("Cannot call a class as a function");
+}
+function p(t2, e2) {
+  for (var n2 = 0; n2 < e2.length; n2++) {
+    var r2 = e2[n2];
+    ((r2.enumerable = r2.enumerable || false),
+      (r2.configurable = true),
+      "value" in r2 && (r2.writable = true),
+      Object.defineProperty(t2, h(r2.key), r2));
+  }
+}
+function v(t2, e2, n2) {
+  return (
+    e2 && p(t2.prototype, e2),
+    n2 && p(t2, n2),
+    Object.defineProperty(t2, "prototype", { writable: false }),
+    t2
+  );
+}
+function h(t2) {
+  var e2 = (function (t3, e3) {
+    if ("object" !== f(t3) || null === t3) return t3;
+    var n2 = t3[Symbol.toPrimitive];
+    if (void 0 !== n2) {
+      var r2 = n2.call(t3, e3);
+      if ("object" !== f(r2)) return r2;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return String(t3);
+  })(t2, "string");
+  return "symbol" === f(e2) ? e2 : String(e2);
+}
+var _,
+  y,
+  g = "LOCAL_ID",
+  m = "CLICK_ID",
+  A = "QUEUE_LOST_MAP",
+  k = "REMOTE_CONFIG",
+  T = "REMOTE_COMMON_CONFIG",
+  R = "OPENID",
+  b = { init: "init", reporting: "reporting", fail: "fail" },
+  S = {
+    maxSdkInstance: 4,
+    maxQueueLength: 500,
+    actionParamMaxLength: 1e4,
+    autoTrack: true,
+    reportThreshold: 5,
+    reportDelay: 1,
+    inspectDelay: 30,
+    cgiBatchSize: 50,
+    requestConcurrency: 4,
+    requestTimeout: 1e4,
+    signVersion: "1.0",
+    realTimeActionList: ["START_APP", "REGISTER", "PURCHASE"],
+  },
+  E = "JS_RUN_ERROR",
+  O = "REQUEST_ERROR",
+  I = "REQUEST_CONFIG_ERROR",
+  w = "JS_QUEUE_LOG",
+  C = "PROXY_ERROR",
+  x = "QUEUE_LOST_NUM",
+  N = "SIGN_ERROR",
+  L = "UNKNOWN",
+  P = "TRUE",
+  M = "FALSE",
+  D = "TICKET_INTERVAL_CHANGE",
+  q =
+    ((y = function (t2) {
+      return "".concat("@dn-sdk/minigame", "_").concat("production", "_").concat(t2);
+    }),
+    {
+      getSync: function (t2) {
+        var e2;
+        try {
+          e2 = wx.getStorageSync(y(t2));
+        } catch (t3) {
+          return (console.error("storage get error", t3), e2);
+        }
+        return e2;
+      },
+      setSync: function (t2, e2) {
+        try {
+          wx.setStorageSync(y(t2), e2);
+        } catch (t3) {
+          return (console.error("storage set error", t3), false);
+        }
+        return true;
+      },
+    }),
+  U = /* @__PURE__ */ (function () {
+    var t2;
+    return function () {
+      if (!t2) {
+        var e2 = (function () {
+            if (_) return _;
+            try {
+              return (_ = wx.getSystemInfoSync());
+            } catch (t3) {
+              return {};
+            }
+          })(),
+          n2 = e2.system,
+          r2 = void 0 === n2 ? "" : n2,
+          o2 = (null == r2 ? void 0 : r2.split(" ")) || [],
+          i2 = (function (t3) {
+            if (!t3) return L;
+            var e3 = (null == t3 ? void 0 : t3.toUpperCase()) || "";
+            return e3.indexOf("ANDROID") > -1
+              ? "ANDROID"
+              : e3.indexOf("IOS") > -1
+                ? "IOS"
+                : e3.indexOf("MAC") > -1
+                  ? "OSX"
+                  : e3.indexOf("WINDOWS") > -1
+                    ? "WINDOWS"
+                    : L;
+          })(o2[0]),
+          a2 = (function (t3) {
+            return !t3 || t3.length <= 0
+              ? ""
+              : 2 === t3.length
+                ? t3[1]
+                : 3 === t3.length && "Windows" === t3[0]
+                  ? "".concat(t3[1], " ").concat(t3[2])
+                  : t3[t3.length - 1];
+          })(o2);
+        t2 = {
+          benchmark_level: e2.benchmarkLevel,
+          device_brand: e2.brand,
+          screen_height: Math.floor(e2.screenHeight),
+          screen_width: Math.floor(e2.screenWidth),
+          wx_lib_version: e2.SDKVersion,
+          wx_version: e2.version,
+          wx_platform: e2.platform,
+          device_model: e2.model,
+          os: i2,
+          os_version: a2,
+        };
+      }
+      return t2;
+    };
+  })(),
+  j = /* @__PURE__ */ (function () {
+    var t2;
+    return function () {
+      try {
+        if (t2) return t2;
+        (t2 || (t2 = q.getSync(g) || ""), t2 || ((t2 = et()), q.setSync(g, t2)));
+      } catch (t3) {}
+      return t2;
+    };
+  })(),
+  F = /* @__PURE__ */ (function () {
+    var t2 = "unknown",
+      e2 = false;
+    return function () {
+      if (!e2)
+        try {
+          (wx.getNetworkType({
+            success: function (e3) {
+              t2 = e3.networkType;
+            },
+            fail: function () {
+              t2 = "unknown";
+            },
+          }),
+            wx.onNetworkStatusChange(function (e3) {
+              t2 = e3.networkType;
+            }),
+            (e2 = true));
+        } catch (t3) {}
+      return t2;
+    };
+  })();
+F();
+var B = /* @__PURE__ */ (function () {
+    var t2 = "";
+    return function () {
+      return (t2 || (t2 = q.getSync(R) || ""), t2);
+    };
+  })(),
+  V = /* @__PURE__ */ (function () {
+    var t2;
+    return function () {
+      if (t2) return t2;
+      try {
+        var e2 = wx.getAccountInfoSync();
+        return $(e2.miniProgram) ? (t2 = e2.miniProgram) : {};
+      } catch (e3) {
+        return {};
+      }
+    };
+  })();
+function K(t2) {
+  var e2 = null == t2 ? void 0 : t2.query;
+  if (!$(e2)) return "";
+  var n2 = "";
+  return (
+    e2.gdt_vid || [1045, 1046, 1084].indexOf(null == t2 ? void 0 : t2.scene) > -1
+      ? (n2 = "TENCENT")
+      : e2.clue_token || (e2.clickid && e2.item_id)
+        ? (n2 = "BYTEDANCE")
+        : e2.callback && "kuaishou" === e2.ksChannel
+          ? (n2 = "KUAISHOU")
+          : e2.bd_vid || (e2.ai && e2.d && e2.q && e2.c)
+            ? (n2 = "BAIDU")
+            : e2.uctrackid
+              ? (n2 = "ALIBABA")
+              : (e2.trackid ||
+                  e2.imp ||
+                  ([1065, 1069, 1194].indexOf(null == t2 ? void 0 : t2.scene) > -1 &&
+                    (e2.callback || e2.u))) &&
+                (n2 = "OTHERS"),
+    n2
+  );
+}
+function G(t2, e2) {
+  try {
+    var n2 = U(),
+      r2 = V(),
+      o2 = {
+        sdk_version: "1.5.5",
+        sdk_name: "@dn-sdk/minigame",
+        device_brand: null == n2 ? void 0 : n2.device_brand,
+        device_model: null == n2 ? void 0 : n2.device_model,
+        wx_version: null == n2 ? void 0 : n2.wx_version,
+        wx_lib_version: null == n2 ? void 0 : n2.wx_lib_version,
+        wx_platform: null == n2 ? void 0 : n2.wx_platform,
+        os: null == n2 ? void 0 : n2.os,
+        os_version: null == n2 ? void 0 : n2.os_version,
+        local_id: j(),
+        env_version: null == r2 ? void 0 : r2.envVersion,
+        appid: null == r2 ? void 0 : r2.appId,
+      },
+      i2 = Object.assign(o2, t2);
+    wx.request({
+      url: "https://api.datanexus.qq.com/data-nexus-trace/log",
+      data: i2,
+      method: "POST",
+      timeout: S.requestTimeout,
+      success: function (t3) {
+        "function" == typeof e2 && 200 === (null == t3 ? void 0 : t3.statusCode) && e2();
+      },
+    });
+  } catch (n3) {
+    ft.error(n3);
+  }
+}
+var W = (function () {
+  function t2() {
+    d(this, t2);
+  }
+  return (
+    v(t2, null, [
+      {
+        key: "revise",
+        value: function (t3) {
+          t3 > 0 &&
+            !this.isRevised &&
+            ((this.offsetTime = t3 - Date.now()), (this.isRevised = true));
+        },
+      },
+      {
+        key: "getRevisedcurrentTimeMillis",
+        value: function () {
+          return this.isRevised ? Date.now() + this.offsetTime : -1;
+        },
+      },
+    ]),
+    t2
+  );
+})();
+function Y(t2) {
+  return new Promise(function (e2, n2) {
+    wx.request({
+      method: "POST",
+      url: "https://api.datanexus.qq.com/data-nexus-config/v1/sdk/config/get",
+      data: t2,
+      timeout: S.requestTimeout,
+      success: function (t3) {
+        (H(t3, e2, "config/get", n2), Q(t3));
+      },
+      fail: function (t3) {
+        J(t3, "config/get", n2);
+      },
+    });
+  });
+}
+function H(t2, e2, n2, r2) {
+  var o2,
+    i2,
+    a2,
+    u2,
+    c2 = null == t2 ? void 0 : t2.statusCode,
+    s2 = null == (o2 = null == t2 ? void 0 : t2.data) ? void 0 : o2.code;
+  if (200 !== c2 || 0 !== s2) {
+    var l2 = s2;
+    (200 !== c2 && (l2 = "number" == typeof c2 ? -1 * c2 : -888),
+      G({
+        log_type: I,
+        message: "cgiName: "
+          .concat(n2, ", statusCode: ")
+          .concat(c2, ", code: ")
+          .concat(s2, ", traceid: ")
+          .concat(null == (a2 = null == t2 ? void 0 : t2.data) ? void 0 : a2.trace_id),
+        code: l2,
+      }),
+      null == r2 || r2(null == (u2 = null == t2 ? void 0 : t2.data) ? void 0 : u2.data));
+  } else e2(null == (i2 = t2.data) ? void 0 : i2.data);
+}
+function J(t2, e2, n2) {
+  (G({
+    log_type: I,
+    message: "cgiName: ".concat(e2, " , message: ").concat(null == t2 ? void 0 : t2.errMsg, " "),
+    code: "number" == typeof (null == t2 ? void 0 : t2.errno) ? -1 * t2.errno : -999,
+  }),
+    null == n2 || n2(t2));
+}
+function Q(t2) {
+  var e2,
+    n2 = 1 * (null == (e2 = null == t2 ? void 0 : t2.header) ? void 0 : e2["Server-Time"]);
+  n2 > 17266752e5 && W.revise(n2);
+}
+((W.offsetTime = 0), (W.isRevised = false));
+var z = Object.prototype.toString,
+  $ = function (t2) {
+    return "[object Object]" === z.call(t2);
+  },
+  Z = function (t2) {
+    return "[object Array]" === z.call(t2);
+  },
+  X = function (t2) {
+    return "[object Function]" === z.call(t2);
+  },
+  tt = /* @__PURE__ */ new Date().getTime();
+function et() {
+  var t2 = /* @__PURE__ */ new Date().getTime(),
+    e2 = Math.abs(1e3 * (t2 - tt));
+  return "xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx".replace(/[xy]/g, function (n2) {
+    var r2 = 16 * Math.random();
+    return (
+      t2 > 0
+        ? ((r2 = ((t2 + r2) % 16) | 0), (t2 = Math.floor(t2 / 16)))
+        : ((r2 = ((e2 + r2) % 16) | 0), (e2 = Math.floor(e2 / 16))),
+      ("x" === n2 ? r2 : (3 & r2) | 8).toString(16).replace(/-/g, "")
+    );
+  });
+}
+var nt =
+    /^v?(?:\d+)(\.(?:[x*]|\d+)(\.(?:[x*]|\d+)(\.(?:[x*]|\d+))?(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?)?)?$/i,
+  rt = function (t2) {
+    if ("string" != typeof t2) throw new TypeError("Invalid argument expected string");
+    if (!nt.test(t2))
+      throw new Error("Invalid argument not valid semver ('".concat(t2, "' received)"));
+  },
+  ot = function (t2) {
+    return isNaN(Number(t2)) ? t2 : Number(t2);
+  },
+  it = function (t2) {
+    var e2 = t2.replace(/^v/, "").replace(/\+.*$/, ""),
+      n2 = (function (t3, e3) {
+        return -1 === t3.indexOf("-") ? t3.length : t3.indexOf("-");
+      })(e2),
+      r2 = e2.substring(0, n2).split(".");
+    return (r2.push(e2.substring(n2 + 1)), r2);
+  },
+  at = function (t2, e2) {
+    [t2, e2].forEach(rt);
+    for (var n2 = it(t2), r2 = it(e2), o2 = 0; o2 < Math.max(n2.length - 1, r2.length - 1); o2++) {
+      var i2 = parseInt(n2[o2] || "0", 10),
+        a2 = parseInt(r2[o2] || "0", 10);
+      if (i2 > a2) return 1;
+      if (a2 > i2) return -1;
+    }
+    var u2 = n2[n2.length - 1],
+      c2 = r2[r2.length - 1];
+    if (u2 && c2)
+      for (
+        var s2 = u2.split(".").map(ot), l2 = c2.split(".").map(ot), f2 = 0;
+        f2 < Math.max(s2.length, l2.length);
+        f2++
+      ) {
+        if (void 0 === s2[f2] || ("string" == typeof l2[f2] && "number" == typeof s2[f2]))
+          return -1;
+        if (
+          void 0 === l2[f2] ||
+          ("string" == typeof s2[f2] && "number" == typeof l2[f2]) ||
+          s2[f2] > l2[f2]
+        )
+          return 1;
+        if (l2[f2] > s2[f2]) return -1;
+      }
+    else if (u2 || c2) return u2 ? -1 : 1;
+    return 0;
+  };
+function ut(t2) {
+  return ct()[t2];
+}
+function ct() {
+  return S;
+}
+function st(t2, e2) {
+  return Object.prototype.hasOwnProperty.call(t2, e2);
+}
+var lt = function (t2) {
+    try {
+      return t2 && "string" == typeof t2
+        ? -1 === (t2 = t2.replace(/\s/g, "")).indexOf(".")
+          ? t2
+          : t2.split(".").slice(0, 2).join(".")
+        : "";
+    } catch (e2) {
+      return t2;
+    }
+  },
+  ft = (function () {
+    function t2() {
+      d(this, t2);
+    }
+    return (
+      v(t2, null, [
+        {
+          key: "error",
+          value: function (t3) {
+            for (
+              var e2, n2 = arguments.length, r2 = new Array(n2 > 1 ? n2 - 1 : 0), o2 = 1;
+              o2 < n2;
+              o2++
+            )
+              r2[o2 - 1] = arguments[o2];
+            (e2 = console).error.apply(
+              e2,
+              ["".concat("[@dn-sdk/minigame v1.5.5]", ": ").concat(t3)].concat(r2),
+            );
+          },
+        },
+        {
+          key: "info",
+          value: function (e2) {
+            for (
+              var n2, r2 = arguments.length, o2 = new Array(r2 > 1 ? r2 - 1 : 0), i2 = 1;
+              i2 < r2;
+              i2++
+            )
+              o2[i2 - 1] = arguments[i2];
+            t2.debug &&
+              (n2 = console).info.apply(
+                n2,
+                ["".concat("[@dn-sdk/minigame v1.5.5]", ": ").concat(e2)].concat(o2),
+              );
+          },
+        },
+        {
+          key: "log",
+          value: function (e2) {
+            for (
+              var n2, r2 = arguments.length, o2 = new Array(r2 > 1 ? r2 - 1 : 0), i2 = 1;
+              i2 < r2;
+              i2++
+            )
+              o2[i2 - 1] = arguments[i2];
+            t2.debug &&
+              (n2 = console).log.apply(
+                n2,
+                ["".concat("[@dn-sdk/minigame v1.5.5]", ": ").concat(e2)].concat(o2),
+              );
+          },
+        },
+        {
+          key: "warn",
+          value: function (t3) {
+            for (
+              var e2, n2 = arguments.length, r2 = new Array(n2 > 1 ? n2 - 1 : 0), o2 = 1;
+              o2 < n2;
+              o2++
+            )
+              r2[o2 - 1] = arguments[o2];
+            (e2 = console).warn.apply(
+              e2,
+              ["".concat("[@dn-sdk/minigame v1.5.5]", ": ").concat(t3)].concat(r2),
+            );
+          },
+        },
+        {
+          key: "devLog",
+          value: function (e2) {
+            for (
+              var n2, r2 = arguments.length, o2 = new Array(r2 > 1 ? r2 - 1 : 0), i2 = 1;
+              i2 < r2;
+              i2++
+            )
+              o2[i2 - 1] = arguments[i2];
+            t2.isDev &&
+              (n2 = console).log.apply(
+                n2,
+                ["".concat("[@dn-sdk/minigame v1.5.5]", ": ").concat(e2)].concat(o2),
+              );
+          },
+        },
+      ]),
+      t2
+    );
+  })();
+((ft.debug = false), (ft.isDev = false));
+var dt = /* @__PURE__ */ (function () {
+  var t2;
+  return function () {
+    if (!t2)
+      try {
+        var e2 = wx.getLaunchOptionsSync(),
+          n2 = e2.query.gdt_vid || "";
+        n2 ? q.setSync(m, n2) : (n2 = q.getSync(m) || "");
+        var r2 = JSON.stringify(e2);
+        (r2.length > 1e4 && (r2 = JSON.stringify({ cut: 1, scene: e2.scene })),
+          (t2 = {
+            source_scene: e2.scene,
+            pkg_channel_id: e2.query.wxgamepro || "",
+            ad_trace_id: n2,
+            launch_options: r2,
+            channel: K(e2),
+          }));
+      } catch (e3) {
+        ((t2 = {}), ft.log("获取场景值和渠道号失败", e3));
+      }
+    return t2;
+  };
+})();
+function pt(t2, e2, n2) {
+  var r2 = n2.value;
+  return (
+    (n2.value = function () {
+      for (var n3 = arguments.length, o2 = new Array(n3), i2 = 0; i2 < n3; i2++)
+        o2[i2] = arguments[i2];
+      try {
+        return r2.apply(this, o2);
+      } catch (n4) {
+        try {
+          (ft.error.apply(
+            ft,
+            [
+              "calling ".concat(t2.constructor.name, ".").concat(e2, " error with arguments"),
+            ].concat(o2),
+          ),
+            ft.error(n4));
+          var a2 = {
+            log_type: E,
+            message: "[safeExcutable] "
+              .concat(t2.constructor.name, ".")
+              .concat(e2, ": ")
+              .concat(null == n4 ? void 0 : n4.message),
+            err_stack: null == n4 ? void 0 : n4.stack,
+          };
+          X(this.reportLog) ? this.reportLog(a2) : G(a2);
+        } catch (a3) {}
+      }
+    }),
+    n2
+  );
+}
+var vt = Object.defineProperty,
+  ht = Object.getOwnPropertyDescriptor,
+  _t = function (t2, e2, n2, r2) {
+    for (var o2, i2 = r2 > 1 ? void 0 : r2 ? ht(e2, n2) : e2, a2 = t2.length - 1; a2 >= 0; a2--)
+      (o2 = t2[a2]) && (i2 = (r2 ? o2(e2, n2, i2) : o2(i2)) || i2);
+    return (r2 && i2 && vt(e2, n2, i2), i2);
+  },
+  yt = (function () {
+    function t2(e2) {
+      var n2 = e2.userActionSetId,
+        r2 = e2.maxLength,
+        o2 = void 0 === r2 ? 500 : r2;
+      (d(this, t2),
+        (this.lostActionMaps = {}),
+        (this.stack = []),
+        (this.localStorageKey = ""),
+        (this.localStorageKey = ""
+          .concat("QUEUE_ACTIONS", "_")
+          .concat(null == n2 ? void 0 : n2.toString())),
+        (this.maxLength = o2),
+        (this.userActionSetId = n2),
+        this.setTimeStamp(),
+        this.init());
+    }
+    return (
+      v(t2, [
+        {
+          key: "getItems",
+          value: function () {
+            return this.stack;
+          },
+        },
+        {
+          key: "getStorage",
+          value: function () {
+            var t3,
+              e2 = (null == (t3 = q) ? void 0 : t3.getSync(this.localStorageKey)) || "[]";
+            return JSON.parse(e2);
+          },
+        },
+        {
+          key: "reportLostNum",
+          value: function () {
+            var t3 = this,
+              e2 = Object.assign({}, this.lostActionMaps),
+              n2 = [];
+            for (var r2 in e2) {
+              var o2 = null == r2 ? void 0 : r2.split("_");
+              n2.push({
+                queue_lost_session_id: o2[0],
+                queue_lost_timestamp: o2[1],
+                queue_lost_num: e2[r2],
+              });
+            }
+            n2.length &&
+              (this.setTimeStamp(),
+              n2.forEach(function (e3) {
+                var n3 = Object.assign(
+                    {},
+                    { user_action_set_id: t3.userActionSetId, log_type: x },
+                    e3,
+                  ),
+                  r3 = null == e3 ? void 0 : e3.queue_lost_session_id,
+                  o3 = null == e3 ? void 0 : e3.queue_lost_timestamp,
+                  i2 = "".concat(r3, "_").concat(o3);
+                G(n3, function () {
+                  st(t3.lostActionMaps, i2) &&
+                    (delete t3.lostActionMaps[i2], q.setSync(A, JSON.stringify(t3.lostActionMaps)));
+                });
+              }));
+          },
+        },
+        {
+          key: "getLostMaps",
+          value: function () {
+            return this.lostActionMaps;
+          },
+        },
+        {
+          key: "init",
+          value: function () {
+            var t3 = this,
+              e2 = this.getStorage(),
+              n2 =
+                null == e2
+                  ? void 0
+                  : e2.map(function (t4) {
+                      var e3, n3;
+                      return t4.inner_status === (null == (e3 = b) ? void 0 : e3.reporting)
+                        ? Object.assign({}, t4, {
+                            inner_status: null == (n3 = b) ? void 0 : n3.fail,
+                            is_retry: true,
+                            retry_count: t4.retry_count + 1,
+                          })
+                        : t4;
+                    });
+            ((this.stack = n2),
+              (this.lostActionMaps = JSON.parse(q.getSync(A) || "{}")),
+              setTimeout(function () {
+                t3.reportLostNum();
+              }, 1e3));
+          },
+        },
+        {
+          key: "addItem",
+          value: function (t3) {
+            var e2;
+            null == (e2 = null == this ? void 0 : this.stack) || e2.push(t3);
+          },
+        },
+        {
+          key: "removeItems",
+          value: function (t3) {
+            var e2,
+              n2 =
+                null == (e2 = null == this ? void 0 : this.stack)
+                  ? void 0
+                  : e2.filter(function (e3) {
+                      return !(null != t3 && t3.includes(null == e3 ? void 0 : e3.action_id));
+                    });
+            this.stack = n2;
+          },
+        },
+        {
+          key: "updateForReportFail",
+          value: function (t3) {
+            var e2;
+            this.stack =
+              null == (e2 = this.stack)
+                ? void 0
+                : e2.map(function (e3) {
+                    var n2;
+                    return null != t3 && t3.includes(null == e3 ? void 0 : e3.action_id)
+                      ? Object.assign({}, e3, {
+                          inner_status: null == (n2 = b) ? void 0 : n2.fail,
+                          retry_count: e3.retry_count + 1,
+                          is_retry: true,
+                        })
+                      : e3;
+                  });
+          },
+        },
+        {
+          key: "updateForReporting",
+          value: function (t3) {
+            var e2;
+            this.stack =
+              null == (e2 = this.stack)
+                ? void 0
+                : e2.map(function (e3) {
+                    var n2;
+                    return null != t3 && t3.includes(null == e3 ? void 0 : e3.action_id)
+                      ? Object.assign({}, e3, {
+                          inner_status: null == (n2 = b) ? void 0 : n2.reporting,
+                        })
+                      : e3;
+                  });
+          },
+        },
+        {
+          key: "updateAllStack",
+          value: function (t3) {
+            this.stack = t3;
+          },
+        },
+        {
+          key: "updateToStorage",
+          value: function () {
+            q.setSync(this.localStorageKey, JSON.stringify(this.stack));
+          },
+        },
+        {
+          key: "updateLostAction",
+          value: function (t3) {
+            if (t3) {
+              var e2 = "".concat(t3, "_").concat(this.timeStamp),
+                n2 = this.lostActionMaps[e2] || 0;
+              ((this.lostActionMaps[e2] = n2 + 1),
+                q.setSync(A, JSON.stringify(this.lostActionMaps)));
+            }
+          },
+        },
+        {
+          key: "setTimeStamp",
+          value: function () {
+            this.timeStamp = Date.now().toString();
+          },
+        },
+      ]),
+      t2
+    );
+  })();
+(_t([pt], yt.prototype, "getItems", 1),
+  _t([pt], yt.prototype, "getStorage", 1),
+  _t([pt], yt.prototype, "reportLostNum", 1),
+  _t([pt], yt.prototype, "getLostMaps", 1),
+  _t([pt], yt.prototype, "init", 1),
+  _t([pt], yt.prototype, "addItem", 1),
+  _t([pt], yt.prototype, "removeItems", 1),
+  _t([pt], yt.prototype, "updateForReportFail", 1),
+  _t([pt], yt.prototype, "updateForReporting", 1),
+  _t([pt], yt.prototype, "updateAllStack", 1),
+  _t([pt], yt.prototype, "updateToStorage", 1),
+  _t([pt], yt.prototype, "updateLostAction", 1));
+var gt = Object.defineProperty,
+  mt = Object.getOwnPropertyDescriptor,
+  At = function (t2, e2, n2, r2) {
+    for (var o2, i2 = r2 > 1 ? void 0 : r2 ? mt(e2, n2) : e2, a2 = t2.length - 1; a2 >= 0; a2--)
+      (o2 = t2[a2]) && (i2 = (r2 ? o2(e2, n2, i2) : o2(i2)) || i2);
+    return (r2 && i2 && gt(e2, n2, i2), i2);
+  },
+  kt = (function (t2) {
+    i(n2, yt);
+    var e2 = u(n2);
+    function n2(t3) {
+      var r2,
+        o2 = t3.userActionSetId,
+        i2 = t3.maxLength,
+        a2 = void 0 === i2 ? 500 : i2,
+        u2 = t3.ogEvents,
+        c2 = void 0 === u2 ? [] : u2;
+      return (
+        d(this, n2),
+        ((r2 = e2.call(this, { userActionSetId: o2, maxLength: a2 })).ogEvents = c2),
+        r2
+      );
+    }
+    return (
+      v(n2, [
+        {
+          key: "getReportableActions",
+          value: function () {
+            var t3 = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : 100,
+              e3 = this.getItems(),
+              n3 = [];
+            return (
+              null == e3 ||
+                e3.forEach(function (e4) {
+                  var r2;
+                  (null == n3 ? void 0 : n3.length) < t3 &&
+                    (null == e4 ? void 0 : e4.inner_status) !==
+                      (null == (r2 = b) ? void 0 : r2.reporting) &&
+                    (null == n3 || n3.push(e4));
+                }),
+              n3
+            );
+          },
+        },
+        {
+          key: "addAction",
+          value: function (t3) {
+            var e3 = { code: 0, message: "成功", actionId: t3.action_id },
+              n3 = this.getItems();
+            if ((null == n3 ? void 0 : n3.length) >= this.maxLength) {
+              var r2 = "队列长度超过最大限制".concat(
+                this.maxLength,
+                "条，SDK将按照行为优先级排序，丢弃优先级最低的行为事件",
+              );
+              (ft.warn(r2),
+                G({
+                  user_action_set_id: this.userActionSetId,
+                  log_type: w,
+                  message: "队列长度超过限制",
+                }));
+              var o2 = this.sortQueue(t3, n3);
+              ft.debug &&
+                ft.info("超过".concat(this.maxLength, "条按优先级排序的队列："), o2.concat([]));
+              var i2 = o2.pop();
+              (this.updateAllStack(o2),
+                this.updateLostAction((null == i2 ? void 0 : i2.session_id) || ""),
+                (null == i2 ? void 0 : i2.action_id) === t3.action_id &&
+                  (e3 = { code: 103, message: "缓存队列已满，主动丢弃行为" }));
+            } else this.addItem(t3);
+            return (this.updateToStorage(), e3);
+          },
+        },
+        {
+          key: "removeActions",
+          value: function (t3) {
+            (this.removeItems(t3), this.updateToStorage());
+          },
+        },
+        {
+          key: "updateActionsForReportFail",
+          value: function (t3) {
+            (this.updateForReportFail(t3), this.updateToStorage());
+          },
+        },
+        {
+          key: "updateActionsForReporting",
+          value: function (t3) {
+            (this.updateForReporting(t3), this.updateToStorage());
+          },
+        },
+        {
+          key: "getReportableActionsLength",
+          value: function () {
+            var t3 = this.getItems().filter(function (t4) {
+              var e3;
+              return (
+                (null == t4 ? void 0 : t4.inner_status) !==
+                (null == (e3 = b) ? void 0 : e3.reporting)
+              );
+            });
+            return null == t3 ? void 0 : t3.length;
+          },
+        },
+        {
+          key: "sortQueue",
+          value: function (t3, e3) {
+            var n3 = this,
+              r2 = {},
+              o2 = null == t3 ? void 0 : t3.action_time,
+              i2 = e3.concat([t3]),
+              a2 = function (t4) {
+                return (
+                  r2[t4.action_id] || (r2[t4.action_id] = n3.caculateWeight(o2, t4)),
+                  r2[t4.action_id]
+                );
+              };
+            return i2.sort(function (t4, e4) {
+              return a2(e4) - a2(t4);
+            });
+          },
+        },
+        {
+          key: "caculateWeight",
+          value: function (t3, e3) {
+            var n3,
+              r2 = 0,
+              o2 = this.formatWeight(t3, null == e3 ? void 0 : e3.action_time),
+              i2 = o2.ogWeight,
+              a2 = o2.sdkWeight,
+              u2 = o2.userWeight;
+            (null != (n3 = this.ogEvents) &&
+              n3.includes(null == e3 ? void 0 : e3.action_type) &&
+              (r2 += i2),
+              null != e3 && e3.is_sdk_auto_track ? (r2 += a2) : (r2 += u2));
+            var c2 = t3 - (null == e3 ? void 0 : e3.action_time) + 1;
+            return c2 > 0 ? r2 + 1 / c2 : r2;
+          },
+        },
+        {
+          key: "formatWeight",
+          value: function (t3, e3) {
+            var n3 = 1e3,
+              r2 = 10,
+              o2 = 100;
+            return (
+              t3 - e3 > 2592e6 && ((n3 /= 100), (r2 /= 100), (o2 /= 100)),
+              { ogWeight: n3, sdkWeight: r2, userWeight: o2 }
+            );
+          },
+        },
+      ]),
+      n2
+    );
+  })();
+(At([pt], kt.prototype, "getReportableActions", 1),
+  At([pt], kt.prototype, "addAction", 1),
+  At([pt], kt.prototype, "removeActions", 1),
+  At([pt], kt.prototype, "updateActionsForReportFail", 1),
+  At([pt], kt.prototype, "updateActionsForReporting", 1),
+  At([pt], kt.prototype, "getReportableActionsLength", 1),
+  At([pt], kt.prototype, "sortQueue", 1),
+  At([pt], kt.prototype, "caculateWeight", 1),
+  At([pt], kt.prototype, "formatWeight", 1));
+var Tt = (function () {
+  function t2() {
+    (d(this, t2), (this.events = {}));
+  }
+  return (
+    v(
+      t2,
+      [
+        {
+          key: "subscribe",
+          value: function (e2, n2) {
+            (t2.checkCallback(n2),
+              Z(this.events[e2]) ? this.events[e2].push(n2) : (this.events[e2] = [n2]));
+          },
+        },
+        {
+          key: "once",
+          value: function (e2, n2) {
+            (t2.checkCallback(n2), this.subscribe(this.onceEventName(e2), n2));
+          },
+        },
+        {
+          key: "unsubscribe",
+          value: function (e2, n2) {
+            (t2.checkCallback(n2),
+              Z(this.events[e2]) &&
+                (this.events[e2] = this.events[e2].filter(function (t3) {
+                  return t3 !== n2;
+                })),
+              Z(this.events[this.onceEventName(e2)]) &&
+                (this.events[this.onceEventName(e2)] = this.events[this.onceEventName(e2)].filter(
+                  function (t3) {
+                    return t3 !== n2;
+                  },
+                )));
+          },
+        },
+        {
+          key: "publish",
+          value: function (t3) {
+            for (
+              var e2 = arguments.length, n2 = new Array(e2 > 1 ? e2 - 1 : 0), r2 = 1;
+              r2 < e2;
+              r2++
+            )
+              n2[r2 - 1] = arguments[r2];
+            var o2 = Date.now();
+            (Z(this.events[t3]) &&
+              this.events[t3].forEach(function (t4) {
+                return t4.apply(void 0, [o2].concat(n2));
+              }),
+              Z(this.events[this.onceEventName(t3)]) &&
+                (this.events[this.onceEventName(t3)].forEach(function (t4) {
+                  return t4.apply(void 0, [o2].concat(n2));
+                }),
+                (this.events[this.onceEventName(t3)] = [])));
+          },
+        },
+        {
+          key: "onceEventName",
+          value: function (t3) {
+            return "once_event_prefix_".concat(t3);
+          },
+        },
+      ],
+      [
+        {
+          key: "checkCallback",
+          value: function (e2) {
+            X(e2) || ft.error(t2.ERROR_CALLBACK_IS_NOT_A_FUNCTION);
+          },
+        },
+      ],
+    ),
+    t2
+  );
+})();
+Tt.ERROR_CALLBACK_IS_NOT_A_FUNCTION = "callback 不是函数";
+var Rt = new Tt(),
+  bt = [
+    "REGISTER",
+    "VIEW_CONTENT",
+    "ADD_TO_CART",
+    "PURCHASE",
+    "COMPLETE_ORDER",
+    "ADD_TO_WISHLIST",
+    "START_APP",
+    "CREATE_ROLE",
+    "AUTHORIZE",
+    "TUTORIAL_FINISH",
+    "START_PAY",
+    "FINISH_PAY",
+  ],
+  St = "FINISH_PAY",
+  Et = "START_PAY",
+  Ot = ["REGISTER", "START_APP", "RE_ACTIVE"],
+  It = ["TICKET", "ENTER_FOREGROUND", "ENTER_BACKGROUND"],
+  wt = new ((function () {
+    function t2() {
+      (d(this, t2),
+        (this.channelClaimActionList = Ot),
+        (this.noClaimActionList = It),
+        (this.realTimeActionList = S.realTimeActionList),
+        (this.ticketInterval = 60),
+        (this.requestTimeout = S.requestTimeout),
+        this.loadConfig());
+    }
+    return (
+      v(t2, [
+        {
+          key: "getChannelClaimActionList",
+          value: function () {
+            return this.channelClaimActionList;
+          },
+        },
+        {
+          key: "getNoClaimActionList",
+          value: function () {
+            return this.noClaimActionList;
+          },
+        },
+        {
+          key: "getRealTimeActionList",
+          value: function () {
+            return this.realTimeActionList;
+          },
+        },
+        {
+          key: "getTicketInterval",
+          value: function () {
+            return this.ticketInterval;
+          },
+        },
+        {
+          key: "getRequestTimeout",
+          value: function () {
+            return this.requestTimeout;
+          },
+        },
+        {
+          key: "loadConfig",
+          value: function () {
+            var t3 = this;
+            try {
+              if ("undefined" == typeof wx) return;
+              var e2 = q.getSync(T);
+              (e2 && this.updateConfig(e2),
+                Y({ conf_name: "mini_game_sdk_common", conf_key: "config" }).then(function (e3) {
+                  e3 && $(e3) && (t3.updateConfig(e3), q.setSync(T, e3));
+                }));
+            } catch (e3) {
+              console.error(e3);
+            }
+          },
+        },
+        {
+          key: "updateConfig",
+          value: function (t3) {
+            (t3.channelClaimActionList &&
+              Z(t3.channelClaimActionList) &&
+              (this.channelClaimActionList = t3.channelClaimActionList),
+              t3.noClaimActionList &&
+                Z(t3.noClaimActionList) &&
+                (this.noClaimActionList = t3.noClaimActionList),
+              t3.realTimeActionList &&
+                Z(t3.realTimeActionList) &&
+                (this.realTimeActionList = t3.realTimeActionList),
+              t3.ticketInterval &&
+                "number" == typeof t3.ticketInterval &&
+                t3.ticketInterval > 1 &&
+                t3.ticketInterval !== this.ticketInterval &&
+                ((this.ticketInterval = t3.ticketInterval), Rt.publish(D)),
+              t3.requestTimeout &&
+                "number" == typeof t3.requestTimeout &&
+                t3.requestTimeout > 5e3 &&
+                (this.requestTimeout = t3.requestTimeout));
+          },
+        },
+      ]),
+      t2
+    );
+  })())(),
+  Ct = /* @__PURE__ */ (function () {
+    var t2 = false,
+      e2 = false,
+      n2 = true,
+      r2 = true,
+      o2 = true,
+      i2 = false;
+    return function () {
+      if (!i2) {
+        i2 = true;
+        var a2 = q.getSync(k);
+        if (
+          ((null == a2 ? void 0 : a2.bg) === P
+            ? (t2 = true)
+            : (null == a2 ? void 0 : a2.bg) === M && (t2 = false),
+          (null == a2 ? void 0 : a2.fg) === P
+            ? (e2 = true)
+            : (null == a2 ? void 0 : a2.fg) === M && (e2 = false),
+          (null == a2 ? void 0 : a2.st) === P
+            ? (n2 = true)
+            : (null == a2 ? void 0 : a2.st) === M && (n2 = false),
+          (null == a2 ? void 0 : a2.ti) === P
+            ? (r2 = true)
+            : (null == a2 ? void 0 : a2.ti) === M && (r2 = false),
+          ft.devLog("当前缓存开关 bgOn，fgOn，stOn，tiOn：", t2, e2, n2, r2),
+          n2 && Rt.publish("START_APP"),
+          r2)
+        ) {
+          var u2 = function () {
+              o2 && Rt.publish("TICKET");
+            },
+            c2 = setInterval(u2, 1e3 * wt.getTicketInterval());
+          Rt.subscribe(D, function () {
+            (c2 && clearInterval(c2), (c2 = setInterval(u2, 1e3 * wt.getTicketInterval())));
+          });
+        }
+        (wx.onShow(function (t3) {
+          if (((o2 = true), e2)) {
+            var n3 = "";
+            try {
+              (n3 = JSON.stringify(t3)).length > 1e4 &&
+                (n3 = JSON.stringify({ cut: 1, scene: t3.scene }));
+            } catch (t4) {}
+            Rt.publish("ENTER_FOREGROUND", { enter_options: n3 });
+          }
+        }),
+          wx.onHide(function () {
+            ((o2 = false), t2 && Rt.publish("ENTER_BACKGROUND"));
+          }));
+      }
+    };
+  })(),
+  xt =
+    "undefined" != typeof globalThis
+      ? globalThis
+      : "undefined" != typeof window
+        ? window
+        : "undefined" != typeof global
+          ? global
+          : "undefined" != typeof self
+            ? self
+            : {};
+function Nt(t2) {
+  return t2 && t2.__esModule && Object.prototype.hasOwnProperty.call(t2, "default")
+    ? t2.default
+    : t2;
+}
+var Lt,
+  Pt = Nt(function () {
+    var t2,
+      e2 = null;
+    function n2(t3) {
+      return !!t3 && ("object" == f(t3) || "function" == typeof t3);
+    }
+    function r2(t3) {
+      if (null !== t3 && !n2(t3))
+        throw new TypeError("Object prototype may only be an Object or null: " + t3);
+    }
+    var o2 = Object,
+      i2 = !(!o2.create && { __proto__: null } instanceof o2),
+      a2 =
+        o2.create ||
+        (i2
+          ? function (t3) {
+              return (r2(t3), { __proto__: t3 });
+            }
+          : function (t3) {
+              if ((r2(t3), null === t3))
+                throw new SyntaxError(
+                  "Native Object.create is required to create objects with null prototype",
+                );
+              var e3 = function () {};
+              return ((e3.prototype = t3), new e3());
+            }),
+      u2 = function () {
+        return null;
+      },
+      c2 =
+        o2.getPrototypeOf ||
+        ([].__proto__ === Array.prototype
+          ? function (t3) {
+              var e3 = t3.__proto__;
+              return n2(e3) ? e3 : null;
+            }
+          : u2);
+    return (
+      ((t2 = function (s2, l2) {
+        if (void 0 === (this && this instanceof t2 ? this.constructor : void 0))
+          throw new TypeError("Constructor Proxy requires 'new'");
+        if (!n2(s2) || !n2(l2))
+          throw new TypeError("Cannot create proxy with a non-object as target or handler");
+        var f2 = function () {};
+        ((e2 = function () {
+          ((s2 = null),
+            (f2 = function (t3) {
+              throw new TypeError(
+                "Cannot perform '".concat(t3, "' on a proxy that has been revoked"),
+              );
+            }));
+        }),
+          setTimeout(function () {
+            e2 = null;
+          }, 0));
+        var d2 = l2;
+        for (var p2 in ((l2 = { get: null, set: null, apply: null, construct: null }), d2)) {
+          if (!(p2 in l2))
+            throw new TypeError("Proxy polyfill does not support trap '".concat(p2, "'"));
+          l2[p2] = d2[p2];
+        }
+        "function" == typeof d2 && (l2.apply = d2.apply.bind(d2));
+        var v2,
+          h2 = c2(s2),
+          _2 = false,
+          y2 = false;
+        "function" == typeof s2
+          ? ((v2 = function () {
+              var t3 = this && this.constructor === v2,
+                e3 = Array.prototype.slice.call(arguments);
+              return (
+                f2(t3 ? "construct" : "apply"),
+                t3 && l2.construct
+                  ? l2.construct.call(this, s2, e3)
+                  : !t3 && l2.apply
+                    ? l2.apply(s2, this, e3)
+                    : t3
+                      ? (e3.unshift(s2), new (s2.bind.apply(s2, e3))())
+                      : s2.apply(this, e3)
+              );
+            }),
+            (_2 = true))
+          : s2 instanceof Array
+            ? ((v2 = []), (y2 = true))
+            : (v2 = i2 || null !== h2 ? a2(h2) : {});
+        var g2 = l2.get
+            ? function (t3) {
+                return (f2("get"), l2.get(this, t3, v2));
+              }
+            : function (t3) {
+                return (f2("get"), this[t3]);
+              },
+          m2 = l2.set
+            ? function (t3, e3) {
+                (f2("set"), l2.set(this, t3, e3, v2));
+              }
+            : function (t3, e3) {
+                (f2("set"), (this[t3] = e3));
+              },
+          A2 = o2.getOwnPropertyNames(s2),
+          k2 = {};
+        A2.forEach(function (t3) {
+          if ((!_2 && !y2) || !(t3 in v2)) {
+            var e3 = {
+              enumerable: !!o2.getOwnPropertyDescriptor(s2, t3).enumerable,
+              get: g2.bind(s2, t3),
+              set: m2.bind(s2, t3),
+            };
+            (o2.defineProperty(v2, t3, e3), (k2[t3] = true));
+          }
+        });
+        var T2 = true;
+        if (_2 || y2) {
+          var R2 =
+            o2.setPrototypeOf ||
+            ([].__proto__ === Array.prototype
+              ? function (t3, e3) {
+                  return (r2(e3), (t3.__proto__ = e3), t3);
+                }
+              : u2);
+          (h2 && R2(v2, h2)) || (T2 = false);
+        }
+        if (l2.get || !T2)
+          for (var b2 in s2) k2[b2] || o2.defineProperty(v2, b2, { get: g2.bind(s2, b2) });
+        return (o2.seal(s2), o2.seal(v2), v2);
+      }).revocable = function (n3, r3) {
+        return { proxy: new t2(n3, r3), revoke: e2 };
+      }),
+      t2
+    );
+  }),
+  Mt = {};
+try {
+  Lt || (Lt = Pt());
+} catch (_2) {
+  Ft(_2);
+}
+function Dt(t2, e2, r2, o2) {
+  try {
+    if (!Lt || null == t2 || !t2[e2]) return;
+    t2[e2] = new Lt(t2[e2], {
+      apply: function (t3, e3, i2) {
+        var a2, u2;
+        o2 &&
+          jt(function () {
+            return o2.apply(void 0, n(i2));
+          });
+        var c2 = !!((null != (a2 = i2[0]) && a2.success) || (null != (u2 = i2[0]) && u2.fail));
+        c2 &&
+          ["success", "fail"].forEach(function (t4) {
+            if (i2[0][t4])
+              try {
+                i2[0][t4] = new Lt(i2[0][t4], {
+                  apply: function (e4, o3, a3) {
+                    return (
+                      jt(function () {
+                        return r2.apply(void 0, [t4, i2[0]].concat(n(a3)));
+                      }),
+                      e4.apply(o3, a3)
+                    );
+                  },
+                });
+              } catch (t5) {
+                Ft(t5);
+              }
+          });
+        var s2 = t3.apply(e3, i2);
+        return !c2 && s2 && "[object Promise]" === Object.prototype.toString.call(s2)
+          ? s2
+              .then(function (t4) {
+                return (
+                  jt(function () {
+                    return r2("success", i2[0], t4);
+                  }),
+                  t4
+                );
+              })
+              .catch(function (t4) {
+                throw (
+                  jt(function () {
+                    return r2("fail", i2[0], t4);
+                  }),
+                  t4
+                );
+              })
+          : s2;
+      },
+    });
+  } catch (t3) {
+    Ft(t3);
+  }
+}
+function qt(t2, e2, r2) {
+  try {
+    if (!Lt || null == t2 || !t2[e2]) return;
+    t2[e2] = new Lt(t2[e2], {
+      apply: function (t3, e3, o2) {
+        var i2 = "function" == typeof o2[0];
+        if (i2)
+          try {
+            o2[0] = new Lt(o2[0], {
+              apply: function (t4, e4, o3) {
+                var i3 = t4.call.apply(t4, [e4].concat(n(o3)));
+                return (
+                  jt(function () {
+                    return r2(i3);
+                  }),
+                  i3
+                );
+              },
+            });
+          } catch (t4) {
+            Ft(t4);
+          }
+        var a2 = t3.call.apply(t3, [e3].concat(n(o2)));
+        return (
+          i2 ||
+            jt(function () {
+              return r2(a2);
+            }),
+          a2
+        );
+      },
+    });
+  } catch (t3) {
+    Ft(t3);
+  }
+}
+function Ut(t2) {
+  var e2 = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "",
+    r2 = arguments.length > 2 ? arguments[2] : void 0,
+    o2 = arguments.length > 3 && void 0 !== arguments[3] ? arguments[3] : [],
+    i2 = arguments.length > 4 ? arguments[4] : void 0;
+  try {
+    if (!Lt || null == t2 || !t2[e2]) return;
+    t2[e2] = new Lt(t2[e2], {
+      apply: function (t3, a2, u2) {
+        var c2 = t3.call.apply(t3, [a2].concat(n(u2)));
+        return (
+          (!r2 || !Mt[e2]) &&
+            (jt(function () {
+              return null == i2 ? void 0 : i2(c2);
+            }),
+            o2.forEach(function (t4) {
+              var e3 = t4.eventName,
+                n2 = t4.isAsync,
+                r3 = t4.proxyEvent;
+              n2 ? Dt(c2, e3, r3) : qt(c2, e3, r3);
+            })),
+          r2 && (Mt[e2] = true),
+          c2
+        );
+      },
+    });
+  } catch (t3) {
+    Ft(t3);
+  }
+}
+function jt(t2) {
+  try {
+    t2();
+  } catch (t3) {
+    Ft(t3);
+  }
+}
+function Ft(t2) {
+  G({
+    log_type: C,
+    message: null == t2 ? void 0 : t2.message,
+    err_stack: null == t2 ? void 0 : t2.stack,
+  });
+}
+var Bt = "SHARE",
+  Vt = Et,
+  Kt = St,
+  Gt = /* @__PURE__ */ (function () {
+    var t2 = false;
+    return function () {
+      t2 ||
+        ((t2 = true),
+        Dt(wx, "login", function (t3) {
+          "success" === t3 && Rt.publish("LOGIN");
+        }),
+        qt(wx, "onAddToFavorites", function () {
+          Rt.publish("ADD_TO_WISHLIST");
+        }),
+        qt(wx, "onShareTimeline", function () {
+          Rt.publish(Bt, { target: "TIME_LINE", trigger: "MENU" });
+        }),
+        qt(wx, "onShareAppMessage", function () {
+          Rt.publish(Bt, { target: "APP_MESSAGE", trigger: "MENU" });
+        }),
+        qt(wx, "shareAppMessage", function () {
+          Rt.publish(Bt, { target: "APP_MESSAGE", trigger: "BUTTON" });
+        }),
+        Ut(
+          wx,
+          "createGameClubButton",
+          false,
+          [
+            {
+              isAsync: false,
+              eventName: "onTap",
+              proxyEvent: function () {
+                Rt.publish("TAP_GAME_CLUB");
+              },
+            },
+          ],
+          function () {
+            Rt.publish("CREATE_GAME_CLUB");
+          },
+        ),
+        Ut(wx, "getGameServerManager", true, [
+          {
+            isAsync: true,
+            eventName: "createRoom",
+            proxyEvent: function (t3) {
+              "success" === t3 && Rt.publish("CREATE_GAME_ROOM");
+            },
+          },
+          {
+            isAsync: true,
+            eventName: "joinRoom",
+            proxyEvent: function (t3) {
+              "success" === t3 && Rt.publish("JOIN_GAME_ROOM");
+            },
+          },
+        ]),
+        Dt(
+          wx,
+          "requestMidasPayment",
+          function (t3, e2) {
+            Rt.publish(Kt, {
+              status: "success" === t3 ? "SUCCESS" : "FAIL",
+              quantity: (null == e2 ? void 0 : e2.buyQuantity) || 0,
+              mode: (null == e2 ? void 0 : e2.mode) || "",
+              platform: (null == e2 ? void 0 : e2.platform) || "",
+              no: (null == e2 ? void 0 : e2.outTradeNo) || "",
+              payType: "Midas",
+            });
+          },
+          function (t3) {
+            Rt.publish(Vt, {
+              quantity: (null == t3 ? void 0 : t3.buyQuantity) || 0,
+              mode: (null == t3 ? void 0 : t3.mode) || "",
+              platform: (null == t3 ? void 0 : t3.platform) || "",
+              no: (null == t3 ? void 0 : t3.outTradeNo) || "",
+              payType: "Midas",
+            });
+          },
+        ),
+        Dt(
+          wx,
+          "requestMidasPaymentGameItem",
+          function (t3, e2) {
+            var n2 = (e2 || {}).signData;
+            Rt.publish(Kt, {
+              status: "success" === t3 ? "SUCCESS" : "FAIL",
+              quantity: (null == n2 ? void 0 : n2.buyQuantity) || 0,
+              mode: (null == n2 ? void 0 : n2.mode) || "",
+              platform: (null == n2 ? void 0 : n2.platform) || "",
+              no: (null == n2 ? void 0 : n2.outTradeNo) || "",
+              p: (null == n2 ? void 0 : n2.goodsPrice) || 0,
+              productId: (null == n2 ? void 0 : n2.productId) || "",
+              payType: "MidasGameItem",
+            });
+          },
+          function (t3) {
+            var e2 = (t3 || {}).signData;
+            Rt.publish(Vt, {
+              quantity: (null == e2 ? void 0 : e2.buyQuantity) || 0,
+              mode: (null == e2 ? void 0 : e2.mode) || "",
+              platform: (null == e2 ? void 0 : e2.platform) || "",
+              no: (null == e2 ? void 0 : e2.outTradeNo) || "",
+              p: (null == e2 ? void 0 : e2.goodsPrice) || 0,
+              productId: (null == e2 ? void 0 : e2.productId) || "",
+              payType: "MidasGameItem",
+            });
+          },
+        ));
+    };
+  })(),
+  Wt = (function () {
+    function t2() {
+      d(this, t2);
+    }
+    return (
+      v(t2, null, [
+        {
+          key: "isEmpty",
+          value: function (t3) {
+            return null == t3 || ("string" == typeof t3 && "" === t3.trim());
+          },
+        },
+        {
+          key: "format",
+          value: function (t3) {
+            for (
+              var e2 = arguments.length, n2 = new Array(e2 > 1 ? e2 - 1 : 0), r2 = 1;
+              r2 < e2;
+              r2++
+            )
+              n2[r2 - 1] = arguments[r2];
+            return t3.replace(/\${(\d+)}/g, function (t4, e3) {
+              return n2[e3];
+            });
+          },
+        },
+        {
+          key: "customStringify",
+          value: function (t3) {
+            var e2 = [];
+            try {
+              return JSON.stringify(t3, function (t4, n2) {
+                if (void 0 === n2) return "undefined";
+                if ("object" == f(n2) && null !== n2) {
+                  if (-1 !== e2.indexOf(n2)) return "[Circular]";
+                  e2.push(n2);
+                }
+                return "bigint" == typeof n2 ? n2.toString() : n2;
+              });
+            } catch (t4) {
+              return "[Param Error]";
+            }
+          },
+        },
+      ]),
+      t2
+    );
+  })(),
+  Yt = /^([a-zA-Z][a-zA-Z\d_]{0,63})$/i,
+  Ht = /^ams_reserved_(.*)/i,
+  Jt = (function () {
+    function t2() {
+      d(this, t2);
+    }
+    return (
+      v(t2, null, [
+        {
+          key: "validateActionType",
+          value: function (e2) {
+            return Wt.isEmpty(e2)
+              ? (ft.error(t2.ERROR_ACTION_TYPE_NULL), false)
+              : !!Yt.test(e2) || (ft.error(t2.ERROR_ACTION_TYPE_INVALID), false);
+          },
+        },
+        {
+          key: "validateActionParam",
+          value: function (e2) {
+            if (!e2) return true;
+            if (!$(e2)) return (ft.error(t2.ERROR_ACTION_PARAM_IS_NOT_OBJECT), false);
+            for (var n2 in e2) {
+              if (Wt.isEmpty(n2)) return (ft.error(t2.ERROR_ACTION_PARAM_KEY_NULL), false);
+              if (!Yt.test(n2)) return (ft.error(t2.ERROR_ACTION_PARAM_KEY_INVALID), false);
+              Ht.test(n2) && ft.warn(t2.WARN_ACTION_PARAM_KEY_RESERVED);
+              var r2 = e2[n2];
+              if (!t2.isValidValue(r2))
+                return (ft.error(Wt.format(t2.ERROR_ACTION_PARAM_VALUE_INVALID, n2, r2)), false);
+              if (Z(r2)) {
+                if (!t2.isValidArrayValue(r2)) {
+                  for (var o2 = 0; o2 < r2.length; o2++)
+                    ft.error(
+                      Wt.format(
+                        t2.ERROR_ACTION_PARAM_VALUE_ARRAY_INVALID,
+                        n2,
+                        Wt.customStringify(r2),
+                        o2,
+                        r2[o2],
+                      ),
+                    );
+                  return false;
+                }
+                if (!t2.checkArrayElementTypes(r2))
+                  return (ft.error(t2.ERROR_ACTION_PARAM_VALUE_ARRAY_TYPE_UNUNIQUE), false);
+              }
+            }
+            return true;
+          },
+        },
+        {
+          key: "isValidValue",
+          value: function (t3) {
+            return (
+              null == t3 ||
+              "string" == typeof t3 ||
+              "number" == typeof t3 ||
+              "boolean" == typeof t3 ||
+              Z(t3)
+            );
+          },
+        },
+        {
+          key: "isValidArrayValue",
+          value: function (t3) {
+            for (var e2 = 0; e2 < t3.length; e2++) {
+              var n2 = t3[e2];
+              if ("string" != typeof n2 && "number" != typeof n2 && "boolean" != typeof n2)
+                return false;
+            }
+            return true;
+          },
+        },
+        {
+          key: "checkArrayElementTypes",
+          value: function (t3) {
+            if (!t3 || t3.length <= 1) return true;
+            for (var e2 = f(t3[0]), n2 = 1; n2 < t3.length; n2++)
+              if (f(t3[n2]) !== e2) return false;
+            return true;
+          },
+        },
+      ]),
+      t2
+    );
+  })();
+((Jt.ERROR_ACTION_TYPE_NULL = "在track方法中，action_type参数不能为空！"),
+  (Jt.ERROR_ACTION_TYPE_INVALID =
+    "在track方法中，action_type参数只能包含字母、数字和下划线，且只能以字母开头，长度不能超过64个字符！"),
+  (Jt.ERROR_ACTION_PARAM_KEY_NULL = "在track方法中，action_param参数的key不能为空！"),
+  (Jt.ERROR_ACTION_PARAM_KEY_INVALID =
+    "在track方法中，action_param参数的key只能包含字母、数字和下划线，且不能以数字开头，长度不能超过64个字符！"),
+  (Jt.WARN_ACTION_PARAM_KEY_RESERVED =
+    "SDK内部预留参数的key均以'ams_reserved_'开头，该参数的值会被SDK内部覆盖，请不要使用！"),
+  (Jt.ERROR_ACTION_PARAM_VALUE_INVALID =
+    "在track方法中，action_param参数的value必须是String/Number/Boolean/Array中的一种！[key=${0}, value=${1}]"),
+  (Jt.ERROR_ACTION_PARAM_VALUE_ARRAY_INVALID =
+    "在track方法中，如果action_param参数中的某个元素的value是Array，那么这个Array中的每个元素必须是String/Number/Boolean中的一种！[key=${0}, value=${1}, 数组的第${2}个元素为${3}]"),
+  (Jt.ERROR_ACTION_PARAM_VALUE_ARRAY_TYPE_UNUNIQUE =
+    "在track方法中，如果action_param参数中的某个元素的value是Array，那么这个Array中所有元素的类型必须是同一种！"),
+  (Jt.ERROR_ACTION_PARAM_IS_NOT_OBJECT = "action_param 参数不是Object"));
+var Qt = { exports: {} };
+!(function (t2) {
+  !(function (e2) {
+    function n2(t3, e3) {
+      var n3 = (65535 & t3) + (65535 & e3);
+      return (((t3 >> 16) + (e3 >> 16) + (n3 >> 16)) << 16) | (65535 & n3);
+    }
+    function r2(t3, e3, r3, o3, i3, a3) {
+      return n2(
+        (function (t4, e4) {
+          return (t4 << e4) | (t4 >>> (32 - e4));
+        })(n2(n2(e3, t3), n2(o3, a3)), i3),
+        r3,
+      );
+    }
+    function o2(t3, e3, n3, o3, i3, a3, u3) {
+      return r2((e3 & n3) | (~e3 & o3), t3, e3, i3, a3, u3);
+    }
+    function i2(t3, e3, n3, o3, i3, a3, u3) {
+      return r2((e3 & o3) | (n3 & ~o3), t3, e3, i3, a3, u3);
+    }
+    function a2(t3, e3, n3, o3, i3, a3, u3) {
+      return r2(e3 ^ n3 ^ o3, t3, e3, i3, a3, u3);
+    }
+    function u2(t3, e3, n3, o3, i3, a3, u3) {
+      return r2(n3 ^ (e3 | ~o3), t3, e3, i3, a3, u3);
+    }
+    function c2(t3, e3) {
+      ((t3[e3 >> 5] |= 128 << (e3 % 32)), (t3[14 + (((e3 + 64) >>> 9) << 4)] = e3));
+      var r3,
+        c3,
+        s3,
+        l3,
+        f3,
+        d3 = 1732584193,
+        p3 = -271733879,
+        v3 = -1732584194,
+        h3 = 271733878;
+      for (r3 = 0; r3 < t3.length; r3 += 16)
+        ((c3 = d3),
+          (s3 = p3),
+          (l3 = v3),
+          (f3 = h3),
+          (d3 = o2(d3, p3, v3, h3, t3[r3], 7, -680876936)),
+          (h3 = o2(h3, d3, p3, v3, t3[r3 + 1], 12, -389564586)),
+          (v3 = o2(v3, h3, d3, p3, t3[r3 + 2], 17, 606105819)),
+          (p3 = o2(p3, v3, h3, d3, t3[r3 + 3], 22, -1044525330)),
+          (d3 = o2(d3, p3, v3, h3, t3[r3 + 4], 7, -176418897)),
+          (h3 = o2(h3, d3, p3, v3, t3[r3 + 5], 12, 1200080426)),
+          (v3 = o2(v3, h3, d3, p3, t3[r3 + 6], 17, -1473231341)),
+          (p3 = o2(p3, v3, h3, d3, t3[r3 + 7], 22, -45705983)),
+          (d3 = o2(d3, p3, v3, h3, t3[r3 + 8], 7, 1770035416)),
+          (h3 = o2(h3, d3, p3, v3, t3[r3 + 9], 12, -1958414417)),
+          (v3 = o2(v3, h3, d3, p3, t3[r3 + 10], 17, -42063)),
+          (p3 = o2(p3, v3, h3, d3, t3[r3 + 11], 22, -1990404162)),
+          (d3 = o2(d3, p3, v3, h3, t3[r3 + 12], 7, 1804603682)),
+          (h3 = o2(h3, d3, p3, v3, t3[r3 + 13], 12, -40341101)),
+          (v3 = o2(v3, h3, d3, p3, t3[r3 + 14], 17, -1502002290)),
+          (d3 = i2(
+            d3,
+            (p3 = o2(p3, v3, h3, d3, t3[r3 + 15], 22, 1236535329)),
+            v3,
+            h3,
+            t3[r3 + 1],
+            5,
+            -165796510,
+          )),
+          (h3 = i2(h3, d3, p3, v3, t3[r3 + 6], 9, -1069501632)),
+          (v3 = i2(v3, h3, d3, p3, t3[r3 + 11], 14, 643717713)),
+          (p3 = i2(p3, v3, h3, d3, t3[r3], 20, -373897302)),
+          (d3 = i2(d3, p3, v3, h3, t3[r3 + 5], 5, -701558691)),
+          (h3 = i2(h3, d3, p3, v3, t3[r3 + 10], 9, 38016083)),
+          (v3 = i2(v3, h3, d3, p3, t3[r3 + 15], 14, -660478335)),
+          (p3 = i2(p3, v3, h3, d3, t3[r3 + 4], 20, -405537848)),
+          (d3 = i2(d3, p3, v3, h3, t3[r3 + 9], 5, 568446438)),
+          (h3 = i2(h3, d3, p3, v3, t3[r3 + 14], 9, -1019803690)),
+          (v3 = i2(v3, h3, d3, p3, t3[r3 + 3], 14, -187363961)),
+          (p3 = i2(p3, v3, h3, d3, t3[r3 + 8], 20, 1163531501)),
+          (d3 = i2(d3, p3, v3, h3, t3[r3 + 13], 5, -1444681467)),
+          (h3 = i2(h3, d3, p3, v3, t3[r3 + 2], 9, -51403784)),
+          (v3 = i2(v3, h3, d3, p3, t3[r3 + 7], 14, 1735328473)),
+          (d3 = a2(
+            d3,
+            (p3 = i2(p3, v3, h3, d3, t3[r3 + 12], 20, -1926607734)),
+            v3,
+            h3,
+            t3[r3 + 5],
+            4,
+            -378558,
+          )),
+          (h3 = a2(h3, d3, p3, v3, t3[r3 + 8], 11, -2022574463)),
+          (v3 = a2(v3, h3, d3, p3, t3[r3 + 11], 16, 1839030562)),
+          (p3 = a2(p3, v3, h3, d3, t3[r3 + 14], 23, -35309556)),
+          (d3 = a2(d3, p3, v3, h3, t3[r3 + 1], 4, -1530992060)),
+          (h3 = a2(h3, d3, p3, v3, t3[r3 + 4], 11, 1272893353)),
+          (v3 = a2(v3, h3, d3, p3, t3[r3 + 7], 16, -155497632)),
+          (p3 = a2(p3, v3, h3, d3, t3[r3 + 10], 23, -1094730640)),
+          (d3 = a2(d3, p3, v3, h3, t3[r3 + 13], 4, 681279174)),
+          (h3 = a2(h3, d3, p3, v3, t3[r3], 11, -358537222)),
+          (v3 = a2(v3, h3, d3, p3, t3[r3 + 3], 16, -722521979)),
+          (p3 = a2(p3, v3, h3, d3, t3[r3 + 6], 23, 76029189)),
+          (d3 = a2(d3, p3, v3, h3, t3[r3 + 9], 4, -640364487)),
+          (h3 = a2(h3, d3, p3, v3, t3[r3 + 12], 11, -421815835)),
+          (v3 = a2(v3, h3, d3, p3, t3[r3 + 15], 16, 530742520)),
+          (d3 = u2(
+            d3,
+            (p3 = a2(p3, v3, h3, d3, t3[r3 + 2], 23, -995338651)),
+            v3,
+            h3,
+            t3[r3],
+            6,
+            -198630844,
+          )),
+          (h3 = u2(h3, d3, p3, v3, t3[r3 + 7], 10, 1126891415)),
+          (v3 = u2(v3, h3, d3, p3, t3[r3 + 14], 15, -1416354905)),
+          (p3 = u2(p3, v3, h3, d3, t3[r3 + 5], 21, -57434055)),
+          (d3 = u2(d3, p3, v3, h3, t3[r3 + 12], 6, 1700485571)),
+          (h3 = u2(h3, d3, p3, v3, t3[r3 + 3], 10, -1894986606)),
+          (v3 = u2(v3, h3, d3, p3, t3[r3 + 10], 15, -1051523)),
+          (p3 = u2(p3, v3, h3, d3, t3[r3 + 1], 21, -2054922799)),
+          (d3 = u2(d3, p3, v3, h3, t3[r3 + 8], 6, 1873313359)),
+          (h3 = u2(h3, d3, p3, v3, t3[r3 + 15], 10, -30611744)),
+          (v3 = u2(v3, h3, d3, p3, t3[r3 + 6], 15, -1560198380)),
+          (p3 = u2(p3, v3, h3, d3, t3[r3 + 13], 21, 1309151649)),
+          (d3 = u2(d3, p3, v3, h3, t3[r3 + 4], 6, -145523070)),
+          (h3 = u2(h3, d3, p3, v3, t3[r3 + 11], 10, -1120210379)),
+          (v3 = u2(v3, h3, d3, p3, t3[r3 + 2], 15, 718787259)),
+          (p3 = u2(p3, v3, h3, d3, t3[r3 + 9], 21, -343485551)),
+          (d3 = n2(d3, c3)),
+          (p3 = n2(p3, s3)),
+          (v3 = n2(v3, l3)),
+          (h3 = n2(h3, f3)));
+      return [d3, p3, v3, h3];
+    }
+    function s2(t3) {
+      var e3,
+        n3 = "",
+        r3 = 32 * t3.length;
+      for (e3 = 0; e3 < r3; e3 += 8) n3 += String.fromCharCode((t3[e3 >> 5] >>> (e3 % 32)) & 255);
+      return n3;
+    }
+    function l2(t3) {
+      var e3,
+        n3 = [];
+      for (n3[(t3.length >> 2) - 1] = void 0, e3 = 0; e3 < n3.length; e3 += 1) n3[e3] = 0;
+      var r3 = 8 * t3.length;
+      for (e3 = 0; e3 < r3; e3 += 8) n3[e3 >> 5] |= (255 & t3.charCodeAt(e3 / 8)) << (e3 % 32);
+      return n3;
+    }
+    function f2(t3) {
+      var e3,
+        n3,
+        r3 = "0123456789abcdef",
+        o3 = "";
+      for (n3 = 0; n3 < t3.length; n3 += 1)
+        ((e3 = t3.charCodeAt(n3)), (o3 += r3.charAt((e3 >>> 4) & 15) + r3.charAt(15 & e3)));
+      return o3;
+    }
+    function d2(t3) {
+      return unescape(encodeURIComponent(t3));
+    }
+    function p2(t3) {
+      return (function (t4) {
+        return s2(c2(l2(t4), 8 * t4.length));
+      })(d2(t3));
+    }
+    function v2(t3, e3) {
+      return (function (t4, e4) {
+        var n3,
+          r3,
+          o3 = l2(t4),
+          i3 = [],
+          a3 = [];
+        for (
+          i3[15] = a3[15] = void 0, o3.length > 16 && (o3 = c2(o3, 8 * t4.length)), n3 = 0;
+          n3 < 16;
+          n3 += 1
+        )
+          ((i3[n3] = 909522486 ^ o3[n3]), (a3[n3] = 1549556828 ^ o3[n3]));
+        return ((r3 = c2(i3.concat(l2(e4)), 512 + 8 * e4.length)), s2(c2(a3.concat(r3), 640)));
+      })(d2(t3), d2(e3));
+    }
+    function h2(t3, e3, n3) {
+      return e3
+        ? n3
+          ? v2(e3, t3)
+          : (function (t4, e4) {
+              return f2(v2(t4, e4));
+            })(e3, t3)
+        : n3
+          ? p2(t3)
+          : (function (t4) {
+              return f2(p2(t4));
+            })(t3);
+    }
+    t2.exports ? (t2.exports = h2) : (e2.md5 = h2);
+  })(xt);
+})(Qt);
+var zt = Nt(Qt.exports),
+  $t = "function" == typeof btoa,
+  Zt = "function" == typeof Buffer;
+"function" == typeof TextDecoder && new TextDecoder();
+var Xt,
+  te = "function" == typeof TextEncoder ? new TextEncoder() : void 0,
+  ee = Array.prototype.slice.call(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+  );
+((Xt = {}),
+  ee.forEach(function (t2, e2) {
+    return (Xt[t2] = e2);
+  }));
+var ne = String.fromCharCode.bind(String);
+"function" == typeof Uint8Array.from && Uint8Array.from.bind(Uint8Array);
+var re = $t
+    ? function (t2) {
+        return btoa(t2);
+      }
+    : Zt
+      ? function (t2) {
+          return Buffer.from(t2, "binary").toString("base64");
+        }
+      : function (t2) {
+          for (var e2, n2, r2, o2, i2 = "", a2 = t2.length % 3, u2 = 0; u2 < t2.length;) {
+            if (
+              (n2 = t2.charCodeAt(u2++)) > 255 ||
+              (r2 = t2.charCodeAt(u2++)) > 255 ||
+              (o2 = t2.charCodeAt(u2++)) > 255
+            )
+              throw new TypeError("invalid character found");
+            i2 +=
+              ee[((e2 = (n2 << 16) | (r2 << 8) | o2) >> 18) & 63] +
+              ee[(e2 >> 12) & 63] +
+              ee[(e2 >> 6) & 63] +
+              ee[63 & e2];
+          }
+          return a2 ? i2.slice(0, a2 - 3) + "===".substring(a2) : i2;
+        },
+  oe = Zt
+    ? function (t2) {
+        return Buffer.from(t2).toString("base64");
+      }
+    : function (t2) {
+        for (var e2 = [], n2 = 0, r2 = t2.length; n2 < r2; n2 += 4096)
+          e2.push(ne.apply(null, t2.subarray(n2, n2 + 4096)));
+        return re(e2.join(""));
+      },
+  ie = function (t2) {
+    if (t2.length < 2)
+      return (e2 = t2.charCodeAt(0)) < 128
+        ? t2
+        : e2 < 2048
+          ? ne(192 | (e2 >>> 6)) + ne(128 | (63 & e2))
+          : ne(224 | ((e2 >>> 12) & 15)) + ne(128 | ((e2 >>> 6) & 63)) + ne(128 | (63 & e2));
+    var e2 = 65536 + 1024 * (t2.charCodeAt(0) - 55296) + (t2.charCodeAt(1) - 56320);
+    return (
+      ne(240 | ((e2 >>> 18) & 7)) +
+      ne(128 | ((e2 >>> 12) & 63)) +
+      ne(128 | ((e2 >>> 6) & 63)) +
+      ne(128 | (63 & e2))
+    );
+  },
+  ae = /[\uD800-\uDBFF][\uDC00-\uDFFFF]|[^\x00-\x7F]/g,
+  ue = Zt
+    ? function (t2) {
+        return Buffer.from(t2, "utf8").toString("base64");
+      }
+    : te
+      ? function (t2) {
+          return oe(te.encode(t2));
+        }
+      : function (t2) {
+          return re(
+            (function (t3) {
+              return t3.replace(ae, ie);
+            })(t2),
+          );
+        },
+  ce = Object.defineProperty,
+  se = Object.getOwnPropertyDescriptor,
+  le = function (t2, e2, n2, r2) {
+    for (var o2, i2 = r2 > 1 ? void 0 : r2 ? se(e2, n2) : e2, a2 = t2.length - 1; a2 >= 0; a2--)
+      (o2 = t2[a2]) && (i2 = (r2 ? o2(e2, n2, i2) : o2(i2)) || i2);
+    return (r2 && i2 && ce(e2, n2, i2), i2);
+  },
+  fe = (function () {
+    function t2(e2) {
+      var n2 = this;
+      (d(this, t2),
+        (this.cgiBatchSize = S.cgiBatchSize),
+        (this.reportThreshold = S.reportThreshold),
+        (this.reportDelay = S.reportDelay),
+        (this.triggerExecuteSend = (function (t3) {
+          var e3,
+            n3 = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0,
+            r2 = [];
+          return function () {
+            for (var o2 = arguments.length, i2 = new Array(o2), a2 = 0; a2 < o2; a2++)
+              i2[a2] = arguments[a2];
+            return (
+              clearTimeout(e3),
+              (e3 = setTimeout(function () {
+                var e4 = t3.apply(void 0, i2);
+                (r2.forEach(function (t4) {
+                  return t4(e4);
+                }),
+                  (r2 = []));
+              }, n3)),
+              new Promise(function (t4) {
+                return r2.push(t4);
+              })
+            );
+          };
+        })(function () {
+          n2.executeSend();
+        }, 1e3 * this.reportDelay)),
+        (this.inspectDelay = S.inspectDelay),
+        (this.inspectTimer = void 0),
+        (this.isNeedContinueSend = false),
+        (this.getBaseInfo = e2.getBaseInfo),
+        (this.reportLog = e2.reportLog),
+        (this.queueManager = e2.queueManager),
+        (this.configManager = e2.configManager),
+        (this.onReportComplete = e2.onReportComplete),
+        (this.onReportFail = e2.onReportFail),
+        this.flushSend(),
+        this.startInspectTimer());
+    }
+    return (
+      v(
+        t2,
+        [
+          {
+            key: "batchSend",
+            value: function () {
+              var t3,
+                e2 = this.queueManager.getReportableActions(this.reportThreshold);
+              if (e2.length >= this.reportThreshold) this.executeSend();
+              else {
+                var n2 =
+                  (null == (t3 = this.configManager) ? void 0 : t3.getRealTimeActionList()) ||
+                  S.realTimeActionList;
+                e2.some(function (t4) {
+                  return n2.indexOf(t4.action_type) > -1 && !t4.is_retry;
+                })
+                  ? this.executeSend()
+                  : this.triggerExecuteSend();
+              }
+              this.startInspectTimer();
+            },
+          },
+          {
+            key: "flushSend",
+            value: function () {
+              this.executeSend();
+            },
+          },
+          {
+            key: "executeSend",
+            value: function () {
+              var e2 = this;
+              if (t2.currentRequestCount >= t2.requestConcurrency) this.isNeedContinueSend = true;
+              else {
+                this.isNeedContinueSend = false;
+                var n2 = (t2.requestConcurrency - t2.currentRequestCount) * this.cgiBatchSize,
+                  r2 = this.queueManager.getReportableActions(n2),
+                  o2 = this.getBaseInfo();
+                if (
+                  (!o2.openid &&
+                    !o2.unionid &&
+                    (ft.warn("请尽快调用 setOpenId 或 setUnionId 方法设置用户ID！"),
+                    (r2 = r2.filter(function (t3) {
+                      return null == t3 ? void 0 : t3.ad_trace_id;
+                    }))),
+                  !(r2.length <= 0))
+                ) {
+                  (n2 < this.queueManager.getReportableActionsLength() &&
+                    (this.isNeedContinueSend = true),
+                    (t2.currentRequestCount += Math.ceil(r2.length / this.cgiBatchSize)));
+                  for (var i2 = [], a2 = 0; a2 < r2.length; a2 += this.cgiBatchSize) {
+                    var u2 = this.generateActionReportParams(r2.slice(a2, a2 + this.cgiBatchSize));
+                    i2.push(this.report(u2));
+                  }
+                  Promise.all(i2)
+                    .then(function (t3) {
+                      var n3 = t3.some(function (t4) {
+                        return t4 >= 0;
+                      });
+                      e2.isNeedContinueSend && n3 && e2.executeSend();
+                    })
+                    .catch(function (t3) {
+                      (ft.error(t3),
+                        e2.reportLog({
+                          message: "executeSend catch: ".concat(t3.message),
+                          log_type: E,
+                          err_stack: t3.stack,
+                        }));
+                    });
+                }
+              }
+            },
+          },
+          {
+            key: "generateActionReportParams",
+            value: function (t3) {
+              var e2 = [],
+                n2 = [],
+                r2 = this.getBaseInfo();
+              return (
+                t3.forEach(function (t4) {
+                  n2.push(t4.action_id);
+                  var r3 = Object.assign({}, t4);
+                  (delete r3.inner_status, e2.push(r3));
+                }),
+                { data: { info: r2, actions: e2 }, actionIdList: n2 }
+              );
+            },
+          },
+          {
+            key: "dealSuccessData",
+            value: function (t3, e2, n2) {
+              ([51001, 51003].indexOf(null == t3 ? void 0 : t3.code) > -1
+                ? this.queueManager.updateActionsForReportFail(e2)
+                : this.queueManager.removeActions(e2),
+                0 !== (null == t3 ? void 0 : t3.code) &&
+                  (this.reportLog({
+                    log_type: O,
+                    code: null == t3 ? void 0 : t3.code,
+                    message: "trace_id: "
+                      .concat(null == t3 ? void 0 : t3.trace_id, "，msg: ")
+                      .concat(null == t3 ? void 0 : t3.message),
+                  }),
+                  ft.error("上报失败：", t3)),
+                this.doTrackCallbackFn(this.onReportComplete, t3, n2),
+                -1 === [0, 51001, 51003].indexOf(null == t3 ? void 0 : t3.code) &&
+                  this.doTrackCallbackFn(this.onReportFail, t3, n2));
+            },
+          },
+          {
+            key: "dealFailData",
+            value: function (t3, e2, n2) {
+              (this.queueManager.updateActionsForReportFail(e2),
+                this.reportLog({ log_type: O, code: t3.code, message: t3.message }),
+                ft.error("上报失败：", t3),
+                this.doTrackCallbackFn(this.onReportComplete, t3, n2));
+            },
+          },
+          {
+            key: "report",
+            value: function (e2) {
+              var n2 = this,
+                r2 = e2.data,
+                o2 = e2.actionIdList;
+              return (
+                this.queueManager.updateActionsForReporting(o2),
+                ft.debug &&
+                  (ft.info(
+                    "上报行为类型: ",
+                    "【".concat(
+                      r2.actions
+                        .map(function (t3) {
+                          return t3.action_type;
+                        })
+                        .join("、"),
+                      "】",
+                    ),
+                  ),
+                  ft.info("上报请求参数: ", r2)),
+                new Promise(function (e3) {
+                  var i2,
+                    a2,
+                    u2,
+                    c2,
+                    s2,
+                    l2,
+                    d2,
+                    p2,
+                    v2 = Date.now();
+                  try {
+                    var h2 = (function (t3) {
+                        var e4 = "",
+                          n3 = null == t3 ? void 0 : t3.appid,
+                          r3 = null == t3 ? void 0 : t3.secret_key,
+                          o3 = null == t3 ? void 0 : t3.sdk_version,
+                          i3 = null == t3 ? void 0 : t3.timestamp;
+                        if (!(n3 && r3 && o3 && i3 && 32 === r3.length)) return e4;
+                        for (var a3 = zt(o3 + n3 + i3), u3 = 0; u3 < 32; u3++)
+                          e4 += u3 % 2 == 0 ? r3[u3] : a3[u3];
+                        return e4;
+                      })({
+                        appid: null == (i2 = null == r2 ? void 0 : r2.info) ? void 0 : i2.appid,
+                        secret_key:
+                          null == (a2 = null == r2 ? void 0 : r2.info) ? void 0 : a2.secret_key,
+                        sdk_version:
+                          null == (u2 = null == r2 ? void 0 : r2.info) ? void 0 : u2.sdk_version,
+                        timestamp: v2,
+                      }),
+                      _2 = (function (t3) {
+                        return arguments.length > 1 && void 0 !== arguments[1] && arguments[1]
+                          ? (function (t4) {
+                              return t4.replace(/=/g, "").replace(/[+\/]/g, function (t5) {
+                                return "+" == t5 ? "-" : "_";
+                              });
+                            })(ue(t3))
+                          : ue(t3);
+                      })(JSON.stringify(r2));
+                    ((d2 = {
+                      "Client-Time": v2,
+                      "Sign-Value": zt(
+                        _2 +
+                          (null == (c2 = null == r2 ? void 0 : r2.info)
+                            ? void 0
+                            : c2.user_action_set_id) +
+                          (null == (s2 = null == r2 ? void 0 : r2.info) ? void 0 : s2.secret_key) +
+                          h2,
+                      ),
+                      "Sign-Version": S.signVersion,
+                      "content-type": "text/plain;charset=UTF-8",
+                    }),
+                      (p2 = _2));
+                  } catch (h3) {
+                    ((d2 = { "Client-Time": v2 }),
+                      (p2 = r2),
+                      n2.reportLog({
+                        log_type: N,
+                        message: "sign error msg: ".concat(null == h3 ? void 0 : h3.message),
+                        err_stack: null == h3 ? void 0 : h3.stack,
+                      }),
+                      ft.error(h3));
+                  }
+                  wx.request({
+                    url: "https://api.datanexus.qq.com/data-nexus-cgi/miniprogram",
+                    method: "POST",
+                    timeout:
+                      (null == (l2 = n2.configManager) ? void 0 : l2.getRequestTimeout()) ||
+                      S.requestTimeout,
+                    header: d2,
+                    data: p2,
+                    success: function (i3) {
+                      var a3, u3;
+                      ft.devLog(
+                        "上报接口返回码:",
+                        null == (a3 = null == i3 ? void 0 : i3.data) ? void 0 : a3.code,
+                      );
+                      var c3 =
+                        (null == (u3 = null == i3 ? void 0 : i3.header)
+                          ? void 0
+                          : u3["Server-Time"]) || -1;
+                      if (
+                        (W.revise(c3),
+                        (t2.currentRequestCount -= 1),
+                        200 === (null == i3 ? void 0 : i3.statusCode))
+                      )
+                        return (
+                          n2.dealSuccessData(null == i3 ? void 0 : i3.data, o2, r2),
+                          void e3((null == i3 ? void 0 : i3.data).code)
+                        );
+                      var s3 = "";
+                      try {
+                        s3 =
+                          "object" == f(null == i3 ? void 0 : i3.data)
+                            ? JSON.stringify(null == i3 ? void 0 : i3.data)
+                            : null == i3
+                              ? void 0
+                              : i3.data;
+                      } catch (t3) {
+                        ft.error(t3);
+                      }
+                      var l3 = {
+                        code:
+                          "number" == typeof (null == i3 ? void 0 : i3.statusCode)
+                            ? -1 * i3.statusCode
+                            : -888,
+                        message: "statusCode: "
+                          .concat(null == i3 ? void 0 : i3.statusCode, ", data: ")
+                          .concat(s3),
+                      };
+                      (n2.dealFailData(l3, o2, r2), e3(l3.code));
+                    },
+                    fail: function (i3) {
+                      (ft.devLog("上报失败:", i3), (t2.currentRequestCount -= 1));
+                      var a3 = {
+                        code:
+                          "number" == typeof (null == i3 ? void 0 : i3.errno)
+                            ? -1 * i3.errno
+                            : -999,
+                        message: null == i3 ? void 0 : i3.errMsg,
+                      };
+                      (n2.dealFailData(a3, o2, r2), e3(a3.code));
+                    },
+                  });
+                })
+              );
+            },
+          },
+          {
+            key: "startInspectTimer",
+            value: function () {
+              var e2 = this;
+              (clearTimeout(this.inspectTimer),
+                (this.inspectTimer = setTimeout(function () {
+                  (t2.currentRequestCount >= t2.requestConcurrency &&
+                    (t2.currentRequestCount = t2.requestConcurrency - 1),
+                    e2.executeSend(),
+                    e2.startInspectTimer());
+                }, 1e3 * this.inspectDelay)));
+            },
+          },
+          {
+            key: "doTrackCallbackFn",
+            value: function (t3, e2, n2) {
+              if ("function" == typeof t3)
+                try {
+                  for (var r2 = [], o2 = 0; o2 < n2.actions.length; o2++)
+                    if (!n2.actions[o2].is_sdk_auto_track) {
+                      var i2 = n2.actions[o2],
+                        a2 = i2.action_type,
+                        u2 = i2.action_param,
+                        c2 = i2.action_id,
+                        s2 = i2.action_time;
+                      r2.push({
+                        action_type: a2,
+                        action_param: u2,
+                        action_id: c2,
+                        action_time: s2,
+                      });
+                    }
+                  if (r2.length) {
+                    var l2 = n2.info,
+                      f2 = l2.user_action_set_id,
+                      d2 = l2.appid,
+                      p2 = l2.openid,
+                      v2 = l2.unionid,
+                      h2 = l2.user_unique_id;
+                    t3({
+                      code: null == e2 ? void 0 : e2.code,
+                      message: null == e2 ? void 0 : e2.message,
+                      data: {
+                        actions: r2,
+                        info: {
+                          user_action_set_id: f2,
+                          appid: d2,
+                          openid: p2,
+                          unionid: v2,
+                          user_unique_id: h2,
+                        },
+                      },
+                    });
+                  }
+                } catch (r3) {
+                  ft.error("返回上报回调数据异常：", r3);
+                }
+            },
+          },
+        ],
+        [
+          {
+            key: "setRequestConcurrency",
+            value: function (e2) {
+              "number" == typeof e2
+                ? e2 < 1
+                  ? ft.error("网络请求最大并发量不能小于1")
+                  : e2 > 10
+                    ? ft.error("网络请求最大并发量不能大于10")
+                    : (t2.requestConcurrency = e2)
+                : ft.error("网络请求最大并发量需设置为数字");
+            },
+          },
+        ],
+      ),
+      t2
+    );
+  })();
+((fe.currentRequestCount = 0),
+  (fe.requestConcurrency = S.requestConcurrency),
+  le([pt], fe.prototype, "batchSend", 1),
+  le([pt], fe.prototype, "flushSend", 1),
+  le([pt], fe.prototype, "executeSend", 1));
+var de = (function () {
+    function t2() {
+      d(this, t2);
+    }
+    return (
+      v(t2, [
+        {
+          key: "install",
+          value: function (t3, n2) {
+            var r2 = function (n3) {
+              Rt.subscribe(
+                n3,
+                (function (n4) {
+                  var r3 = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+                  return function (o2) {
+                    var i2 = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+                    t3.track(n4, Object.assign(r3 || {}, i2, e(e({}, be, true), Se, o2)));
+                  };
+                })(n3),
+              );
+            };
+            (r2("TICKET"),
+              r2("START_APP"),
+              r2("ENTER_FOREGROUND"),
+              r2("ENTER_BACKGROUND"),
+              "all" === n2 &&
+                (r2("LOGIN"),
+                r2("ADD_TO_WISHLIST"),
+                r2("SHARE"),
+                r2("CREATE_GAME_CLUB"),
+                r2("TAP_GAME_CLUB"),
+                r2("CREATE_GAME_ROOM"),
+                r2("JOIN_GAME_ROOM"),
+                r2("START_PAY"),
+                r2("FINISH_PAY")));
+          },
+        },
+      ]),
+      t2
+    );
+  })(),
+  pe = (function () {
+    function t2() {
+      (d(this, t2), (this.special_method_symbol = /* @__PURE__ */ Symbol("special_method_symbol")));
+    }
+    return (
+      v(t2, [
+        {
+          key: "onPurchase",
+          value: function (t3) {
+            return (
+              "number" != typeof t3 && ft.warn("付费金额需要为数字"),
+              t3 <= 0 && ft.warn("付费金额需要大于0"),
+              this.wrapTrack("PURCHASE", { value: t3 })
+            );
+          },
+        },
+        {
+          key: "onEnterForeground",
+          value: function () {
+            return this.wrapTrack("ENTER_FOREGROUND");
+          },
+        },
+        {
+          key: "onEnterBackground",
+          value: function () {
+            return this.wrapTrack("ENTER_BACKGROUND");
+          },
+        },
+        {
+          key: "onAppStart",
+          value: function () {
+            return this.wrapTrack("START_APP");
+          },
+        },
+        {
+          key: "onAppQuit",
+          value: function () {
+            return this.wrapTrack("APP_QUIT");
+          },
+        },
+        {
+          key: "onAddToWishlist",
+          value: function () {
+            return this.wrapTrack("ADD_TO_WISHLIST");
+          },
+        },
+        {
+          key: "wrapTrack",
+          value: function (t3, n2) {
+            return this.track(t3, Object.assign(n2 || {}, e({}, this.special_method_symbol, 1)));
+          },
+        },
+      ]),
+      t2
+    );
+  })(),
+  ve = (function (t2) {
+    i(n2, pe);
+    var e2 = u(n2);
+    function n2() {
+      return (d(this, n2), e2.apply(this, arguments));
+    }
+    return (
+      v(n2, [
+        {
+          key: "onRegister",
+          value: function () {
+            return this.wrapTrack("REGISTER");
+          },
+        },
+        {
+          key: "onCreateRole",
+          value: function (t3) {
+            return (
+              t3 && "string" != typeof t3 && ft.warn("角色名称需要为字符串"),
+              this.wrapTrack("CREATE_ROLE", t3 ? { name: t3 } : {})
+            );
+          },
+        },
+        {
+          key: "onTutorialFinish",
+          value: function () {
+            return this.wrapTrack("TUTORIAL_FINISH");
+          },
+        },
+      ]),
+      n2
+    );
+  })(),
+  he = "（如果确认无误，请忽略该提示）",
+  _e = /* @__PURE__ */ (function () {
+    var t2 = [];
+    return {
+      requestActionList: function () {
+        try {
+          Y({ conf_name: "data_nexus_common", conf_key: "action_types" }).then(function (e2) {
+            Z(e2) && (t2 = e2);
+          });
+        } catch (t3) {
+          ft.error(t3);
+        }
+      },
+      getActionList: function () {
+        return t2;
+      },
+    };
+  })();
+function ye(t2, e2) {
+  try {
+    t2.is_sdk_auto_track ||
+      ((function (t3) {
+        try {
+          var e3 = _e.getActionList();
+          if (!e3.includes(t3)) {
+            var n2,
+              o2 = (function (t4, e4) {
+                var n3 = ("undefined" != typeof Symbol && t4[Symbol.iterator]) || t4["@@iterator"];
+                if (!n3) {
+                  if (Array.isArray(t4) || (n3 = r(t4))) {
+                    n3 && (t4 = n3);
+                    var o3 = 0,
+                      i3 = function () {};
+                    return {
+                      s: i3,
+                      n: function () {
+                        return o3 >= t4.length ? { done: true } : { done: false, value: t4[o3++] };
+                      },
+                      e: function (t5) {
+                        throw t5;
+                      },
+                      f: i3,
+                    };
+                  }
+                  throw new TypeError(
+                    "Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.",
+                  );
+                }
+                var a2,
+                  u2 = true,
+                  c2 = false;
+                return {
+                  s: function () {
+                    n3 = n3.call(t4);
+                  },
+                  n: function () {
+                    var t5 = n3.next();
+                    return ((u2 = t5.done), t5);
+                  },
+                  e: function (t5) {
+                    ((c2 = true), (a2 = t5));
+                  },
+                  f: function () {
+                    try {
+                      u2 || null == n3.return || n3.return();
+                    } finally {
+                      if (c2) throw a2;
+                    }
+                  },
+                };
+              })(e3);
+            try {
+              for (o2.s(); !(n2 = o2.n()).done;) {
+                var i2 = n2.value;
+                if (ge(i2, t3) <= parseInt((0.3 * i2.length).toString())) {
+                  ft.warn(
+                    "通过SDK上报的"
+                      .concat(
+                        t3,
+                        "行为名称可能有误，请检查该行为类型是否为腾讯广告提供的标准行为！",
+                      )
+                      .concat(he),
+                  );
+                  break;
+                }
+              }
+            } catch (t4) {
+              o2.e(t4);
+            } finally {
+              o2.f();
+            }
+          }
+        } catch (e4) {
+          ft.error(e4);
+        }
+      })(t2.action_type),
+      "minigame" === e2
+        ? (function (t3, e3) {
+            var n2, r2, o2;
+            try {
+              ["PURCHASE", "ADD_TO_CART"].includes(t3.action_type) &&
+                t3.action_param &&
+                st(t3.action_param, "value") &&
+                ("number" != typeof (null == (n2 = t3.action_param) ? void 0 : n2.value)
+                  ? ft.warn(
+                      "通过SDK上报的".concat(t3.action_type, "行为携带的金额参数需要为数字！"),
+                    )
+                  : (null == (r2 = t3.action_param) ? void 0 : r2.value) <= 0
+                    ? ft.warn(
+                        "通过SDK上报的".concat(t3.action_type, "行为携带的金额参数需要大于0！"),
+                      )
+                    : "minigame" === e3 &&
+                      (null == (o2 = t3.action_param) ? void 0 : o2.value) < 100 &&
+                      ft.warn(
+                        "通过SDK上报的"
+                          .concat(
+                            t3.action_type,
+                            "行为携带的金额参数可能有误，金额的单位为‘分’，请检查金额是否正确！",
+                          )
+                          .concat(he),
+                      ));
+            } catch (t4) {
+              ft.error(t4);
+            }
+          })(t2, e2)
+        : "miniprogram" === e2 &&
+          (function (t3) {
+            try {
+              var e3 = null == t3 ? void 0 : t3.action_type,
+                n2 = (null == t3 ? void 0 : t3.action_param) || {};
+              "PURCHASE" === e3 &&
+                st(n2, "value") &&
+                ("number" != typeof (null == n2 ? void 0 : n2.value)
+                  ? ft.warn("通过SDK上报的".concat(e3, "行为携带的金额参数需要为数字！"))
+                  : (null == n2 ? void 0 : n2.value) <= 0 &&
+                    ft.warn("通过SDK上报的".concat(e3, "行为携带的金额参数需要大于0！")));
+            } catch (e4) {
+              ft.error(e4);
+            }
+          })(t2));
+  } catch (t3) {
+    ft.error(t3);
+  }
+}
+function ge(t2, e2) {
+  try {
+    if (0 === t2.length) return e2.length;
+    if (0 === e2.length) return t2.length;
+    for (var n2 = [], r2 = 0; r2 <= e2.length; r2++) n2[r2] = [r2];
+    for (var o2 = 0; o2 <= t2.length; o2++) n2[0][o2] = o2;
+    for (var i2 = 1; i2 <= e2.length; i2++)
+      for (var a2 = 1; a2 <= t2.length; a2++)
+        e2.charAt(i2 - 1) === t2.charAt(a2 - 1)
+          ? (n2[i2][a2] = n2[i2 - 1][a2 - 1])
+          : (n2[i2][a2] = Math.min(n2[i2 - 1][a2 - 1] + 1, n2[i2][a2 - 1] + 1, n2[i2 - 1][a2] + 1));
+    return n2[e2.length][t2.length];
+  } catch (n3) {
+    ft.error(n3);
+  }
+}
+function me(t2) {
+  try {
+    t2 &&
+      !/^[a-zA-Z0-9_\-]+$/.test(t2) &&
+      ft.warn("通过SDK上报的openid：".concat(t2, "可能有误，请检查openid是否正确！").concat(he));
+  } catch (t3) {
+    ft.error(t3);
+  }
+}
+var Ae = Object.defineProperty,
+  ke = Object.getOwnPropertyDescriptor,
+  Te = function (t2, e2, n2, r2) {
+    for (var o2, i2 = r2 > 1 ? void 0 : r2 ? ke(e2, n2) : e2, a2 = t2.length - 1; a2 >= 0; a2--)
+      (o2 = t2[a2]) && (i2 = (r2 ? o2(e2, n2, i2) : o2(i2)) || i2);
+    return (r2 && i2 && Ae(e2, n2, i2), i2);
+  },
+  Re = /* @__PURE__ */ Symbol("initializedInstance"),
+  be = /* @__PURE__ */ Symbol("autoTrack"),
+  Se = /* @__PURE__ */ Symbol("actionTime"),
+  Ee = (function (t2) {
+    i(r2, ve);
+    var n2 = u(r2);
+    function r2(t3) {
+      var e2;
+      if (
+        (d(this, r2),
+        ((e2 = n2.call(this)).env = "production"),
+        (e2.sdk_version = "1.5.5"),
+        (e2.sdk_name = "@dn-sdk/minigame"),
+        (e2.deviceInfo = {}),
+        (e2.gameInfo = {}),
+        (e2.session_id = ""),
+        (e2.log_id = 0),
+        (e2.inited = false),
+        (e2.initErrMsg = ""),
+        null == wx || !wx.createCanvas)
+      )
+        return ((e2.initErrMsg = "不支持非微信小游戏中使用"), ft.error(e2.initErrMsg), c(e2));
+      var o2 = ct();
+      if (r2[Re].length >= o2.maxSdkInstance)
+        return ((e2.initErrMsg = "初始化超过上限"), ft.error(e2.initErrMsg), c(e2));
+      var i2 = (function (t4) {
+          return $(t4)
+            ? ((function (t5) {
+                var e3 = [
+                  "user_action_set_id",
+                  "secret_key",
+                  "appid",
+                  "openid",
+                  "unionid",
+                  "user_unique_id",
+                  "auto_track",
+                  "auto_attr",
+                  "on_report_fail",
+                  "on_report_complete",
+                ];
+                for (var n3 in t5)
+                  e3.includes(n3) || ft.warn("Invalid property '".concat(n3, "' found in config"));
+              })(t4),
+              "number" != typeof t4.user_action_set_id
+                ? "user_action_set_id 参数需为 number 类型"
+                : t4.user_action_set_id <= 0
+                  ? "user_action_set_id 参数需大于 0"
+                  : "string" != typeof t4.secret_key
+                    ? "secret_key 参数需为 string 类型"
+                    : "" === t4.secret_key.trim()
+                      ? "缺少 secret_key 参数"
+                      : 32 !== t4.secret_key.length
+                        ? "secret_key 参数需为 32 位字符串"
+                        : "string" != typeof t4.appid
+                          ? "appid 参数需为 string 类型"
+                          : "" !== t4.appid.trim() || "缺少 appid")
+            : "初始化参数需为 object 类型";
+        })(t3),
+        a2 = V();
+      if (true !== i2) return ((e2.initErrMsg = i2), ft.error(i2), c(e2));
+      var u2 = null == a2 ? void 0 : a2.appId;
+      if (u2 && u2 !== t3.appid)
+        return (
+          (e2.initErrMsg = "初始化传入的appid与当前小游戏appid不一致"),
+          ft.error(e2.initErrMsg),
+          c(e2)
+        );
+      ((e2.config = t3),
+        st(t3, "auto_track") || (e2.config.auto_track = ut("autoTrack")),
+        (e2.openid = t3.openid),
+        (e2.unionid = t3.unionid),
+        (e2.user_unique_id = t3.user_unique_id),
+        (e2.onReportComplete = t3.on_report_complete),
+        (e2.onReportFail = t3.on_report_fail),
+        e2.saveValidOpenidToStorage());
+      var l2 = t3.user_action_set_id;
+      return r2[Re].includes(l2)
+        ? ((e2.initErrMsg = "同个数据源[".concat(l2, "]只能初始化一次")),
+          ft.error(e2.initErrMsg),
+          e2.reportLog({ log_type: E, message: e2.initErrMsg }),
+          c(e2))
+        : ((e2.reportLog = e2.reportLog.bind(s(e2))),
+          (e2.getTrackBaseInfo = e2.getTrackBaseInfo.bind(s(e2))),
+          (e2.deviceInfo = U()),
+          (e2.gameInfo = dt()),
+          (e2.session_id = et()),
+          (e2.queueManage = new kt({
+            userActionSetId: l2,
+            maxLength: o2.maxQueueLength,
+            ogEvents: bt,
+          })),
+          (e2.actionReporter = new fe({
+            getBaseInfo: e2.getTrackBaseInfo,
+            reportLog: e2.reportLog,
+            queueManager: e2.queueManage,
+            configManager: wt,
+            onReportComplete: e2.onReportComplete,
+            onReportFail: e2.onReportFail,
+          })),
+          (e2.inited = true),
+          r2[Re].push(l2),
+          e2.useAutoTrack(),
+          e2.doReportOnEnterBackground(),
+          "release" === (null == a2 ? void 0 : a2.envVersion)
+            ? (ft.info("初始化成功"), c(e2))
+            : ((function (t4) {
+                var e3 = t4.sdk_version,
+                  n3 = t4.default_download_url,
+                  r3 = t4.fail_handler;
+                Y({ conf_name: t4.conf_name, conf_key: t4.conf_key })
+                  .then(function (t5) {
+                    if ($(t5)) {
+                      var o3 = null == t5 ? void 0 : t5.blackVersions,
+                        i3 = null == t5 ? void 0 : t5.minVersion,
+                        a3 = null == t5 ? void 0 : t5.bestVersion,
+                        u3 = null == t5 ? void 0 : t5.downloadUrl,
+                        c2 = n3;
+                      return (
+                        u3 && /^https/.test(u3) && (c2 = u3),
+                        Z(o3) && (null == o3 ? void 0 : o3.indexOf(e3)) > -1
+                          ? (null == r3 || r3(),
+                            void ft.error(
+                              "初始化失败！当前SDK版本存在兼容问题，请尽快升级至最新版！下载地址：".concat(
+                                c2,
+                              ),
+                            ))
+                          : i3 && at(e3, i3) < 0
+                            ? (null == r3 || r3(),
+                              void ft.error(
+                                "初始化失败！当前SDK版本过低，请尽快升级至最新版！下载地址：".concat(
+                                  c2,
+                                ),
+                              ))
+                            : (a3 &&
+                                at(e3, a3) < 0 &&
+                                ft.warn(
+                                  "新版本SDK已上线，强烈建议您升级至最新版，尽早享受新特性！下载地址：".concat(
+                                    c2,
+                                  ),
+                                ),
+                              void ft.info("初始化成功"))
+                      );
+                    }
+                    ft.info("初始化成功");
+                  })
+                  .catch(function () {
+                    ft.info("初始化成功");
+                  });
+              })({
+                conf_name: "mini_game_sdk_common",
+                conf_key: "version",
+                sdk_version: e2.sdk_version,
+                default_download_url:
+                  "https://sr-home-1257214331.cos.ap-guangzhou.myqcloud.com/sdk/dn-sdk-minigame/dn-sdk-minigame.zip",
+                fail_handler: function () {
+                  e2.inited = false;
+                },
+              }),
+              _e.requestActionList(),
+              me(t3.openid),
+              c(e2)));
+    }
+    return (
+      v(
+        r2,
+        [
+          {
+            key: "getInitResult",
+            value: function () {
+              return { inited: this.inited, initErrMsg: this.initErrMsg };
+            },
+          },
+          {
+            key: "track",
+            value: function (t3, e2) {
+              var n3, r3;
+              if (!this.inited || !this.queueManage)
+                return (
+                  ft.error("上报失败，请先完成初始化"),
+                  { code: 100, message: "未完成初始化或重复初始化导致初始化失败，请先完成初始化" }
+                );
+              var o2 = Jt.validateActionType(t3),
+                i2 = Jt.validateActionParam(e2);
+              if (o2 && i2) {
+                !this.openid && !this.unionid && ft.warn("缺少 openid 或 unionid");
+                var a2 = ut("actionParamMaxLength");
+                if (JSON.stringify(e2 || {}).length > a2)
+                  return (
+                    ft.error("监测到超过".concat(a2, "的上报日志：").concat(t3, " ").concat(e2)),
+                    { code: 102, message: "action_param 参数过大，不能超过 ".concat(a2, " 字符") }
+                  );
+                var u2 = !(null == e2 || !e2[be]),
+                  c2 = this.createAction(t3, e2 || {}, u2);
+                "release" !== (null == (n3 = V()) ? void 0 : n3.envVersion) && ye(c2, "minigame");
+                var s2 = this.queueManage.addAction(c2);
+                return (null == (r3 = this.actionReporter) || r3.batchSend(), s2);
+              }
+              return { code: 101, message: "action_type 或 action_param 参数错误" };
+            },
+          },
+          {
+            key: "flush",
+            value: function () {
+              var t3;
+              null == (t3 = this.actionReporter) || t3.flushSend();
+            },
+          },
+          {
+            key: "setOpenId",
+            value: function (t3) {
+              var e2;
+              if (t3 && "string" == typeof t3)
+                return (
+                  (this.openid = t3),
+                  this.gameInfo.ad_trace_id && !q.getSync(R) && Rt.publish("START_APP"),
+                  this.flush(),
+                  this.saveValidOpenidToStorage(),
+                  "release" !== (null == (e2 = V()) ? void 0 : e2.envVersion) && me(t3),
+                  { code: 0, message: "成功" }
+                );
+              var n3 = "openid 格式错误";
+              return (ft.error(n3), { code: 101, message: n3 });
+            },
+          },
+          {
+            key: "setUnionId",
+            value: function (t3) {
+              if (t3 && "string" == typeof t3)
+                return ((this.unionid = t3), this.flush(), { code: 0, message: "成功" });
+              var e2 = "unionid 格式错误";
+              return (ft.error(e2), { code: 101, message: e2 });
+            },
+          },
+          {
+            key: "setUserUniqueId",
+            value: function (t3) {
+              if (t3 && "string" == typeof t3)
+                return ((this.user_unique_id = t3), { code: 0, message: "成功" });
+              var e2 = "user_unique_id 格式错误";
+              return (ft.error(e2), { code: 101, message: e2 });
+            },
+          },
+          {
+            key: "doReportOnEnterBackground",
+            value: function () {
+              var t3 = this;
+              wx.onHide(function () {
+                var e2, n3;
+                (null == (e2 = t3.actionReporter) || e2.flushSend(),
+                  null == (n3 = t3.queueManage) || n3.reportLostNum());
+              });
+            },
+          },
+          {
+            key: "getTrackBaseInfo",
+            value: function () {
+              var t3 = V();
+              return Object.assign(
+                {},
+                this.deviceInfo,
+                (function (t4, e2) {
+                  var n3 = {};
+                  return (
+                    [
+                      "user_action_set_id",
+                      "appid",
+                      "openid",
+                      "secret_key",
+                      "user_unique_id",
+                      "unionid",
+                    ].forEach(function (e3) {
+                      st(t4, e3) && (n3[e3] = t4[e3]);
+                    }),
+                    n3
+                  );
+                })(this.config),
+                {
+                  local_id: j(),
+                  sdk_name: this.sdk_name,
+                  sdk_version: this.sdk_version,
+                  openid: this.openid || B(),
+                  unionid: this.unionid,
+                  user_unique_id: this.user_unique_id,
+                  inner_param: { app_env_version: t3.envVersion, app_version: t3.version },
+                },
+              );
+            },
+          },
+          {
+            key: "createAction",
+            value: function (t3, e2) {
+              var n3 = arguments.length > 2 && void 0 !== arguments[2] && arguments[2];
+              null != e2 && e2[be] && delete e2[be];
+              var r3 = Date.now();
+              null != e2 && e2[Se] && ((r3 = null == e2 ? void 0 : e2[Se]), delete e2[Se]);
+              var o2 = {
+                action_id: et(),
+                action_param: e2,
+                action_time: r3,
+                action_type: t3,
+                is_retry: false,
+                is_sdk_auto_track: n3,
+                retry_count: 0,
+                revised_action_time: W.getRevisedcurrentTimeMillis(),
+                log_id: ++this.log_id,
+                session_id: this.session_id,
+                pkg_channel_id: this.gameInfo.pkg_channel_id,
+                source_scene: this.gameInfo.source_scene,
+                network_type: F(),
+                ad_trace_id: this.gameInfo.ad_trace_id,
+                channel: this.getChannelByActionType(t3),
+              };
+              return (
+                null != e2 &&
+                  e2[this.special_method_symbol] &&
+                  (this.addActionInnerParam(o2, "is_special_method", true),
+                  delete e2[this.special_method_symbol]),
+                wt.getChannelClaimActionList().indexOf(t3) > -1 &&
+                  this.gameInfo.launch_options &&
+                  this.addActionInnerParam(o2, "launch_options", this.gameInfo.launch_options),
+                o2
+              );
+            },
+          },
+          {
+            key: "addActionInnerParam",
+            value: function (t3, n3, r3) {
+              t3.inner_param && $(t3.inner_param)
+                ? (t3.inner_param[n3] = r3)
+                : (t3.inner_param = e({}, n3, r3));
+            },
+          },
+          {
+            key: "getChannelByActionType",
+            value: function (t3) {
+              var e2 = "";
+              return (
+                wt.getChannelClaimActionList().indexOf(t3) > -1
+                  ? (e2 = this.gameInfo.channel || "")
+                  : wt.getNoClaimActionList().indexOf(t3) > -1 && (e2 = "UNKNOWN"),
+                e2
+              );
+            },
+          },
+          {
+            key: "reportLog",
+            value: function (t3) {
+              var e2,
+                n3,
+                r3 = {
+                  user_action_set_id: null == (e2 = this.config) ? void 0 : e2.user_action_set_id,
+                  appid: null == (n3 = this.config) ? void 0 : n3.appid,
+                  session_id: this.session_id,
+                };
+              G(Object.assign(r3, t3));
+            },
+          },
+          {
+            key: "useAutoTrack",
+            value: function () {
+              var t3;
+              if (null != (t3 = this.config) && t3.auto_track) {
+                var e2 = true,
+                  n3 = q.getSync(k);
+                ((null == n3 ? void 0 : n3.ap) === P
+                  ? (e2 = true)
+                  : (null == n3 ? void 0 : n3.ap) === M && (e2 = false),
+                  "devtools" === U().wx_platform && (e2 = true),
+                  new de().install(this, e2 ? "all" : "lifecycle"),
+                  Ct(),
+                  e2 && Gt(),
+                  this.getAutoProxyRemoteConfig());
+              }
+            },
+          },
+          {
+            key: "getAutoProxyRemoteConfig",
+            value: function () {
+              var t3,
+                e2,
+                n3 = U();
+              n3.os &&
+                n3.os_version &&
+                null != (t3 = this.config) &&
+                t3.user_action_set_id &&
+                (function (t4) {
+                  return new Promise(function (e3) {
+                    wx.request({
+                      method: "POST",
+                      url: "https://api.datanexus.qq.com/data-nexus-config/v1/sdk/minigame/get",
+                      data: t4,
+                      timeout: S.requestTimeout,
+                      success: function (t5) {
+                        (H(t5, e3, "minigame/get"), Q(t5));
+                      },
+                      fail: function (t5) {
+                        J(t5, "minigame/get");
+                      },
+                    });
+                  });
+                })({
+                  conf_name: "MG",
+                  conf_param: {
+                    user_action_set_id: null == (e2 = this.config) ? void 0 : e2.user_action_set_id,
+                    sdk_version: this.sdk_version,
+                    os_type: (null == n3 ? void 0 : n3.os) || "",
+                    os_version: lt(n3.os_version),
+                    device_brand: (null == n3 ? void 0 : n3.device_brand) || "",
+                    weixin_lib_version: (null == n3 ? void 0 : n3.wx_lib_version) || "",
+                    weixin_version: (null == n3 ? void 0 : n3.wx_version) || "",
+                  },
+                }).then(function (t4) {
+                  $(t4) && q.setSync(k, t4);
+                });
+            },
+          },
+          {
+            key: "saveValidOpenidToStorage",
+            value: function () {
+              this.openid &&
+                (function (t3) {
+                  return /^[a-zA-Z0-9_-]{28,30}$/.test(t3);
+                })(this.openid) &&
+                q.setSync(R, this.openid);
+            },
+          },
+        ],
+        [
+          {
+            key: "setRequestConcurrency",
+            value: function (t3) {
+              fe.setRequestConcurrency(t3);
+            },
+          },
+          {
+            key: "setDebug",
+            value: function (t3) {
+              ft.debug = t3;
+            },
+          },
+        ],
+      ),
+      r2
+    );
+  })();
+((exports.SDK = Ee),
+  (Ee[Re] = []),
+  Te([pt], Ee.prototype, "track", 1),
+  Te(
+    [
+      pt,
+      function (t2, e2, n2) {
+        var r2 = n2.value;
+        return (
+          (n2.value = function () {
+            if (this.inited) {
+              for (var t3 = arguments.length, e3 = new Array(t3), n3 = 0; n3 < t3; n3++)
+                e3[n3] = arguments[n3];
+              return r2.apply(this, e3);
+            }
+            ft.error("上报失败，请先完成初始化");
+          }),
+          n2
+        );
+      },
+    ],
+    Ee.prototype,
+    "flush",
+    1,
+  ),
+  Te([pt], Ee.prototype, "setOpenId", 1),
+  Te([pt], Ee.prototype, "setUnionId", 1),
+  Te([pt], Ee.prototype, "setUserUniqueId", 1),
+  Te([pt], Ee.prototype, "doReportOnEnterBackground", 1),
+  Te([pt], Ee.prototype, "getTrackBaseInfo", 1),
+  Te([pt], Ee.prototype, "useAutoTrack", 1));

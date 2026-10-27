@@ -1,0 +1,250 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = {
+    alpha: false,
+    antialias: true,
+    depth: true,
+    stencil: true,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: false,
+    powerPreference: "default",
+    failIfMajorPerformanceCaveat: false,
+  },
+  r = null,
+  t = null,
+  n = null,
+  a = null,
+  o = null,
+  i = null,
+  u = null,
+  l = null,
+  _ = null,
+  T = 0,
+  E = [61 / 255, 197 / 255, 222 / 255, 1],
+  R = [100 / 255, 111 / 255, 118 / 255, 1],
+  f = null,
+  A = [0.01568627450980392, 0.03529411764705882, 0.0392156862745098, 0.00392156862745098];
+function c(e2, t2) {
+  return (function (e3, t3) {
+    var n2 = s(r.VERTEX_SHADER, e3),
+      a2 = s(r.FRAGMENT_SHADER, t3),
+      o2 = r.createProgram();
+    if (
+      (r.attachShader(o2, n2),
+      r.attachShader(o2, a2),
+      r.linkProgram(o2),
+      !r.getProgramParameter(o2, r.LINK_STATUS))
+    ) {
+      var i2 = r.getProgramInfoLog(o2);
+      (console.log("Failed to link program: " + i2), r.deleteProgram(o2), (o2 = null));
+    }
+    return (r.deleteShader(a2), r.deleteShader(n2), o2);
+  })(e2, t2);
+}
+function s(e2, t2) {
+  var n2 = r.createShader(e2);
+  if ((r.shaderSource(n2, t2), r.compileShader(n2), !r.getShaderParameter(n2, r.COMPILE_STATUS))) {
+    var a2 = r.getShaderInfoLog(n2);
+    return (console.log("Failed to compile shader: " + a2), r.deleteShader(n2), null);
+  }
+  return n2;
+}
+function g(e2, r2, t2, n2, a2) {
+  (e2.useProgram(r2), e2.activeTexture(e2.TEXTURE0), e2.bindTexture(e2.TEXTURE_2D, t2));
+  var o2 = e2.getUniformLocation(r2, "u_Sampler");
+  e2.uniform1i(o2, 0);
+  var i2 = e2.getUniformLocation(r2, "u_flip");
+  (e2.uniform1f(i2, 1), e2.bindBuffer(e2.ARRAY_BUFFER, n2));
+  var u2 = e2.getAttribLocation(r2, "a_Position");
+  (e2.enableVertexAttribArray(u2), e2.vertexAttribPointer(u2, 2, e2.FLOAT, false, 4 * a2, 0));
+  var l2 = e2.getAttribLocation(r2, "a_TexCoord");
+  (e2.enableVertexAttribArray(l2),
+    e2.vertexAttribPointer(l2, 2, e2.FLOAT, false, 4 * a2, 2 * a2),
+    e2.drawArrays(e2.TRIANGLE_STRIP, 0, 4));
+}
+function d() {
+  i = requestAnimationFrame(function () {
+    (r.enable(r.BLEND),
+      r.blendFunc(r.SRC_ALPHA, r.ONE_MINUS_SRC_ALPHA),
+      r.clearColor(A[0], A[1], A[2], A[3]),
+      r.clear(r.COLOR_BUFFER_BIT),
+      g(r, n, u, l, 4),
+      (function (e2, r2, t2, n2, a2, o2, i2) {
+        e2.useProgram(r2);
+        var u2 = e2.getUniformLocation(r2, "u_CurrentProgress");
+        e2.uniform1f(u2, a2);
+        var l2 = e2.getUniformLocation(r2, "u_ProgressBarColor");
+        e2.uniform4fv(l2, o2);
+        var _2 = e2.getUniformLocation(r2, "u_ProgressBackground");
+        (e2.uniform4fv(_2, i2), e2.bindBuffer(e2.ARRAY_BUFFER, t2));
+        var T2 = e2.getAttribLocation(r2, "a_Position");
+        (e2.enableVertexAttribArray(T2), e2.vertexAttribPointer(T2, 2, e2.FLOAT, false, 12, 0));
+        var E2 = e2.getAttribLocation(r2, "a_Progress");
+        (e2.enableVertexAttribArray(E2),
+          e2.vertexAttribPointer(E2, 1, e2.FLOAT, false, 12, 8),
+          e2.drawArrays(e2.TRIANGLE_STRIP, 0, 4));
+      })(r, o, _, 0, T, E, R),
+      d(),
+      f && (f(), (f = null)));
+  });
+}
+function P(e2) {
+  return (
+    (T = e2),
+    new Promise(function (e3, r2) {
+      f = function () {
+        e3();
+      };
+    })
+  );
+}
+module.exports = {
+  start: function (a2, i2, T2) {
+    var E2, R2, f2, A2;
+    return (
+      (e.alpha = "true" === a2),
+      (e.antialias = "false" !== i2),
+      "true" === T2 && (r = window.canvas.getContext("webgl2", e)),
+      r
+        ? (window.WebGL2RenderingContext = true)
+        : ((window.WebGL2RenderingContext = false), (r = window.canvas.getContext("webgl", e))),
+      (E2 = 2 / canvas.width),
+      (R2 = 2 / canvas.height),
+      (f2 = new Float32Array([
+        E2,
+        R2 + 0.225,
+        1,
+        1,
+        E2,
+        R2 + 0.225,
+        1,
+        0,
+        -E2,
+        R2 + 0.225,
+        0,
+        1,
+        -E2,
+        R2 + 0.225,
+        0,
+        0,
+      ])),
+      (l = r.createBuffer()),
+      r.bindBuffer(r.ARRAY_BUFFER, l),
+      r.bufferData(r.ARRAY_BUFFER, f2, r.STATIC_DRAW),
+      (function () {
+        var e2 = ((window.devicePixelRatio >= 2 ? 6 : 3) / canvas.height) * 1.35,
+          t2 = new Float32Array([
+            0.5,
+            -0.8 - e2,
+            1,
+            0.5,
+            -0.8 + e2,
+            1,
+            -0.5,
+            -0.8 - e2,
+            0,
+            -0.5,
+            -0.8 + e2,
+            0,
+          ]);
+        ((_ = r.createBuffer()),
+          r.bindBuffer(r.ARRAY_BUFFER, _),
+          r.bufferData(r.ARRAY_BUFFER, t2, r.STATIC_DRAW));
+      })(),
+      (u = r.createTexture()),
+      r.activeTexture(r.TEXTURE0),
+      r.bindTexture(r.TEXTURE_2D, u),
+      r.texParameteri(r.TEXTURE_2D, r.TEXTURE_MIN_FILTER, r.LINEAR),
+      r.texParameteri(r.TEXTURE_2D, r.TEXTURE_MAG_FILTER, r.LINEAR),
+      r.texParameteri(r.TEXTURE_2D, r.TEXTURE_WRAP_S, r.CLAMP_TO_EDGE),
+      r.texParameteri(r.TEXTURE_2D, r.TEXTURE_WRAP_T, r.CLAMP_TO_EDGE),
+      r.texImage2D(
+        r.TEXTURE_2D,
+        0,
+        r.RGBA,
+        2,
+        2,
+        0,
+        r.RGBA,
+        r.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]),
+      ),
+      (n = c(
+        "\nattribute vec4 a_Position;\nattribute vec2 a_TexCoord;\nvarying vec2 v_TexCoord;\nvoid main() {\n    gl_Position = a_Position;  \n    v_TexCoord = a_TexCoord;\n}",
+        "\nprecision mediump float;\nuniform sampler2D u_Sampler;\nvarying vec2 v_TexCoord;\nvoid main() {\n    gl_FragColor = texture2D(u_Sampler, v_TexCoord);\n}",
+      )),
+      (o = c(
+        "\nprecision mediump float;\nattribute vec4 a_Position;\nattribute float a_Progress;\nvarying float v_Progress;\nvoid main() {\n    gl_Position = a_Position;  \n    v_Progress = a_Progress;\n}",
+        "\nprecision mediump float;\nuniform float u_CurrentProgress;\nvarying float v_Progress;\nuniform vec4 u_ProgressBarColor;\nuniform vec4 u_ProgressBackground;\nvoid main() {\n    gl_FragColor = v_Progress <= u_CurrentProgress ? u_ProgressBarColor : u_ProgressBackground;\n}",
+      )),
+      d(),
+      Promise.all([
+        ((A2 = "logo.png"),
+        new Promise(function (e2, r2) {
+          (((t = new Image()).premultiplyAlpha = false),
+            (t.onload = function () {
+              e2(t);
+            }),
+            (t.onerror = function (e3) {
+              r2(e3);
+            }),
+            (t.src = A2.replace("#", "%23")));
+        }))
+          .then(function () {
+            (!(function () {
+              var e2 = 200 / t.height,
+                n2 = (t.width / canvas.width) * 1.35 * e2 * 2,
+                a3 = (t.height / canvas.height) * 1.35 * e2 * 2,
+                o2 = new Float32Array([
+                  n2,
+                  1 / 6 - a3,
+                  1,
+                  1,
+                  n2,
+                  1 / 6 + a3,
+                  1,
+                  0,
+                  -n2,
+                  1 / 6 - a3,
+                  0,
+                  1,
+                  -n2,
+                  1 / 6 + a3,
+                  0,
+                  0,
+                ]);
+              (r.bindBuffer(r.ARRAY_BUFFER, l), r.bufferData(r.ARRAY_BUFFER, o2, r.STATIC_DRAW));
+            })(),
+              r.activeTexture(r.TEXTURE0),
+              r.bindTexture(r.TEXTURE_2D, u),
+              r.texParameteri(r.TEXTURE_2D, r.TEXTURE_MIN_FILTER, r.LINEAR),
+              r.texParameteri(r.TEXTURE_2D, r.TEXTURE_MAG_FILTER, r.LINEAR),
+              r.texParameteri(r.TEXTURE_2D, r.TEXTURE_WRAP_S, r.CLAMP_TO_EDGE),
+              r.texParameteri(r.TEXTURE_2D, r.TEXTURE_WRAP_T, r.CLAMP_TO_EDGE),
+              r.texImage2D(r.TEXTURE_2D, 0, r.RGBA, r.RGBA, r.UNSIGNED_BYTE, t));
+          })
+          .then(function () {
+            return false;
+          }),
+        false,
+      ]).then(function () {
+        return P(0);
+      })
+    );
+  },
+  end: function () {
+    return P(1).then(function () {
+      (cancelAnimationFrame(i),
+        r.useProgram(null),
+        r.bindTexture(r.TEXTURE_2D, null),
+        r.bindBuffer(r.ARRAY_BUFFER, null),
+        r.deleteTexture(u),
+        r.deleteBuffer(l),
+        r.deleteBuffer(_),
+        r.deleteProgram(n),
+        r.deleteProgram(a),
+        r.deleteProgram(o));
+    });
+  },
+  setProgress: P,
+};

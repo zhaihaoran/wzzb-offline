@@ -1,0 +1,592 @@
+/* Browser bridge for the extracted WeChat client. This file is local-only. */
+(function installLocalWeChat(global) {
+  'use strict';
+
+  const doc = global.document;
+  const native = {
+    fetch: global.fetch.bind(global),
+    XMLHttpRequest: global.XMLHttpRequest,
+    WebSocket: global.WebSocket,
+    Image: global.Image,
+    Audio: global.Audio,
+    WebAssembly: global.WebAssembly,
+    DOMParser: global.DOMParser,
+    createElement: doc.createElement.bind(doc),
+    requestAnimationFrame: global.requestAnimationFrame.bind(global),
+    cancelAnimationFrame: global.cancelAnimationFrame.bind(global),
+  };
+  const runtime = global.__LOCAL_GAME__ = global.__LOCAL_GAME__ || {};
+  runtime.native = native;
+  const files = new Map();
+  const directories = new Set(['wxfile://usr', 'wxfile://usr/gamecaches', 'wxfile://tmp']);
+  const emitter = new Map();
+  const storagePrefix = 'wangzhe-local:';
+  const noop = function () {};
+  const later = (fn) => queueMicrotask(fn);
+
+  function emit(name, payload) {
+    for (const fn of [...(emitter.get(name) || [])]) {
+      try { fn(payload); } catch (error) { console.error('[Local wx] event', name, error); }
+    }
+  }
+  function on(name, fn) {
+    if (typeof fn !== 'function') return;
+    if (!emitter.has(name)) emitter.set(name, new Set());
+    emitter.get(name).add(fn);
+  }
+  function off(name, fn) {
+    if (fn) emitter.get(name)?.delete(fn);
+    else emitter.get(name)?.clear();
+  }
+  function success(options, result) {
+    result = Object.assign({ errMsg: 'local:ok' }, result);
+    options?.success?.(result);
+    options?.complete?.(result);
+    return result;
+  }
+  function failure(options, error) {
+    const result = { errMsg: error?.message || String(error || 'local operation unavailable') };
+    options?.fail?.(result);
+    options?.complete?.(result);
+    return result;
+  }
+  function asyncResult(options, result) { later(() => success(options, result)); }
+
+  // Defense in depth: even when a mapping is missing, never visit a production host.
+  function localUrl(input) {
+    if (input == null) return '';
+    const original = String(input);
+    if (/^(data:|blob:)/i.test(original)) return original;
+    const mapped = runtime.mapUrl ? runtime.mapUrl(original) : original;
+    const url = new URL(String(mapped), global.location.origin + '/');
+    if (url.origin !== global.location.origin || !/^https?:$/.test(url.protocol)) {
+      return global.location.origin + '/__local_missing__?path=' + encodeURIComponent(original);
+    }
+    return url.href;
+  }
+  runtime.toLocalUrl = localUrl;
+
+  // Retain native browser DOM objects while intercepting asset/network destinations.
+  const imageSrc = Object.getOwnPropertyDescriptor(global.HTMLImageElement.prototype, 'src');
+  Object.defineProperty(global.HTMLImageElement.prototype, 'src', {
+    configurable: true, enumerable: imageSrc.enumerable,
+    get: imageSrc.get,
+    set(value) { imageSrc.set.call(this, localUrl(value)); },
+  });
+  const mediaSrc = Object.getOwnPropertyDescriptor(global.HTMLMediaElement.prototype, 'src');
+  Object.defineProperty(global.HTMLMediaElement.prototype, 'src', {
+    configurable: true, enumerable: mediaSrc.enumerable,
+    get: mediaSrc.get,
+    set(value) { mediaSrc.set.call(this, localUrl(value)); },
+  });
+  const xhrOpen = native.XMLHttpRequest.prototype.open;
+  native.XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    return xhrOpen.call(this, method, localUrl(url), ...rest);
+  };
+  global.fetch = function (input, options) {
+    if (input instanceof Request) return native.fetch(new Request(localUrl(input.url), input), options);
+    return native.fetch(localUrl(input), options);
+  };
+  if (native.WebSocket) {
+    class LocalWebSocket extends native.WebSocket {
+      constructor(url, protocols) {
+        // Keep the ws scheme until the runtime maps game gateways to /socket.
+        // Converting it first would incorrectly treat the socket as a CDN asset.
+        const destination = runtime.mapUrl ? runtime.mapUrl(String(url)) : '/socket';
+        const mapped = new URL(localUrl(String(destination).replace(/^ws/, 'http')));
+        mapped.protocol = global.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        if (protocols) super(mapped.href, protocols);
+        else super(mapped.href);
+      }
+    }
+    global.WebSocket = LocalWebSocket;
+  }
+
+  const canvas = doc.getElementById('GameCanvas') || native.createElement('canvas');
+  canvas.id = 'GameCanvas';
+  if (!canvas.parentNode) doc.body.appendChild(canvas);
+  if (!canvas.width || canvas.width === 300) canvas.width = 750;
+  if (!canvas.height || canvas.height === 150) canvas.height = 1334;
+  canvas.style.touchAction = 'none';
+  global.canvas = global.screencanvas = canvas;
+  global.GameGlobal = global;
+  // WeChat's instantiate accepts a package path; browser WebAssembly only
+  // accepts bytes or a compiled module (meshopt uses the path overload here).
+  const wxWebAssembly = Object.create(native.WebAssembly);
+  Object.defineProperties(wxWebAssembly, {
+    instantiate: { configurable: true, writable: true, value: async function (source, imports, ...options) {
+      const input = typeof source === 'string' || source instanceof URL ? await fileAsync(String(source)) : source;
+      return native.WebAssembly.instantiate(input, imports, ...options);
+    } },
+    compile: { configurable: true, writable: true, value: async function (source, ...options) {
+      const input = typeof source === 'string' || source instanceof URL ? await fileAsync(String(source)) : source;
+      return native.WebAssembly.compile(input, ...options);
+    } },
+  });
+  global.WXWebAssembly = global.CCWebAssembly = wxWebAssembly;
+  // Loading the shipped adapter still installs fsUtils and __globalAdapter. Its
+  // mini-game window/document replacement must be skipped inside a real browser.
+  global.__isAdapterInjected = true;
+  global.getApp = undefined;
+
+  // The shipped adapter emits plain TouchEvent records. Convert those records to
+  // genuine DOM events while preserving ordinary native dispatch unchanged.
+  const documentDispatch = doc.dispatchEvent.bind(doc);
+  doc.dispatchEvent = function (event) {
+    if (event instanceof global.Event) return documentDispatch(event);
+    const converted = new Event(event.type, { bubbles: true, cancelable: true });
+    for (const name of Object.keys(event)) {
+      if (['type', 'target', 'currentTarget', 'preventDefault', 'stopPropagation'].includes(name)) continue;
+      try { Object.defineProperty(converted, name, { value: event[name], configurable: true }); } catch (_) {}
+    }
+    return documentDispatch(converted);
+  };
+
+  function info() {
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.round(rect.width || canvas.width);
+    const height = Math.round(rect.height || canvas.height);
+    return {
+      brand: 'Local', model: 'Browser', system: 'Windows 10', platform: 'devtools',
+      version: '8.0.50', SDKVersion: '3.4.10', language: 'zh_CN',
+      screenWidth: width, screenHeight: height, windowWidth: width, windowHeight: height,
+      pixelRatio: 1, devicePixelRatio: 1, statusBarHeight: 0,
+      safeArea: { top: 0, left: 0, right: width, bottom: height, width, height },
+      benchmarkLevel: 50, fontSizeSetting: 16, enableDebug: false,
+      theme: 'light', deviceOrientation: height >= width ? 'portrait' : 'landscape',
+    };
+  }
+
+  function key(path) { return String(path || '').replace(/\/$/, ''); }
+  function bytes(value, encoding) {
+    if (value instanceof ArrayBuffer) return value.slice(0);
+    if (ArrayBuffer.isView(value)) return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+    if (encoding === 'base64') return Uint8Array.from(atob(String(value)), c => c.charCodeAt(0)).buffer;
+    return new TextEncoder().encode(String(value ?? '')).buffer;
+  }
+  function decode(value, encoding) {
+    if (!encoding || encoding === 'binary') return value.slice(0);
+    if (encoding === 'base64') {
+      let result = '';
+      for (const byte of new Uint8Array(value)) result += String.fromCharCode(byte);
+      return btoa(result);
+    }
+    if (encoding === 'hex') return [...new Uint8Array(value)].map(b => b.toString(16).padStart(2, '0')).join('');
+    return new TextDecoder(encoding === 'utf8' ? 'utf-8' : encoding).decode(value);
+  }
+  function fileSync(path) {
+    path = key(path);
+    if (files.has(path)) return files.get(path);
+    if (path.startsWith('wxfile:')) throw new Error('ENOENT: local virtual file does not exist: ' + path);
+    const xhr = new native.XMLHttpRequest();
+    xhr.open('GET', localUrl(path), false);
+    xhr.overrideMimeType('text/plain; charset=x-user-defined');
+    xhr.send();
+    if (xhr.status < 200 || xhr.status >= 300) throw new Error('ENOENT: local artifact unavailable: ' + path);
+    const data = Uint8Array.from(xhr.responseText, char => char.charCodeAt(0) & 255).buffer;
+    files.set(path, data);
+    return data;
+  }
+  async function fileAsync(path) {
+    path = key(path);
+    if (files.has(path)) return files.get(path);
+    if (path.startsWith('wxfile:')) throw new Error('ENOENT: local virtual file does not exist: ' + path);
+    const response = await native.fetch(localUrl(path));
+    if (!response.ok) throw new Error('ENOENT: local artifact unavailable (' + response.status + '): ' + path);
+    const data = await response.arrayBuffer();
+    files.set(path, data);
+    return data;
+  }
+  function blobUrl(path) {
+    const data = files.get(key(path));
+    if (!data) return localUrl(path);
+    const ext = String(path).split('.').pop().split(/[?#]/)[0];
+    const mime = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp',
+      mp3: 'audio/mpeg', ogg: 'audio/ogg', wav: 'audio/wav', mp4: 'video/mp4' }[ext] || 'application/octet-stream';
+    return URL.createObjectURL(new Blob([data], { type: mime }));
+  }
+  // wxfile image/audio references point at files downloaded into the virtual FS.
+  const imageSetter = Object.getOwnPropertyDescriptor(global.HTMLImageElement.prototype, 'src').set;
+  Object.defineProperty(global.HTMLImageElement.prototype, 'src', {
+    configurable: true, enumerable: true, get: imageSrc.get,
+    set(value) { imageSetter.call(this, files.has(key(value)) ? blobUrl(value) : value); },
+  });
+  function asyncFs(options, task, field) {
+    Promise.resolve().then(task).then(value => success(options, field ? { [field]: value } : value), error => failure(options, error));
+  }
+  const fs = {
+    readFileSync(path, encoding) { return decode(fileSync(path), encoding); },
+    readFile(options) { asyncFs(options, async () => decode(await fileAsync(options.filePath), options.encoding), 'data'); },
+    writeFileSync(path, data, encoding) { files.set(key(path), bytes(data, encoding)); },
+    writeFile(options) { asyncFs(options, () => fs.writeFileSync(options.filePath, options.data, options.encoding)); },
+    appendFileSync(path, data, encoding) {
+      const a = files.get(key(path)) || new ArrayBuffer(0), b = bytes(data, encoding);
+      const joined = new Uint8Array(a.byteLength + b.byteLength);
+      joined.set(new Uint8Array(a)); joined.set(new Uint8Array(b), a.byteLength);
+      files.set(key(path), joined.buffer);
+    },
+    appendFile(options) { asyncFs(options, () => fs.appendFileSync(options.filePath, options.data, options.encoding)); },
+    copyFile(options) { asyncFs(options, async () => files.set(key(options.destPath), (await fileAsync(options.srcPath)).slice(0))); },
+    copyFileSync(src, dest) { files.set(key(dest), fileSync(src).slice(0)); },
+    mkdirSync(path) { directories.add(key(path)); },
+    mkdir(options) { asyncFs(options, () => fs.mkdirSync(options.dirPath, options.recursive)); },
+    rmdirSync(path) {
+      path = key(path); directories.delete(path);
+      for (const name of files.keys()) if (name.startsWith(path + '/')) files.delete(name);
+      for (const name of directories) if (name.startsWith(path + '/')) directories.delete(name);
+    },
+    rmdir(options) { asyncFs(options, () => fs.rmdirSync(options.dirPath)); },
+    unlinkSync(path) { files.delete(key(path)); },
+    unlink(options) { asyncFs(options, () => fs.unlinkSync(options.filePath)); },
+    accessSync(path) {
+      path = key(typeof path === 'string' ? path : path.path);
+      if (files.has(path) || directories.has(path)) return { success: true };
+      fileSync(path); return { success: true };
+    },
+    access(options) { asyncFs(options, async () => {
+      if (!directories.has(key(options.path))) await fileAsync(options.path);
+    }); },
+    readdirSync(path) {
+      const prefix = key(path) + '/';
+      return [...new Set([...files.keys(), ...directories].filter(name => name.startsWith(prefix)).map(name => name.slice(prefix.length).split('/')[0]))];
+    },
+    readdir(options) { asyncFs(options, () => fs.readdirSync(options.dirPath), 'files'); },
+    statSync(path) {
+      const directory = directories.has(key(path));
+      const data = directory ? null : fileSync(path);
+      return { size: data?.byteLength || 0, mode: directory ? 16877 : 33188,
+        lastAccessedTime: Date.now(), lastModifiedTime: Date.now(),
+        isDirectory: () => directory, isFile: () => !directory };
+    },
+    stat(options) { asyncFs(options, () => fs.statSync(options.path), 'stats'); },
+    rename(options) { asyncFs(options, () => { fs.copyFileSync(options.oldPath, options.newPath); fs.unlinkSync(options.oldPath); }); },
+    getFileInfo(options) { asyncFs(options, async () => ({ size: (await fileAsync(options.filePath)).byteLength, digest: 'local' })); },
+    unzip(options) { failure(options, new Error('Local ZIP expansion is unavailable; provide extracted resources.')); },
+    saveFile(options) { asyncFs(options, async () => {
+      const path = options.filePath || 'wxfile://usr/' + Date.now();
+      files.set(path, await fileAsync(options.tempFilePath));
+      return { savedFilePath: path };
+    }); },
+  };
+  files.set('wxfile://usr/gamecaches/cacheList.json', bytes(JSON.stringify({ version: '1.0', files: {} })));
+
+  function request(options) {
+    const abort = new AbortController();
+    const progress = new Set(), headersListeners = new Set();
+    const method = (options.method || 'GET').toUpperCase();
+    let url = localUrl(options.url), body;
+    const header = Object.assign({}, options.header);
+    if (options.data != null) {
+      if (method === 'GET' || method === 'HEAD') {
+        const parsed = new URL(url);
+        if (typeof options.data === 'object') for (const [name, value] of Object.entries(options.data)) parsed.searchParams.set(name, String(value));
+        url = parsed.href;
+      } else if (typeof options.data === 'string' || options.data instanceof ArrayBuffer) body = options.data;
+      else { body = JSON.stringify(options.data); header['content-type'] ||= 'application/json'; }
+    }
+    let timer = options.timeout && setTimeout(() => abort.abort(), options.timeout);
+    native.fetch(url, { method, headers: header, body, signal: abort.signal, credentials: 'same-origin' })
+      .then(async response => {
+        const headers = Object.fromEntries(response.headers);
+        for (const fn of headersListeners) fn({ header: headers, statusCode: response.status });
+        let data;
+        if (options.responseType === 'arraybuffer') data = await response.arrayBuffer();
+        else {
+          data = await response.text();
+          if (options.dataType !== 'text') { try { data = JSON.parse(data); } catch (_) {} }
+        }
+        for (const fn of progress) fn({ progress: 100, totalBytesWritten: Number(headers['content-length'] || 0), totalBytesExpectedToWrite: Number(headers['content-length'] || 0) });
+        success(options, { data, statusCode: response.status, header: headers, cookies: [] });
+      }).catch(error => failure(options, error)).finally(() => clearTimeout(timer));
+    return { abort: () => abort.abort(), onProgressUpdate: fn => progress.add(fn),
+      offProgressUpdate: fn => progress.delete(fn), onHeadersReceived: fn => headersListeners.add(fn),
+      offHeadersReceived: fn => headersListeners.delete(fn) };
+  }
+
+  function downloadFile(options) {
+    const abort = new AbortController(), progress = new Set();
+    const mapped = localUrl(options.url);
+    native.fetch(mapped, { signal: abort.signal }).then(async response => {
+      if (!response.ok) { success(options, { statusCode: response.status, tempFilePath: mapped, filePath: mapped }); return; }
+      const data = await response.arrayBuffer();
+      const path = options.filePath || mapped;
+      files.set(key(path), data);
+      for (const fn of progress) fn({ progress: 100, totalBytesWritten: data.byteLength, totalBytesExpectedToWrite: data.byteLength });
+      success(options, { statusCode: response.status, tempFilePath: path, filePath: path });
+    }).catch(error => failure(options, error));
+    return { abort: () => abort.abort(), onProgressUpdate: fn => progress.add(fn), offProgressUpdate: fn => progress.delete(fn) };
+  }
+
+  function media(type) {
+    const el = native.createElement(type), callbacks = new Map();
+    el.preload = 'auto';
+    const object = {
+      play() { const promise = el.play(); promise?.catch(error => { if (error.name !== 'NotAllowedError') dispatch('Error', { errMsg: error.message }); }); return promise; },
+      pause() { el.pause(); }, stop() { el.pause(); el.currentTime = 0; dispatch('Stop'); },
+      seek(time) { try { el.currentTime = time; } catch (_) {} },
+      destroy() { el.pause(); el.removeAttribute('src'); el.load(); callbacks.clear(); el.remove(); },
+      obeyMuteSwitch: false, referrerPolicy: 'no-referrer', playbackRate: 1,
+    };
+    function dispatch(name, event) { for (const fn of callbacks.get(name) || []) fn(event); }
+    const events = { Canplay: 'canplay', Play: 'play', Pause: 'pause', Ended: 'ended', Error: 'error',
+      Waiting: 'waiting', Seeking: 'seeking', Seeked: 'seeked', TimeUpdate: 'timeupdate' };
+    for (const [name, event] of Object.entries(events)) {
+      object['on' + name] = fn => {
+        if (!callbacks.has(name)) callbacks.set(name, new Set());
+        callbacks.get(name).add(fn);
+        if (name === 'Canplay' && el.readyState >= 2) later(() => fn());
+      };
+      object['off' + name] = fn => fn ? callbacks.get(name)?.delete(fn) : callbacks.get(name)?.clear();
+      el.addEventListener(event, () => dispatch(name, name === 'TimeUpdate' ? { position: el.currentTime, currentTime: el.currentTime, duration: el.duration } : name === 'Error' ? { errMsg: 'Local media could not be decoded', errCode: 10004 } : {}));
+    }
+    object.onStop = fn => { if (!callbacks.has('Stop')) callbacks.set('Stop', new Set()); callbacks.get('Stop').add(fn); };
+    object.offStop = fn => fn ? callbacks.get('Stop')?.delete(fn) : callbacks.get('Stop')?.clear();
+    for (const name of ['loop', 'autoplay', 'volume', 'currentTime', 'duration', 'paused', 'muted', 'playbackRate']) {
+      Object.defineProperty(object, name, { enumerable: true, configurable: true,
+        get: () => el[name], set: value => { try { el[name] = value; } catch (_) {} } });
+    }
+    Object.defineProperty(object, 'src', { enumerable: true, get: () => el.src,
+      set: value => { el.src = files.has(key(value)) ? blobUrl(value) : localUrl(value); el.load(); } });
+    Object.defineProperty(object, 'buffered', { get: () => el.buffered.length ? el.buffered.end(el.buffered.length - 1) : 0 });
+    if (type === 'video') {
+      doc.body.appendChild(el); el.style.position = 'absolute'; el.style.zIndex = '5';
+      for (const name of ['x', 'y', 'width', 'height']) Object.defineProperty(object, name, {
+        get: () => parseFloat(el.style[{ x: 'left', y: 'top' }[name] || name]) || 0,
+        set: value => { el.style[{ x: 'left', y: 'top' }[name] || name] = value + 'px'; },
+      });
+      object.requestFullScreen = () => el.requestFullscreen?.();
+      object.exitFullScreen = () => doc.exitFullscreen?.();
+    }
+    return object;
+  }
+
+  const wx = {
+    env: { USER_DATA_PATH: 'wxfile://usr' },
+    getSystemInfoSync: info,
+    getWindowInfo: info,
+    getDeviceInfo: info,
+    getAppBaseInfo: info,
+    getSystemInfo(options) { asyncResult(options, info()); },
+    getSystemSetting: () => ({ bluetoothEnabled: false, locationEnabled: false, wifiEnabled: true }),
+    getAppAuthorizeSetting: () => ({ cameraAuthorized: 'denied', microphoneAuthorized: 'denied', notificationAuthorized: 'denied' }),
+    getLaunchOptionsSync: () => ({ scene: 1001, query: {}, path: '', referrerInfo: {} }),
+    getEnterOptionsSync: () => ({ scene: 1001, query: {}, path: '', referrerInfo: {} }),
+    getAccountInfoSync: () => ({ miniProgram: { appId: runtime.appId || 'wxlocalgame', envVersion: 'develop', version: 'local' } }),
+    getMenuButtonBoundingClientRect: () => ({ left: info().windowWidth - 90, top: 0, right: info().windowWidth, bottom: 30, width: 90, height: 30 }),
+    getNetworkType(options) { asyncResult(options, { networkType: 'wifi' }); },
+    getBatteryInfoSync: () => ({ level: 100, isCharging: true }),
+    getBatteryInfo(options) { asyncResult(options, { level: 100, isCharging: true }); },
+    getStorageSync(name) { try { const value = localStorage.getItem(storagePrefix + name); return value == null ? '' : JSON.parse(value); } catch (_) { return ''; } },
+    setStorageSync(name, value) { localStorage.setItem(storagePrefix + name, JSON.stringify(value)); },
+    removeStorageSync(name) { localStorage.removeItem(storagePrefix + name); },
+    clearStorageSync() { for (const name of Object.keys(localStorage)) if (name.startsWith(storagePrefix)) localStorage.removeItem(name); },
+    getStorageInfoSync() {
+      const keys = Object.keys(localStorage).filter(name => name.startsWith(storagePrefix));
+      return { keys: keys.map(name => name.slice(storagePrefix.length)), currentSize: Math.ceil(keys.reduce((sum, name) => sum + localStorage.getItem(name).length, 0) / 1024), limitSize: 5120 };
+    },
+    getStorage(options) { asyncResult(options, { data: wx.getStorageSync(options.key) }); },
+    setStorage(options) { wx.setStorageSync(options.key, options.data); asyncResult(options); },
+    removeStorage(options) { wx.removeStorageSync(options.key); asyncResult(options); },
+    clearStorage(options) { wx.clearStorageSync(); asyncResult(options); },
+    getFileSystemManager: () => fs,
+    request, downloadFile,
+    saveFile: options => fs.saveFile(options),
+    getFileInfo: options => fs.getFileInfo(options),
+    createCanvas() { const el = native.createElement('canvas'); el.width = canvas.width; el.height = canvas.height; return el; },
+    createOffscreenCanvas(options = {}) { const el = native.createElement('canvas'); el.width = options.width || 1; el.height = options.height || 1; return el; },
+    createImage: () => new native.Image(),
+    createInnerAudioContext: () => media('audio'),
+    createVideo: () => media('video'),
+    createWebAudioContext: () => new (global.AudioContext || global.webkitAudioContext)(),
+    getPerformance: () => global.performance,
+    setPreferredFramesPerSecond: noop,
+    getSharedCanvas: () => canvas,
+    getOpenDataContext: () => ({ canvas, postMessage: noop }),
+    loadFont: () => 'Arial',
+    canIUse: () => false,
+    triggerGC: noop,
+    setKeepScreenOn(options) { asyncResult(options); },
+    login(options) { asyncResult(options, { code: 'LOCAL_SIMULATION_LOGIN_CODE', anonymousCode: 'LOCAL_SIMULATION' }); },
+    checkSession(options) { asyncResult(options); },
+    getSetting(options) { asyncResult(options, { authSetting: {} }); },
+    getUserInfo(options) { asyncResult(options, localUserInfo()); },
+    getUserProfile(options) { asyncResult(options, localUserInfo()); },
+    createUserInfoButton(options = {}) {
+      const button = native.createElement('button');
+      button.textContent = '使用本地模拟角色';
+      button.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 24px;font-size:16px';
+      const callbacks = new Set();
+      button.addEventListener('click', () => { for (const fn of callbacks) fn(localUserInfo()); });
+      doc.body.appendChild(button);
+      return { style: options.style || {}, show: () => { button.hidden = false; }, hide: () => { button.hidden = true; },
+        destroy: () => { callbacks.clear(); button.remove(); }, onTap: fn => callbacks.add(fn), offTap: fn => callbacks.delete(fn) };
+    },
+    createGameClubButton: () => ({ style: {}, show: noop, hide: noop, destroy: noop, onTap: noop, offTap: noop }),
+    getImageInfo(options) {
+      const image = new native.Image();
+      image.onload = () => success(options, { width: image.naturalWidth, height: image.naturalHeight,
+        path: localUrl(options.src), orientation: 'up', type: String(options.src).split('.').pop() });
+      image.onerror = () => failure(options, new Error('Local image is unavailable'));
+      image.src = options.src;
+    },
+    getUpdateManager: () => ({ onCheckForUpdate: noop, onUpdateReady: noop, onUpdateFailed: noop, applyUpdate: noop }),
+    showShareMenu: noop,
+    hideShareMenu: noop,
+    setInnerAudioOption(options) { asyncResult(options); },
+    setEnableDebug(options) { asyncResult(options); },
+    startAccelerometer(options) { asyncResult(options); },
+    stopAccelerometer(options) { asyncResult(options); },
+    startDeviceMotionListening(options) { asyncResult(options); },
+    stopDeviceMotionListening(options) { asyncResult(options); },
+    vibrateShort(options) { asyncResult(options); },
+    vibrateLong(options) { asyncResult(options); },
+    showToast(options) { console.info('[Local simulation]', options.title || ''); asyncResult(options); },
+    hideToast: noop,
+    showLoading: noop,
+    hideLoading: noop,
+    showModal(options) {
+      // A simulation must never accept production terms, purchases, or permissions.
+      console.info('[Local simulation] dialog shown:', options.title || '', options.content || '');
+      asyncResult(options, { confirm: false, cancel: true });
+    },
+    showActionSheet(options) { later(() => failure(options, new Error('showActionSheet:fail cancel'))); },
+    requestMidasPayment(options) { later(() => failure(options, new Error('Payments are unavailable in the local simulation.'))); },
+    requestPayment(options) { later(() => failure(options, new Error('Payments are unavailable in the local simulation.'))); },
+    requestSubscribeMessage(options) { later(() => failure(options, new Error('Production subscriptions are unavailable in the local simulation.'))); },
+    openCustomerServiceConversation(options) { later(() => failure(options, new Error('Customer service is unavailable in the local simulation.'))); },
+    navigateToMiniProgram(options) { later(() => failure(options, new Error('External navigation is disabled in the local simulation.'))); },
+    exitMiniProgram(options) { asyncResult(options); },
+    restartMiniProgram(options) { asyncResult(options); global.location.reload(); },
+    shareAppMessage(options) { later(() => failure(options, new Error('Sharing is unavailable in the local simulation.'))); },
+    createRewardedVideoAd: () => simulatedAd(),
+    createInterstitialAd: () => simulatedAd(),
+    createBannerAd: () => simulatedAd(),
+    loadSubpackage(options) {
+      const progress = new Set();
+      Promise.resolve().then(() => runtime.loadSubpackage ? runtime.loadSubpackage(options.name) : Promise.reject(new Error('Local subpackage loader is not configured')))
+        .then(() => { for (const fn of progress) fn({ progress: 100, totalBytesWritten: 0, totalBytesExpectedToWrite: 0 }); success(options); }, error => failure(options, error));
+      return { onProgressUpdate: fn => progress.add(fn), offProgressUpdate: fn => progress.delete(fn) };
+    },
+    connectSocket(options) {
+      const socket = new global.WebSocket(options.url, options.protocols);
+      const listeners = {};
+      let connected = false;
+      for (const name of ['open', 'message', 'close', 'error']) {
+        listeners[name] = new Set();
+        socket.addEventListener(name, event => { for (const fn of listeners[name]) fn(name === 'message' ? { data: event.data } : name === 'close' ? { code: event.code, reason: event.reason } : event); });
+      }
+      socket.addEventListener('open', () => { connected = true; success(options); });
+      socket.addEventListener('error', () => { if (!connected) failure(options, new Error('Local WebSocket connection failed')); });
+      const task = { send(options) { try { socket.send(options.data); success(options); } catch (error) { failure(options, error); } },
+        close(options = {}) { socket.close(options.code || 1000, options.reason || 'local'); success(options); } };
+      for (const name of ['Open', 'Message', 'Close', 'Error']) {
+        task['on' + name] = fn => listeners[name.toLowerCase()].add(fn);
+        task['off' + name] = fn => fn ? listeners[name.toLowerCase()].delete(fn) : listeners[name.toLowerCase()].clear();
+      }
+      return task;
+    },
+    arrayBufferToBase64: data => decode(data, 'base64'),
+    base64ToArrayBuffer: data => bytes(data, 'base64'),
+  };
+
+  function localUserInfo() {
+    return { errMsg: 'getUserInfo:ok', localSimulation: true,
+      userInfo: { nickName: '本地玩家', avatarUrl: '', gender: 0, country: '', province: '', city: '', language: 'zh_CN' },
+      rawData: '{}', signature: '', encryptedData: '', iv: '' };
+  }
+
+  function simulatedAd() {
+    const callbacks = {};
+    const ad = { style: {}, load: () => Promise.resolve(),
+      show() { later(() => { for (const fn of callbacks.Close || []) fn({ isEnded: true, localSimulation: true }); }); return Promise.resolve(); },
+      hide: noop, destroy: noop };
+    for (const event of ['Load', 'Error', 'Close', 'Resize']) {
+      callbacks[event] = new Set();
+      ad['on' + event] = fn => { callbacks[event].add(fn); if (event === 'Load') later(() => fn()); };
+      ad['off' + event] = fn => fn ? callbacks[event].delete(fn) : callbacks[event].clear();
+    }
+    return ad;
+  }
+
+  for (const name of ['TouchStart', 'TouchMove', 'TouchEnd', 'TouchCancel', 'MouseDown', 'MouseMove', 'MouseUp', 'Wheel',
+    'KeyDown', 'KeyUp', 'Show', 'Hide', 'AppShow', 'AppHide', 'Error', 'UnhandledRejection',
+    'WindowResize', 'NetworkStatusChange', 'AudioInterruptionBegin', 'AudioInterruptionEnd',
+    'AccelerometerChange', 'DeviceOrientationChange', 'DeviceMotionChange', 'Message', 'KeyboardInput',
+    'KeyboardConfirm', 'KeyboardComplete', 'ShareAppMessage', 'ShareTimeline', 'AddToFavorites', 'MemoryWarning']) {
+    wx['on' + name] = fn => on(name, fn);
+    wx['off' + name] = fn => off(name, fn);
+  }
+
+  let keyboard = null;
+  wx.showKeyboard = options => {
+    if (keyboard) keyboard.remove();
+    keyboard = native.createElement('input');
+    keyboard.value = options.defaultValue || ''; keyboard.maxLength = options.maxLength || 140;
+    keyboard.style.cssText = 'position:fixed;bottom:16px;left:10%;width:80%;z-index:10000;font-size:20px;padding:10px';
+    keyboard.addEventListener('input', () => emit('KeyboardInput', { value: keyboard.value }));
+    keyboard.addEventListener('keydown', event => { if (event.key === 'Enter') emit('KeyboardConfirm', { value: keyboard.value }); });
+    doc.body.appendChild(keyboard); keyboard.focus(); asyncResult(options);
+  };
+  wx.hideKeyboard = options => { const value = keyboard?.value || ''; keyboard?.remove(); keyboard = null; emit('KeyboardComplete', { value }); asyncResult(options); };
+  wx.updateKeyboard = options => { if (keyboard) keyboard.value = options.value || ''; asyncResult(options); };
+
+  function point(event) {
+    const rect = canvas.getBoundingClientRect();
+    return { identifier: event.pointerId || 0, clientX: event.clientX - rect.left, clientY: event.clientY - rect.top,
+      pageX: event.clientX - rect.left, pageY: event.clientY - rect.top,
+      x: event.clientX - rect.left, y: event.clientY - rect.top, force: event.pressure || 1 };
+  }
+  const touches = new Map();
+  const pointerKinds = { pointerdown: 'TouchStart', pointermove: 'TouchMove', pointerup: 'TouchEnd', pointercancel: 'TouchCancel' };
+  for (const [eventName, wxName] of Object.entries(pointerKinds)) canvas.addEventListener(eventName, event => {
+    if (eventName === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
+    if (eventName !== 'pointerdown' && !touches.has(event.pointerId)) return;
+    const touch = point(event);
+    if (eventName === 'pointerdown') {
+      touches.set(event.pointerId, touch); canvas.focus?.({ preventScroll: true });
+      canvas.setPointerCapture?.(event.pointerId);
+    }
+    else if (eventName === 'pointermove') touches.set(event.pointerId, touch);
+    else touches.delete(event.pointerId);
+    const payload = { touches: [...touches.values()], changedTouches: [touch], timeStamp: event.timeStamp };
+    emit(wxName, payload);
+  }, { passive: false });
+  canvas.addEventListener('contextmenu', event => event.preventDefault());
+  global.addEventListener('blur', () => {
+    if (!touches.size) return;
+    const cancelled = [...touches.values()]; touches.clear();
+    emit('TouchCancel', { touches: [], changedTouches: cancelled, timeStamp: performance.now() });
+  });
+  for (const [eventName, wxName] of Object.entries({ mousedown: 'MouseDown', mousemove: 'MouseMove', mouseup: 'MouseUp', wheel: 'Wheel' })) {
+    canvas.addEventListener(eventName, event => emit(wxName, Object.assign(point(event), {
+      button: event.button, buttons: event.buttons, deltaX: event.deltaX, deltaY: event.deltaY,
+    })), { passive: false });
+  }
+  for (const name of ['keydown', 'keyup']) global.addEventListener(name, event => emit(name === 'keydown' ? 'KeyDown' : 'KeyUp', {
+    keyCode: event.keyCode, key: event.key, code: event.code, repeat: event.repeat,
+  }));
+  doc.addEventListener('visibilitychange', () => {
+    const name = doc.hidden ? 'Hide' : 'Show', payload = doc.hidden ? {} : wx.getLaunchOptionsSync();
+    emit(name, payload); emit('App' + name, payload);
+  });
+  let previousSize = '';
+  function notifyResize() {
+    const system = info(), size = system.windowWidth + 'x' + system.windowHeight;
+    if (size === previousSize) return;
+    previousSize = size;
+    emit('WindowResize', { windowWidth: system.windowWidth, windowHeight: system.windowHeight });
+  }
+  global.addEventListener('resize', notifyResize);
+  if (global.ResizeObserver) new ResizeObserver(notifyResize).observe(canvas);
+  global.addEventListener('error', event => emit('Error', event.message || String(event.error)));
+  global.addEventListener('unhandledrejection', event => emit('UnhandledRejection', { reason: event.reason, promise: event.promise }));
+  global.addEventListener('online', () => emit('NetworkStatusChange', { isConnected: true, networkType: 'wifi' }));
+  global.addEventListener('offline', () => emit('NetworkStatusChange', { isConnected: false, networkType: 'none' }));
+
+  global.wx = wx;
+  runtime.wx = wx;
+  runtime.virtualFiles = files;
+  runtime.emitWxEvent = emit;
+  runtime.restoreDOMParser = () => { global.DOMParser = native.DOMParser; };
+  console.info('[Local game] Browser wx bridge ready; all destinations are restricted to this origin.');
+})(window);

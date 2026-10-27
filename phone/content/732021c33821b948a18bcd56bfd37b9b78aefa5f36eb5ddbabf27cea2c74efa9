@@ -1,0 +1,49 @@
+// User-authorized offline access to all original function entries. This removes
+// only FunctionData unlock gates; prices, recipes and ownership remain server rules.
+import { LOCAL_CACHED_WORLD_MAP_IDS, LOCAL_WORLD_AREA_MAP } from './test-access-maps.mjs';
+const installed = new WeakMap();
+const cachedMaps = new Set(LOCAL_CACHED_WORLD_MAP_IDS);
+const cachedArea = id => cachedMaps.has(LOCAL_WORLD_AREA_MAP[String(id)]);
+export function patchHeroDrawClient(exports, local) {
+  let changed = false;
+  function wrap(target, method, override) {
+    if (typeof target?.[method] !== 'function') return;
+    let names = installed.get(target); if (!names) installed.set(target, names = new Set());
+    if (names.has(method)) return; names.add(method); changed = true;
+    const original = target[method];
+    target[method] = function (...args) {
+      return local.testHeroFeatures === true ? override.call(this, original, args) : original.apply(this, args);
+    };
+  }
+  const data = exports?.FunctionData;
+  wrap(data, 'isOpen', () => true);
+  // Native async checks add map-discovery, opening-day and boss-availability
+  // checks after isOpen. These are function-entry gates under the same flag.
+  wrap(data, 'onCheckFuncOpenAsync', () => Promise.resolve(true));
+
+  // Admission is separate from real campaign wins, passage and reward state.
+  wrap(exports?.WorldMapAreaData, 'mapIsUnlock', (_original, [id]) => cachedMaps.has(String(id)));
+  wrap(exports?.WorldMapAreaData, 'areaIsUnlock', function (original, args) {
+    return Object.hasOwn(LOCAL_WORLD_AREA_MAP, String(args[0])) ? cachedArea(args[0]) : original.apply(this, args);
+  });
+  wrap(exports?.WorldMapAreaData, 'getUnlockMapList', () => [...LOCAL_CACHED_WORLD_MAP_IDS]);
+  wrap(exports?.ZhanyiMapData, 'getAreaUnlockById', function (original, args) {
+    return Object.hasOwn(LOCAL_WORLD_AREA_MAP, String(args[0])) ? cachedArea(args[0]) : original.apply(this, args);
+  });
+  for (const method of ['checkMapShowState', 'checkMapUnlockState']) wrap(exports?.WorldMapUITool, method, (_original, [id]) => Promise.resolve(cachedMaps.has(String(id))));
+  wrap(exports?.RelicTreasureData, 'onCheckAreaUnlockByRace', function () {
+    return Object.values(this.raceMapInfo || {}).some(row => cachedArea(row.area_id));
+  });
+  wrap(exports?.RelicTreasureData, 'canChallenge', (_original, [team]) => Boolean(team?.dispatch_hero_id));
+  wrap(exports?.DungeonChallengeMapUI?.prototype, 'onShow', function (original, args) {
+    const result = original.apply(this, args);
+    const cfg = local.getExport?.('CfgData')?.getCfgDungeonMapById?.(String(this.mapID));
+    if (cfg) {
+      this.lbl_power_limit.node.active = false;
+      this.btn_dicheng_challenge.node.active = true;
+    }
+    // Original sweep eligibility and live ticket checks are deliberately retained.
+    return result;
+  });
+  return changed;
+}

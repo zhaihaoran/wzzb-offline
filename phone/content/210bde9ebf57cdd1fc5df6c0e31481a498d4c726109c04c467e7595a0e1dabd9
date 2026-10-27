@@ -1,0 +1,303 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("../../@babel/runtime/helpers/typeof");
+System.register([], function (r, t) {
+  return {
+    execute: function () {
+      (System.register("chunks:///_virtual/cjs-loader.mjs", [], function (e2) {
+        return {
+          execute: function () {
+            e2(
+              "default",
+              new ((function () {
+                function e3() {
+                  ((this._registry = {}), (this._moduleCache = {}));
+                }
+                var r2 = e3.prototype;
+                return (
+                  (r2.define = function (e4, r3, t2) {
+                    this._registry[e4] = { factory: r3, resolveMap: t2 };
+                  }),
+                  (r2.require = function (e4) {
+                    return this._require(e4);
+                  }),
+                  (r2.throwInvalidWrapper = function (e4, r3) {
+                    throw new Error(
+                      "Module '" +
+                        e4 +
+                        "' imported from '" +
+                        r3 +
+                        "' is expected be an ESM-wrapped CommonJS module but it doesn't.",
+                    );
+                  }),
+                  (r2._require = function (e4, r3) {
+                    var t2 = this._moduleCache[e4];
+                    if (t2) return t2.exports;
+                    var n = { id: e4, exports: {} };
+                    return ((this._moduleCache[e4] = n), this._tryModuleLoad(n, e4), n.exports);
+                  }),
+                  (r2._resolve = function (e4, r3) {
+                    return this._resolveFromInfos(e4, r3) || this._throwUnresolved(e4, r3);
+                  }),
+                  (r2._resolveFromInfos = function (e4, r3) {
+                    var t2, n;
+                    return e4 in cjsInfos
+                      ? e4
+                      : r3 &&
+                          null != (t2 = null == (n = cjsInfos[r3]) ? void 0 : n.resolveCache[e4])
+                        ? t2
+                        : void 0;
+                  }),
+                  (r2._tryModuleLoad = function (e4, r3) {
+                    var t2 = true;
+                    try {
+                      (this._load(e4, r3), (t2 = false));
+                    } finally {
+                      t2 && delete this._moduleCache[r3];
+                    }
+                  }),
+                  (r2._load = function (e4, r3) {
+                    var t2 = this._loadWrapper(r3),
+                      n = t2.factory,
+                      i = t2.resolveMap,
+                      o = this._createRequire(e4),
+                      u = i
+                        ? this._createRequireWithResolveMap("function" == typeof i ? i() : i, o)
+                        : o;
+                    n(e4.exports, u, e4);
+                  }),
+                  (r2._loadWrapper = function (e4) {
+                    return e4 in this._registry
+                      ? this._registry[e4]
+                      : this._loadHostProvidedModules(e4);
+                  }),
+                  (r2._loadHostProvidedModules = function (e4) {
+                    return {
+                      factory: function (r3, t2, n) {
+                        if ("undefined" == typeof require)
+                          throw new Error(
+                            "Current environment does not provide a require() for requiring '" +
+                              e4 +
+                              "'.",
+                          );
+                        try {
+                          n.exports = require(e4);
+                        } catch (r4) {
+                          throw new Error(
+                            "Exception thrown when calling host defined require('" + e4 + "').",
+                            { cause: r4 },
+                          );
+                        }
+                      },
+                    };
+                  }),
+                  (r2._createRequire = function (e4) {
+                    var r3 = this;
+                    return function (t2) {
+                      return r3._require(t2, e4);
+                    };
+                  }),
+                  (r2._createRequireWithResolveMap = function (e4, r3) {
+                    return function (t2) {
+                      var n = e4[t2];
+                      if (n) return r3(n);
+                      throw new Error("Unresolved specifier " + t2);
+                    };
+                  }),
+                  (r2._throwUnresolved = function (e4, r3) {
+                    throw new Error("Unable to resolve " + e4 + " from " + parent + ".");
+                  }),
+                  e3
+                );
+              })())(),
+            );
+          },
+        };
+      }),
+        System.register("chunks:///_virtual/env", [], function (e2) {
+          return {
+            execute: function () {
+              e2("DEV", false);
+            },
+          };
+        }),
+        System.register("chunks:///_virtual/rollupPluginModLoBabelHelpers.js", [], function (r2) {
+          return {
+            execute: function () {
+              function t2(e2, r3, t3, n2, i2, o2, u2) {
+                try {
+                  var a2 = e2[o2](u2),
+                    l2 = a2.value;
+                } catch (e3) {
+                  return void t3(e3);
+                }
+                a2.done ? r3(l2) : Promise.resolve(l2).then(n2, i2);
+              }
+              function n(e2, r3) {
+                for (var t3 = 0; t3 < r3.length; t3++) {
+                  var n2 = r3[t3];
+                  ((n2.enumerable = n2.enumerable || false),
+                    (n2.configurable = true),
+                    "value" in n2 && (n2.writable = true),
+                    Object.defineProperty(e2, c(n2.key), n2));
+                }
+              }
+              function i() {
+                return (i = r2(
+                  "extends",
+                  Object.assign
+                    ? Object.assign.bind()
+                    : function (e2) {
+                        for (var r3 = 1; r3 < arguments.length; r3++) {
+                          var t3 = arguments[r3];
+                          for (var n2 in t3)
+                            Object.prototype.hasOwnProperty.call(t3, n2) && (e2[n2] = t3[n2]);
+                        }
+                        return e2;
+                      },
+                )).apply(this, arguments);
+              }
+              function o(e2, t3) {
+                return (o = r2(
+                  "setPrototypeOf",
+                  Object.setPrototypeOf
+                    ? Object.setPrototypeOf.bind()
+                    : function (e3, r3) {
+                        return ((e3.__proto__ = r3), e3);
+                      },
+                ))(e2, t3);
+              }
+              function u(e2, r3) {
+                if (e2) {
+                  if ("string" == typeof e2) return a(e2, r3);
+                  var t3 = Object.prototype.toString.call(e2).slice(8, -1);
+                  return (
+                    "Object" === t3 && e2.constructor && (t3 = e2.constructor.name),
+                    "Map" === t3 || "Set" === t3
+                      ? Array.from(e2)
+                      : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3)
+                        ? a(e2, r3)
+                        : void 0
+                  );
+                }
+              }
+              function a(e2, r3) {
+                (null == r3 || r3 > e2.length) && (r3 = e2.length);
+                for (var t3 = 0, n2 = new Array(r3); t3 < r3; t3++) n2[t3] = e2[t3];
+                return n2;
+              }
+              function l(r3, t3) {
+                if ("object" != e(r3) || null === r3) return r3;
+                var n2 = r3[Symbol.toPrimitive];
+                if (void 0 !== n2) {
+                  var i2 = n2.call(r3, t3 || "default");
+                  if ("object" != e(i2)) return i2;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                }
+                return ("string" === t3 ? String : Number)(r3);
+              }
+              function c(r3) {
+                var t3 = l(r3, "string");
+                return "symbol" == e(t3) ? t3 : String(t3);
+              }
+              r2({
+                applyDecoratedDescriptor: function (e2, r3, t3, n2, i2) {
+                  var o2 = {};
+                  return (
+                    Object.keys(n2).forEach(function (e3) {
+                      o2[e3] = n2[e3];
+                    }),
+                    (o2.enumerable = !!o2.enumerable),
+                    (o2.configurable = !!o2.configurable),
+                    ("value" in o2 || o2.initializer) && (o2.writable = true),
+                    (o2 = t3
+                      .slice()
+                      .reverse()
+                      .reduce(function (t4, n3) {
+                        return n3(e2, r3, t4) || t4;
+                      }, o2)),
+                    i2 &&
+                      void 0 !== o2.initializer &&
+                      ((o2.value = o2.initializer ? o2.initializer.call(i2) : void 0),
+                      (o2.initializer = void 0)),
+                    void 0 === o2.initializer && (Object.defineProperty(e2, r3, o2), (o2 = null)),
+                    o2
+                  );
+                },
+                arrayLikeToArray: a,
+                assertThisInitialized: function (e2) {
+                  if (void 0 === e2)
+                    throw new ReferenceError(
+                      "this hasn't been initialised - super() hasn't been called",
+                    );
+                  return e2;
+                },
+                asyncToGenerator: function (e2) {
+                  return function () {
+                    var r3 = this,
+                      n2 = arguments;
+                    return new Promise(function (i2, o2) {
+                      var u2 = e2.apply(r3, n2);
+                      function a2(e3) {
+                        t2(u2, i2, o2, a2, l2, "next", e3);
+                      }
+                      function l2(e3) {
+                        t2(u2, i2, o2, a2, l2, "throw", e3);
+                      }
+                      a2(void 0);
+                    });
+                  };
+                },
+                createClass: function (e2, r3, t3) {
+                  return (
+                    r3 && n(e2.prototype, r3),
+                    t3 && n(e2, t3),
+                    Object.defineProperty(e2, "prototype", { writable: false }),
+                    e2
+                  );
+                },
+                createForOfIteratorHelperLoose: function (e2, r3) {
+                  var t3 =
+                    ("undefined" != typeof Symbol && e2[Symbol.iterator]) || e2["@@iterator"];
+                  if (t3) return (t3 = t3.call(e2)).next.bind(t3);
+                  if (
+                    Array.isArray(e2) ||
+                    (t3 = u(e2)) ||
+                    (r3 && e2 && "number" == typeof e2.length)
+                  ) {
+                    t3 && (e2 = t3);
+                    var n2 = 0;
+                    return function () {
+                      return n2 >= e2.length ? { done: true } : { done: false, value: e2[n2++] };
+                    };
+                  }
+                  throw new TypeError(
+                    "Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.",
+                  );
+                },
+                extends: i,
+                inheritsLoose: function (e2, r3) {
+                  ((e2.prototype = Object.create(r3.prototype)),
+                    (e2.prototype.constructor = e2),
+                    o(e2, r3));
+                },
+                initializerDefineProperty: function (e2, r3, t3, n2) {
+                  t3 &&
+                    Object.defineProperty(e2, r3, {
+                      enumerable: t3.enumerable,
+                      configurable: t3.configurable,
+                      writable: t3.writable,
+                      value: t3.initializer ? t3.initializer.call(n2) : void 0,
+                    });
+                },
+                setPrototypeOf: o,
+                toPrimitive: l,
+                toPropertyKey: c,
+                unsupportedIterableToArray: u,
+              });
+            },
+          };
+        }));
+    },
+  };
+});

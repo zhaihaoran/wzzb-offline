@@ -1,0 +1,4 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+(Object.defineProperty(exports, "__esModule", { value: true }), (exports.default = void 0));
+exports.default = { imports: { cc: "./../cocos-js/cc.df6b4.js" } };

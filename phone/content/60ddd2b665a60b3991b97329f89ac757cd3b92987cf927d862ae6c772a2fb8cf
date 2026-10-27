@@ -1,0 +1,40 @@
+/** The release shares one endpoint between two event modules. Its online
+ * scheduler chose a single phase, while the offline server offers both.
+ * Add the module's phase only at request submission; keep its original
+ * response readers, callbacks, receivers, and return values unchanged. */
+const contexts = new WeakMap();
+
+export function patchEventClient(exports, local) {
+  if (!local || typeof local.getExport !== 'function') throw new TypeError('Event client repairs require the local export registry');
+  let state = contexts.get(local);
+  if (!state) { state = { frames: [], apis: new WeakSet(), wrappers: new WeakSet() }; contexts.set(local, state); }
+
+  function installBase(candidate) {
+    const base = candidate || local.getExport('BaseApi');
+    if (!base || typeof base.requestLogic !== 'function' || state.wrappers.has(base.requestLogic)) return;
+    const original = base.requestLogic;
+    const wrapped = function (request, ...rest) {
+      const phase = state.frames.at(-1);
+      const scoped = phase && request?.api === 'cardSkinActivityNew' ? { ...request, hdId: phase } : request;
+      return original.call(this, scoped, ...rest);
+    };
+    state.wrappers.add(wrapped); base.requestLogic = wrapped;
+  }
+  installBase(exports.BaseApi);
+
+  for (const [name, phase] of [['ActSkinWeekApi', 2], ['ActCardWeekApi', 3]]) {
+    const api = exports[name]; if (!api || state.apis.has(api)) continue;
+    state.apis.add(api);
+    for (const [method, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(api))) {
+      if (typeof descriptor.value !== 'function' || method === 'constructor') continue;
+      const original = descriptor.value;
+      Object.defineProperty(api, method, { ...descriptor, value: function (...args) {
+        // Shipped API methods construct and submit their request synchronously.
+        // Response callbacks can arrive later, after another event is opened.
+        installBase(); state.frames.push(phase);
+        try { return original.apply(this, args); }
+        finally { state.frames.pop(); }
+      } });
+    }
+  }
+}

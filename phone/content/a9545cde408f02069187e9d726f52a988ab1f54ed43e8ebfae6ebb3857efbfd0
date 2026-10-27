@@ -1,0 +1,4760 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("@babel/runtime/helpers/typeof");
+!(function e2(t, n, r) {
+  function o(a2, u) {
+    if (!n[a2]) {
+      if (!t[a2]) {
+        var c = "function" == typeof require && require;
+        if (!u && c) return c(a2, true);
+        if (i) return i(a2, true);
+        throw (((u = new Error("Cannot find module '" + a2 + "'")).code = "MODULE_NOT_FOUND"), u);
+      }
+      ((c = n[a2] = { exports: {} }),
+        t[a2][0].call(
+          c.exports,
+          function (e3) {
+            return o(t[a2][1][e3] || e3);
+          },
+          c,
+          c.exports,
+          e2,
+          t,
+          n,
+          r,
+        ));
+    }
+    return n[a2].exports;
+  }
+  for (var i = "function" == typeof require && require, a = 0; a < r.length; a++) o(r[a]);
+  return o;
+})(
+  {
+    1: [
+      function (e3, t, n) {
+        function r(e4) {
+          this.options = e4 || { locator: {} };
+        }
+        function o() {
+          this.cdata = false;
+        }
+        function i(e4, t2) {
+          ((t2.lineNumber = e4.lineNumber), (t2.columnNumber = e4.columnNumber));
+        }
+        function a(e4) {
+          if (e4)
+            return (
+              "\n@" +
+              (e4.systemId || "") +
+              "#[line:" +
+              e4.lineNumber +
+              ",col:" +
+              e4.columnNumber +
+              "]"
+            );
+        }
+        function u(e4, t2, n2) {
+          return "string" == typeof e4
+            ? e4.substr(t2, n2)
+            : e4.length >= t2 + n2 || t2
+              ? new java.lang.String(e4, t2, n2) + ""
+              : e4;
+        }
+        function c(e4, t2) {
+          (e4.currentElement || e4.doc).appendChild(t2);
+        }
+        ((r.prototype.parseFromString = function (e4, t2) {
+          var n2 = this.options,
+            r2 = new s(),
+            i2 = n2.domBuilder || new o(),
+            u2 = n2.errorHandler,
+            c2 = n2.locator,
+            f2 = n2.xmlns || {},
+            d = (t2 = /\/x?html?$/.test(t2))
+              ? l.entityMap
+              : { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
+          return (
+            c2 && i2.setDocumentLocator(c2),
+            (r2.errorHandler = (function (e5, t3, n3) {
+              if (!e5) {
+                if (t3 instanceof o) return t3;
+                e5 = t3;
+              }
+              var r3 = {},
+                i3 = e5 instanceof Function;
+              function u3(t4) {
+                var o2 = e5[t4];
+                (!o2 &&
+                  i3 &&
+                  (o2 =
+                    2 == e5.length
+                      ? function (n4) {
+                          e5(t4, n4);
+                        }
+                      : e5),
+                  (r3[t4] = o2
+                    ? function (e6) {
+                        o2("[xmldom " + t4 + "]	" + e6 + a(n3));
+                      }
+                    : function () {}));
+              }
+              return ((n3 = n3 || {}), u3("warning"), u3("error"), u3("fatalError"), r3);
+            })(u2, i2, c2)),
+            (r2.domBuilder = n2.domBuilder || i2),
+            t2 && (f2[""] = "http://www.w3.org/1999/xhtml"),
+            (f2.xml = f2.xml || "http://www.w3.org/XML/1998/namespace"),
+            e4 ? r2.parse(e4, f2, d) : r2.errorHandler.error("invalid doc source"),
+            i2.doc
+          );
+        }),
+          (o.prototype = {
+            startDocument: function () {
+              ((this.doc = new f().createDocument(null, null, null)),
+                this.locator && (this.doc.documentURI = this.locator.systemId));
+            },
+            startElement: function (e4, t2, n2, r2) {
+              var o2 = this.doc,
+                a2 = o2.createElementNS(e4, n2 || t2),
+                u2 = r2.length;
+              (c(this, a2), (this.currentElement = a2), this.locator && i(this.locator, a2));
+              for (var l2 = 0; l2 < u2; l2++) {
+                e4 = r2.getURI(l2);
+                var s2 = r2.getValue(l2),
+                  f2 = ((n2 = r2.getQName(l2)), o2.createAttributeNS(e4, n2));
+                (this.locator && i(r2.getLocator(l2), f2),
+                  (f2.value = f2.nodeValue = s2),
+                  a2.setAttributeNode(f2));
+              }
+            },
+            endElement: function (e4, t2, n2) {
+              var r2 = this.currentElement;
+              (r2.tagName, (this.currentElement = r2.parentNode));
+            },
+            startPrefixMapping: function (e4, t2) {},
+            endPrefixMapping: function (e4) {},
+            processingInstruction: function (e4, t2) {
+              ((e4 = this.doc.createProcessingInstruction(e4, t2)),
+                this.locator && i(this.locator, e4),
+                c(this, e4));
+            },
+            ignorableWhitespace: function (e4, t2, n2) {},
+            characters: function (e4, t2, n2) {
+              var r2;
+              (e4 = u.apply(this, arguments)) &&
+                ((r2 = this.cdata ? this.doc.createCDATASection(e4) : this.doc.createTextNode(e4)),
+                this.currentElement
+                  ? this.currentElement.appendChild(r2)
+                  : /^\s*$/.test(e4) && this.doc.appendChild(r2),
+                this.locator) &&
+                i(this.locator, r2);
+            },
+            skippedEntity: function (e4) {},
+            endDocument: function () {
+              this.doc.normalize();
+            },
+            setDocumentLocator: function (e4) {
+              (this.locator = e4) && (e4.lineNumber = 0);
+            },
+            comment: function (e4, t2, n2) {
+              ((e4 = u.apply(this, arguments)),
+                (e4 = this.doc.createComment(e4)),
+                this.locator && i(this.locator, e4),
+                c(this, e4));
+            },
+            startCDATA: function () {
+              this.cdata = true;
+            },
+            endCDATA: function () {
+              this.cdata = false;
+            },
+            startDTD: function (e4, t2, n2) {
+              var r2 = this.doc.implementation;
+              r2 &&
+                r2.createDocumentType &&
+                ((r2 = r2.createDocumentType(e4, t2, n2)),
+                this.locator && i(this.locator, r2),
+                c(this, r2));
+            },
+            warning: function (e4) {
+              console.warn("[xmldom warning]	" + e4, a(this.locator));
+            },
+            error: function (e4) {
+              console.error("[xmldom error]	" + e4, a(this.locator));
+            },
+            fatalError: function (e4) {
+              throw (console.error("[xmldom fatalError]	" + e4, a(this.locator)), e4);
+            },
+          }),
+          "endDTD,startEntity,endEntity,attributeDecl,elementDecl,externalEntityDecl,internalEntityDecl,resolveEntity,getExternalSubset,notationDecl,unparsedEntityDecl".replace(
+            /\w+/g,
+            function (e4) {
+              o.prototype[e4] = function () {
+                return null;
+              };
+            },
+          ));
+        var l = e3("./entities"),
+          s = e3("./sax").XMLReader,
+          f = (n.DOMImplementation = e3("./dom").DOMImplementation);
+        ((n.XMLSerializer = e3("./dom").XMLSerializer), (n.DOMParser = r), (window.DOMParser = r));
+      },
+      { "./dom": 2, "./entities": 3, "./sax": 4 },
+    ],
+    2: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 in e3) t2[n2] = e3[n2];
+        }
+        function a(e3, t2) {
+          var n2 = e3.prototype;
+          if (!(n2 instanceof t2)) {
+            var r2,
+              o2 = function () {};
+            for (r2 in ((o2.prototype = t2.prototype), (o2 = new o2()), n2)) o2[r2] = n2[r2];
+            e3.prototype = n2 = o2;
+          }
+          n2.constructor != e3 &&
+            ("function" != typeof e3 && console.error("unknow Class:" + e3), (n2.constructor = e3));
+        }
+        var u,
+          c = {},
+          l =
+            ((c.ELEMENT_NODE = 1),
+            (c.ATTRIBUTE_NODE = 2),
+            (c.TEXT_NODE = 3),
+            (c.CDATA_SECTION_NODE = 4),
+            (c.ENTITY_REFERENCE_NODE = 5),
+            (c.ENTITY_NODE = 6),
+            (c.PROCESSING_INSTRUCTION_NODE = 7),
+            (c.COMMENT_NODE = 8),
+            (c.DOCUMENT_NODE = 9),
+            (c.DOCUMENT_TYPE_NODE = 10),
+            (c.DOCUMENT_FRAGMENT_NODE = 11),
+            (c.NOTATION_NODE = 12),
+            {}),
+          s = {};
+        function f(e3, t2) {
+          var n2;
+          return (
+            t2 instanceof Error
+              ? (n2 = t2)
+              : ((n2 = this),
+                Error.call(this, s[e3]),
+                (this.message = s[e3]),
+                Error.captureStackTrace && Error.captureStackTrace(this, f)),
+            (n2.code = e3),
+            t2 && (this.message = this.message + ": " + t2),
+            n2
+          );
+        }
+        function d() {}
+        function p(e3, t2) {
+          ((this._node = e3), (this._refresh = t2), m(this));
+        }
+        function m(e3) {
+          var t2 = e3._node._inc || e3._node.ownerDocument._inc;
+          if (e3._inc != t2) {
+            var n2,
+              r2 = e3._refresh(e3._node);
+            for (n2 in (V(e3, "length", r2.length), r2)) e3[n2] = r2[n2];
+            e3._inc = t2;
+          }
+        }
+        function E() {}
+        function h(e3, t2) {
+          for (var n2 = e3.length; n2--;) if (e3[n2] === t2) return n2;
+        }
+        function y(e3, t2, n2, r2) {
+          (r2 ? (t2[h(t2, r2)] = n2) : (t2[t2.length++] = n2),
+            e3 &&
+              (t2 = (n2.ownerElement = e3).ownerDocument) &&
+              (r2 && N(t2, e3, r2),
+              (r2 = e3),
+              (e3 = n2),
+              (n2 = t2) && n2._inc++,
+              "http://www.w3.org/2000/xmlns/" == e3.namespaceURI) &&
+              (r2._nsMap[e3.prefix ? e3.localName : ""] = e3.value));
+        }
+        function b(e3, t2, n2) {
+          var r2 = h(t2, n2);
+          if (!(0 <= r2)) throw f(8, new Error(e3.tagName + "@" + n2));
+          for (var o2, i2 = t2.length - 1; r2 < i2;) t2[r2] = t2[++r2];
+          ((t2.length = i2),
+            e3 && (o2 = e3.ownerDocument) && (N(o2, e3, n2), (n2.ownerElement = null)));
+        }
+        function _(e3) {
+          if (((this._features = {}), e3)) for (var t2 in e3) this._features = e3[t2];
+        }
+        function v() {}
+        function T(e3) {
+          return (
+            ("<" == e3 ? "&lt;" : ">" == e3 && "&gt;") ||
+            ("&" == e3 ? "&amp;" : '"' == e3 && "&quot;") ||
+            "&#" + e3.charCodeAt() + ";"
+          );
+        }
+        function g(e3, t2) {
+          if (t2(e3)) return 1;
+          if ((e3 = e3.firstChild))
+            do {
+              if (g(e3, t2)) return 1;
+            } while ((e3 = e3.nextSibling));
+        }
+        function w() {}
+        function N(e3, t2, n2) {
+          (e3 && e3._inc++,
+            "http://www.w3.org/2000/xmlns/" == n2.namespaceURI &&
+              delete t2._nsMap[n2.prefix ? n2.localName : ""]);
+        }
+        function S(e3, t2, n2) {
+          if (e3 && e3._inc) {
+            e3._inc++;
+            var r2 = t2.childNodes;
+            if (n2) r2[r2.length++] = n2;
+            else {
+              for (var o2 = t2.firstChild, i2 = 0; o2;) o2 = (r2[i2++] = o2).nextSibling;
+              r2.length = i2;
+            }
+          }
+        }
+        function A(e3, t2) {
+          var n2 = t2.previousSibling,
+            r2 = t2.nextSibling;
+          return (
+            n2 ? (n2.nextSibling = r2) : (e3.firstChild = r2),
+            r2 ? (r2.previousSibling = n2) : (e3.lastChild = n2),
+            S(e3.ownerDocument, e3),
+            t2
+          );
+        }
+        function O(e3, t2, n2) {
+          var r2 = t2.parentNode;
+          if ((r2 && r2.removeChild(t2), 11 === t2.nodeType)) {
+            var o2 = t2.firstChild;
+            if (null == o2) return t2;
+            var i2 = t2.lastChild;
+          } else o2 = i2 = t2;
+          for (
+            r2 = n2 ? n2.previousSibling : e3.lastChild,
+              o2.previousSibling = r2,
+              i2.nextSibling = n2,
+              r2 ? (r2.nextSibling = o2) : (e3.firstChild = o2),
+              null == n2 ? (e3.lastChild = i2) : (n2.previousSibling = i2);
+            (o2.parentNode = e3), o2 !== i2 && (o2 = o2.nextSibling);
+          );
+          return (
+            S(e3.ownerDocument || e3, e3),
+            11 == t2.nodeType && (t2.firstChild = t2.lastChild = null),
+            t2
+          );
+        }
+        function R() {
+          this._nsMap = {};
+        }
+        function I() {}
+        function P() {}
+        function M() {}
+        function C() {}
+        function D() {}
+        function L() {}
+        function x() {}
+        function j() {}
+        function U() {}
+        function F() {}
+        function B() {}
+        function H() {}
+        function k(e3, t2) {
+          var n2,
+            r2 = [],
+            o2 = (9 == this.nodeType && this.documentElement) || this,
+            i2 = o2.prefix,
+            a2 = o2.namespaceURI;
+          return (
+            X(
+              this,
+              r2,
+              e3,
+              t2,
+              (n2 =
+                a2 && null == i2 && null == o2.lookupPrefix(a2)
+                  ? [{ namespace: a2, prefix: null }]
+                  : n2),
+            ),
+            r2.join("")
+          );
+        }
+        function G(e3, t2, n2) {
+          var r2 = e3.prefix || "",
+            o2 = e3.namespaceURI;
+          if (
+            (r2 || o2) &&
+            ("xml" !== r2 || "http://www.w3.org/XML/1998/namespace" !== o2) &&
+            "http://www.w3.org/2000/xmlns/" != o2
+          ) {
+            for (var i2 = n2.length; i2--;) {
+              var a2 = n2[i2];
+              if (a2.prefix == r2) return a2.namespace != o2;
+            }
+            return 1;
+          }
+        }
+        function X(e3, t2, n2, r2, o2) {
+          if (r2) {
+            if (!(e3 = r2(e3))) return;
+            if ("string" == typeof e3) return void t2.push(e3);
+          }
+          switch (e3.nodeType) {
+            case 1:
+              o2 = o2 || [];
+              var i2 = e3.attributes,
+                a2 = i2.length,
+                u2 = e3.firstChild,
+                c2 = e3.tagName;
+              ((n2 = "http://www.w3.org/1999/xhtml" === e3.namespaceURI || n2), t2.push("<", c2));
+              for (var l2 = 0; l2 < a2; l2++)
+                "xmlns" == (s2 = i2.item(l2)).prefix
+                  ? o2.push({ prefix: s2.localName, namespace: s2.value })
+                  : "xmlns" == s2.nodeName && o2.push({ prefix: "", namespace: s2.value });
+              var s2, f2, d2;
+              for (l2 = 0; l2 < a2; l2++)
+                (G((s2 = i2.item(l2)), 0, o2) &&
+                  ((f2 = s2.prefix || ""),
+                  (d2 = s2.namespaceURI),
+                  t2.push(f2 ? " xmlns:" + f2 : " xmlns", '="', d2, '"'),
+                  o2.push({ prefix: f2, namespace: d2 })),
+                  X(s2, t2, n2, r2, o2));
+              if (
+                (G(e3, 0, o2) &&
+                  ((f2 = e3.prefix || ""),
+                  (d2 = e3.namespaceURI),
+                  t2.push(f2 ? " xmlns:" + f2 : " xmlns", '="', d2, '"'),
+                  o2.push({ prefix: f2, namespace: d2 })),
+                u2 || (n2 && !/^(?:meta|link|img|br|hr|input)$/i.test(c2)))
+              ) {
+                if ((t2.push(">"), n2 && /^script$/i.test(c2)))
+                  for (; u2;)
+                    (u2.data ? t2.push(u2.data) : X(u2, t2, n2, r2, o2), (u2 = u2.nextSibling));
+                else for (; u2;) (X(u2, t2, n2, r2, o2), (u2 = u2.nextSibling));
+                t2.push("</", c2, ">");
+              } else t2.push("/>");
+              return;
+            case 9:
+            case 11:
+              for (u2 = e3.firstChild; u2;) (X(u2, t2, n2, r2, o2), (u2 = u2.nextSibling));
+              return;
+            case 2:
+              return t2.push(" ", e3.name, '="', e3.value.replace(/[<&"]/g, T), '"');
+            case 3:
+              return t2.push(e3.data.replace(/[<&]/g, T));
+            case 4:
+              return t2.push("<![CDATA[", e3.data, "]]>");
+            case 8:
+              return t2.push("<!--", e3.data, "-->");
+            case 10:
+              c2 = e3.publicId;
+              var p2 = e3.systemId;
+              return (
+                t2.push("<!DOCTYPE ", e3.name),
+                void (c2
+                  ? (t2.push(' PUBLIC "', c2), p2 && "." != p2 && t2.push('" "', p2), t2.push('">'))
+                  : p2 && "." != p2
+                    ? t2.push(' SYSTEM "', p2, '">')
+                    : ((c2 = e3.internalSubset) && t2.push(" [", c2, "]"), t2.push(">")))
+              );
+            case 7:
+              return t2.push("<?", e3.target, " ", e3.data, "?>");
+            case 5:
+              return t2.push("&", e3.nodeName, ";");
+            default:
+              t2.push("??", e3.nodeName);
+          }
+        }
+        function V(e3, t2, n2) {
+          e3[t2] = n2;
+        }
+        ((l.INDEX_SIZE_ERR = ((s[1] = "Index size error"), 1)),
+          (l.DOMSTRING_SIZE_ERR = ((s[2] = "DOMString size error"), 2)),
+          (l.HIERARCHY_REQUEST_ERR = ((s[3] = "Hierarchy request error"), 3)),
+          (l.WRONG_DOCUMENT_ERR = ((s[4] = "Wrong document"), 4)),
+          (l.INVALID_CHARACTER_ERR = ((s[5] = "Invalid character"), 5)),
+          (l.NO_DATA_ALLOWED_ERR = ((s[6] = "No data allowed"), 6)),
+          (l.NO_MODIFICATION_ALLOWED_ERR = ((s[7] = "No modification allowed"), 7)),
+          (l.NOT_FOUND_ERR = ((s[8] = "Not found"), 8)),
+          (l.NOT_SUPPORTED_ERR = ((s[9] = "Not supported"), 9)),
+          (l.INUSE_ATTRIBUTE_ERR = ((s[10] = "Attribute in use"), 10)),
+          (l.INVALID_STATE_ERR = ((s[11] = "Invalid state"), 11)),
+          (l.SYNTAX_ERR = ((s[12] = "Syntax error"), 12)),
+          (l.INVALID_MODIFICATION_ERR = ((s[13] = "Invalid modification"), 13)),
+          (l.NAMESPACE_ERR = ((s[14] = "Invalid namespace"), 14)),
+          (l.INVALID_ACCESS_ERR = ((s[15] = "Invalid access"), 15)),
+          (f.prototype = Error.prototype),
+          i(l, f),
+          (d.prototype = {
+            length: 0,
+            item: function (e3) {
+              return this[e3] || null;
+            },
+            toString: function (e3, t2) {
+              for (var n2 = [], r2 = 0; r2 < this.length; r2++) X(this[r2], n2, e3, t2);
+              return n2.join("");
+            },
+          }),
+          (p.prototype.item = function (e3) {
+            return (m(this), this[e3]);
+          }),
+          a(p, d),
+          (E.prototype = {
+            length: 0,
+            item: d.prototype.item,
+            getNamedItem: function (e3) {
+              for (var t2 = this.length; t2--;) {
+                var n2 = this[t2];
+                if (n2.nodeName == e3) return n2;
+              }
+            },
+            setNamedItem: function (e3) {
+              var t2 = e3.ownerElement;
+              if (t2 && t2 != this._ownerElement) throw new f(10);
+              return (
+                (t2 = this.getNamedItem(e3.nodeName)),
+                y(this._ownerElement, this, e3, t2),
+                t2
+              );
+            },
+            setNamedItemNS: function (e3) {
+              var t2 = e3.ownerElement;
+              if (t2 && t2 != this._ownerElement) throw new f(10);
+              return (
+                (t2 = this.getNamedItemNS(e3.namespaceURI, e3.localName)),
+                y(this._ownerElement, this, e3, t2),
+                t2
+              );
+            },
+            removeNamedItem: function (e3) {
+              return ((e3 = this.getNamedItem(e3)), b(this._ownerElement, this, e3), e3);
+            },
+            removeNamedItemNS: function (e3, t2) {
+              return ((e3 = this.getNamedItemNS(e3, t2)), b(this._ownerElement, this, e3), e3);
+            },
+            getNamedItemNS: function (e3, t2) {
+              for (var n2 = this.length; n2--;) {
+                var r2 = this[n2];
+                if (r2.localName == t2 && r2.namespaceURI == e3) return r2;
+              }
+              return null;
+            },
+          }),
+          (_.prototype = {
+            hasFeature: function (e3, t2) {
+              return !(!(e3 = this._features[e3.toLowerCase()]) || (t2 && !(t2 in e3)));
+            },
+            createDocument: function (e3, t2, n2) {
+              var r2 = new w();
+              return (
+                (r2.implementation = this),
+                (r2.childNodes = new d()),
+                (r2.doctype = n2) && r2.appendChild(n2),
+                t2 && ((n2 = r2.createElementNS(e3, t2)), r2.appendChild(n2)),
+                r2
+              );
+            },
+            createDocumentType: function (e3, t2, n2) {
+              var r2 = new L();
+              return (
+                (r2.name = e3),
+                (r2.nodeName = e3),
+                (r2.publicId = t2),
+                (r2.systemId = n2),
+                r2
+              );
+            },
+          }),
+          (v.prototype = {
+            firstChild: null,
+            lastChild: null,
+            previousSibling: null,
+            nextSibling: null,
+            attributes: null,
+            parentNode: null,
+            childNodes: null,
+            ownerDocument: null,
+            nodeValue: null,
+            namespaceURI: null,
+            prefix: null,
+            localName: null,
+            insertBefore: function (e3, t2) {
+              return O(this, e3, t2);
+            },
+            replaceChild: function (e3, t2) {
+              (this.insertBefore(e3, t2), t2 && this.removeChild(t2));
+            },
+            removeChild: function (e3) {
+              return A(this, e3);
+            },
+            appendChild: function (e3) {
+              return this.insertBefore(e3, null);
+            },
+            hasChildNodes: function () {
+              return null != this.firstChild;
+            },
+            cloneNode: function (e3) {
+              return (function e4(t2, n2, r2) {
+                var i2 = new n2.constructor();
+                for (var a2 in n2) {
+                  var u2 = n2[a2];
+                  "object" != o(u2) && u2 != i2[a2] && (i2[a2] = u2);
+                }
+                switch (
+                  (n2.childNodes && (i2.childNodes = new d()), (i2.ownerDocument = t2), i2.nodeType)
+                ) {
+                  case 1:
+                    var c2 = n2.attributes,
+                      l2 = (i2.attributes = new E()),
+                      s2 = c2.length;
+                    l2._ownerElement = i2;
+                    for (var f2 = 0; f2 < s2; f2++) i2.setAttributeNode(e4(t2, c2.item(f2), true));
+                    break;
+                  case 2:
+                    r2 = true;
+                }
+                if (r2)
+                  for (var p2 = n2.firstChild; p2;)
+                    (i2.appendChild(e4(t2, p2, r2)), (p2 = p2.nextSibling));
+                return i2;
+              })(this.ownerDocument || this, this, e3);
+            },
+            normalize: function () {
+              for (var e3 = this.firstChild; e3;) {
+                var t2 = e3.nextSibling;
+                t2 && 3 == t2.nodeType && 3 == e3.nodeType
+                  ? (this.removeChild(t2), e3.appendData(t2.data))
+                  : (e3.normalize(), (e3 = t2));
+              }
+            },
+            isSupported: function (e3, t2) {
+              return this.ownerDocument.implementation.hasFeature(e3, t2);
+            },
+            hasAttributes: function () {
+              return 0 < this.attributes.length;
+            },
+            lookupPrefix: function (e3) {
+              for (var t2 = this; t2;) {
+                var n2 = t2._nsMap;
+                if (n2) {
+                  for (var r2 in n2) if (n2[r2] == e3) return r2;
+                }
+                t2 = 2 == t2.nodeType ? t2.ownerDocument : t2.parentNode;
+              }
+              return null;
+            },
+            lookupNamespaceURI: function (e3) {
+              for (var t2 = this; t2;) {
+                var n2 = t2._nsMap;
+                if (n2 && e3 in n2) return n2[e3];
+                t2 = 2 == t2.nodeType ? t2.ownerDocument : t2.parentNode;
+              }
+              return null;
+            },
+            isDefaultNamespace: function (e3) {
+              return null == this.lookupPrefix(e3);
+            },
+          }),
+          i(c, v),
+          i(c, v.prototype),
+          (w.prototype = {
+            nodeName: "#document",
+            nodeType: 9,
+            doctype: null,
+            documentElement: null,
+            _inc: 1,
+            insertBefore: function (e3, t2) {
+              if (11 == e3.nodeType)
+                for (var n2 = e3.firstChild; n2;) {
+                  var r2 = n2.nextSibling;
+                  (this.insertBefore(n2, t2), (n2 = r2));
+                }
+              else
+                (null == this.documentElement && 1 == e3.nodeType && (this.documentElement = e3),
+                  O(this, e3, t2),
+                  (e3.ownerDocument = this));
+              return e3;
+            },
+            removeChild: function (e3) {
+              return (this.documentElement == e3 && (this.documentElement = null), A(this, e3));
+            },
+            importNode: function (e3, t2) {
+              return (function e4(t3, n2, r2) {
+                var o2;
+                switch (n2.nodeType) {
+                  case 1:
+                    (o2 = n2.cloneNode(false)).ownerDocument = t3;
+                  case 11:
+                    break;
+                  case 2:
+                    r2 = true;
+                }
+                if (
+                  (((o2 = o2 || n2.cloneNode(false)).ownerDocument = t3),
+                  (o2.parentNode = null),
+                  r2)
+                )
+                  for (var i2 = n2.firstChild; i2;)
+                    (o2.appendChild(e4(t3, i2, r2)), (i2 = i2.nextSibling));
+                return o2;
+              })(this, e3, t2);
+            },
+            getElementById: function (e3) {
+              var t2 = null;
+              return (
+                g(this.documentElement, function (n2) {
+                  if (1 == n2.nodeType && n2.getAttribute("id") == e3) return ((t2 = n2), true);
+                }),
+                t2
+              );
+            },
+            createElement: function (e3) {
+              var t2 = new R();
+              return (
+                (t2.ownerDocument = this),
+                (t2.nodeName = e3),
+                (t2.tagName = e3),
+                (t2.childNodes = new d()),
+                ((t2.attributes = new E())._ownerElement = t2)
+              );
+            },
+            createDocumentFragment: function () {
+              var e3 = new F();
+              return ((e3.ownerDocument = this), (e3.childNodes = new d()), e3);
+            },
+            createTextNode: function (e3) {
+              var t2 = new M();
+              return ((t2.ownerDocument = this), t2.appendData(e3), t2);
+            },
+            createComment: function (e3) {
+              var t2 = new C();
+              return ((t2.ownerDocument = this), t2.appendData(e3), t2);
+            },
+            createCDATASection: function (e3) {
+              var t2 = new D();
+              return ((t2.ownerDocument = this), t2.appendData(e3), t2);
+            },
+            createProcessingInstruction: function (e3, t2) {
+              var n2 = new B();
+              return (
+                (n2.ownerDocument = this),
+                (n2.tagName = n2.target = e3),
+                (n2.nodeValue = n2.data = t2),
+                n2
+              );
+            },
+            createAttribute: function (e3) {
+              var t2 = new I();
+              return (
+                (t2.ownerDocument = this),
+                (t2.name = e3),
+                (t2.nodeName = e3),
+                (t2.localName = e3),
+                (t2.specified = true),
+                t2
+              );
+            },
+            createEntityReference: function (e3) {
+              var t2 = new U();
+              return ((t2.ownerDocument = this), (t2.nodeName = e3), t2);
+            },
+            createElementNS: function (e3, t2) {
+              var n2 = new R(),
+                r2 = t2.split(":"),
+                o2 = (n2.attributes = new E());
+              return (
+                (n2.childNodes = new d()),
+                (n2.ownerDocument = this),
+                (n2.nodeName = t2),
+                (n2.tagName = t2),
+                (n2.namespaceURI = e3),
+                2 == r2.length
+                  ? ((n2.prefix = r2[0]), (n2.localName = r2[1]))
+                  : (n2.localName = t2),
+                (o2._ownerElement = n2)
+              );
+            },
+            createAttributeNS: function (e3, t2) {
+              var n2 = new I(),
+                r2 = t2.split(":");
+              return (
+                (n2.ownerDocument = this),
+                (n2.nodeName = t2),
+                (n2.name = t2),
+                (n2.namespaceURI = e3),
+                (n2.specified = true),
+                2 == r2.length
+                  ? ((n2.prefix = r2[0]), (n2.localName = r2[1]))
+                  : (n2.localName = t2),
+                n2
+              );
+            },
+          }),
+          a(w, v),
+          (w.prototype.getElementsByTagName = (R.prototype = {
+            nodeType: 1,
+            hasAttribute: function (e3) {
+              return null != this.getAttributeNode(e3);
+            },
+            getAttribute: function (e3) {
+              return ((e3 = this.getAttributeNode(e3)) && e3.value) || "";
+            },
+            getAttributeNode: function (e3) {
+              return this.attributes.getNamedItem(e3);
+            },
+            setAttribute: function (e3, t2) {
+              (((e3 = this.ownerDocument.createAttribute(e3)).value = e3.nodeValue = "" + t2),
+                this.setAttributeNode(e3));
+            },
+            removeAttribute: function (e3) {
+              (e3 = this.getAttributeNode(e3)) && this.removeAttributeNode(e3);
+            },
+            appendChild: function (e3) {
+              return 11 === e3.nodeType
+                ? this.insertBefore(e3, null)
+                : ((t2 = this),
+                  (n2 = (e3 = e3).parentNode) &&
+                    ((r2 = t2.lastChild), n2.removeChild(e3), (r2 = t2.lastChild)),
+                  (r2 = t2.lastChild),
+                  (e3.parentNode = t2),
+                  (e3.previousSibling = r2),
+                  (e3.nextSibling = null),
+                  r2 ? (r2.nextSibling = e3) : (t2.firstChild = e3),
+                  (t2.lastChild = e3),
+                  S(t2.ownerDocument, t2, e3),
+                  e3);
+              var t2, n2, r2;
+            },
+            setAttributeNode: function (e3) {
+              return this.attributes.setNamedItem(e3);
+            },
+            setAttributeNodeNS: function (e3) {
+              return this.attributes.setNamedItemNS(e3);
+            },
+            removeAttributeNode: function (e3) {
+              return this.attributes.removeNamedItem(e3.nodeName);
+            },
+            removeAttributeNS: function (e3, t2) {
+              (e3 = this.getAttributeNodeNS(e3, t2)) && this.removeAttributeNode(e3);
+            },
+            hasAttributeNS: function (e3, t2) {
+              return null != this.getAttributeNodeNS(e3, t2);
+            },
+            getAttributeNS: function (e3, t2) {
+              return ((e3 = this.getAttributeNodeNS(e3, t2)) && e3.value) || "";
+            },
+            setAttributeNS: function (e3, t2, n2) {
+              (((e3 = this.ownerDocument.createAttributeNS(e3, t2)).value = e3.nodeValue = "" + n2),
+                this.setAttributeNode(e3));
+            },
+            getAttributeNodeNS: function (e3, t2) {
+              return this.attributes.getNamedItemNS(e3, t2);
+            },
+            getElementsByTagName: function (e3) {
+              return new p(this, function (t2) {
+                var n2 = [];
+                return (
+                  g(t2, function (r2) {
+                    r2 === t2 ||
+                      1 != r2.nodeType ||
+                      ("*" !== e3 && r2.tagName != e3) ||
+                      n2.push(r2);
+                  }),
+                  n2
+                );
+              });
+            },
+            getElementsByTagNameNS: function (e3, t2) {
+              return new p(this, function (n2) {
+                var r2 = [];
+                return (
+                  g(n2, function (o2) {
+                    o2 === n2 ||
+                      1 !== o2.nodeType ||
+                      ("*" !== e3 && o2.namespaceURI !== e3) ||
+                      ("*" !== t2 && o2.localName != t2) ||
+                      r2.push(o2);
+                  }),
+                  r2
+                );
+              });
+            },
+          }).getElementsByTagName),
+          (w.prototype.getElementsByTagNameNS = R.prototype.getElementsByTagNameNS),
+          a(R, v),
+          (I.prototype.nodeType = 2),
+          a(I, v),
+          (P.prototype = {
+            data: "",
+            substringData: function (e3, t2) {
+              return this.data.substring(e3, e3 + t2);
+            },
+            appendData: function (e3) {
+              ((e3 = this.data + e3), (this.nodeValue = this.data = e3), (this.length = e3.length));
+            },
+            insertData: function (e3, t2) {
+              this.replaceData(e3, 0, t2);
+            },
+            appendChild: function (e3) {
+              throw new Error(s[3]);
+            },
+            deleteData: function (e3, t2) {
+              this.replaceData(e3, t2, "");
+            },
+            replaceData: function (e3, t2, n2) {
+              var r2 = this.data.substring(0, e3);
+              e3 = this.data.substring(e3 + t2);
+              ((this.nodeValue = this.data = n2 = r2 + n2 + e3), (this.length = n2.length));
+            },
+          }),
+          a(P, v),
+          (M.prototype = {
+            nodeName: "#text",
+            nodeType: 3,
+            splitText: function (e3) {
+              var t2 = (n2 = this.data).substring(e3),
+                n2 = n2.substring(0, e3);
+              ((this.data = this.nodeValue = n2),
+                (this.length = n2.length),
+                (e3 = this.ownerDocument.createTextNode(t2)));
+              return (this.parentNode && this.parentNode.insertBefore(e3, this.nextSibling), e3);
+            },
+          }),
+          a(M, P),
+          (C.prototype = { nodeName: "#comment", nodeType: 8 }),
+          a(C, P),
+          (D.prototype = { nodeName: "#cdata-section", nodeType: 4 }),
+          a(D, P),
+          (L.prototype.nodeType = 10),
+          a(L, v),
+          (x.prototype.nodeType = 12),
+          a(x, v),
+          (j.prototype.nodeType = 6),
+          a(j, v),
+          (U.prototype.nodeType = 5),
+          a(U, v),
+          (F.prototype.nodeName = "#document-fragment"),
+          (F.prototype.nodeType = 11),
+          a(F, v),
+          (B.prototype.nodeType = 7),
+          a(B, v),
+          (H.prototype.serializeToString = function (e3, t2, n2) {
+            return k.call(e3, t2, n2);
+          }),
+          (v.prototype.toString = k));
+        try {
+          Object.defineProperty &&
+            ((u = function (e3) {
+              switch (e3.nodeType) {
+                case 1:
+                case 11:
+                  var t2 = [];
+                  for (e3 = e3.firstChild; e3;)
+                    (7 !== e3.nodeType && 8 !== e3.nodeType && t2.push(u(e3)),
+                      (e3 = e3.nextSibling));
+                  return t2.join("");
+                default:
+                  return e3.nodeValue;
+              }
+            }),
+            Object.defineProperty(p.prototype, "length", {
+              get: function () {
+                return (m(this), this.$$length);
+              },
+            }),
+            Object.defineProperty(v.prototype, "textContent", {
+              get: function () {
+                return u(this);
+              },
+              set: function (e3) {
+                switch (this.nodeType) {
+                  case 1:
+                  case 11:
+                    for (; this.firstChild;) this.removeChild(this.firstChild);
+                    (e3 || String(e3)) && this.appendChild(this.ownerDocument.createTextNode(e3));
+                    break;
+                  default:
+                    ((this.data = e3), (this.value = e3), (this.nodeValue = e3));
+                }
+              },
+            }),
+            (V = function (e3, t2, n2) {
+              e3["$$" + t2] = n2;
+            }));
+        } catch (e3) {}
+        ((r.DOMImplementation = _), (r.XMLSerializer = H));
+      },
+      {},
+    ],
+    3: [
+      function (e3, t, n) {
+        n.entityMap = {
+          lt: "<",
+          gt: ">",
+          amp: "&",
+          quot: '"',
+          apos: "'",
+          Agrave: "À",
+          Aacute: "Á",
+          Acirc: "Â",
+          Atilde: "Ã",
+          Auml: "Ä",
+          Aring: "Å",
+          AElig: "Æ",
+          Ccedil: "Ç",
+          Egrave: "È",
+          Eacute: "É",
+          Ecirc: "Ê",
+          Euml: "Ë",
+          Igrave: "Ì",
+          Iacute: "Í",
+          Icirc: "Î",
+          Iuml: "Ï",
+          ETH: "Ð",
+          Ntilde: "Ñ",
+          Ograve: "Ò",
+          Oacute: "Ó",
+          Ocirc: "Ô",
+          Otilde: "Õ",
+          Ouml: "Ö",
+          Oslash: "Ø",
+          Ugrave: "Ù",
+          Uacute: "Ú",
+          Ucirc: "Û",
+          Uuml: "Ü",
+          Yacute: "Ý",
+          THORN: "Þ",
+          szlig: "ß",
+          agrave: "à",
+          aacute: "á",
+          acirc: "â",
+          atilde: "ã",
+          auml: "ä",
+          aring: "å",
+          aelig: "æ",
+          ccedil: "ç",
+          egrave: "è",
+          eacute: "é",
+          ecirc: "ê",
+          euml: "ë",
+          igrave: "ì",
+          iacute: "í",
+          icirc: "î",
+          iuml: "ï",
+          eth: "ð",
+          ntilde: "ñ",
+          ograve: "ò",
+          oacute: "ó",
+          ocirc: "ô",
+          otilde: "õ",
+          ouml: "ö",
+          oslash: "ø",
+          ugrave: "ù",
+          uacute: "ú",
+          ucirc: "û",
+          uuml: "ü",
+          yacute: "ý",
+          thorn: "þ",
+          yuml: "ÿ",
+          nbsp: " ",
+          iexcl: "¡",
+          cent: "¢",
+          pound: "£",
+          curren: "¤",
+          yen: "¥",
+          brvbar: "¦",
+          sect: "§",
+          uml: "¨",
+          copy: "©",
+          ordf: "ª",
+          laquo: "«",
+          not: "¬",
+          shy: "­­",
+          reg: "®",
+          macr: "¯",
+          deg: "°",
+          plusmn: "±",
+          sup2: "²",
+          sup3: "³",
+          acute: "´",
+          micro: "µ",
+          para: "¶",
+          middot: "·",
+          cedil: "¸",
+          sup1: "¹",
+          ordm: "º",
+          raquo: "»",
+          frac14: "¼",
+          frac12: "½",
+          frac34: "¾",
+          iquest: "¿",
+          times: "×",
+          divide: "÷",
+          forall: "∀",
+          part: "∂",
+          exist: "∃",
+          empty: "∅",
+          nabla: "∇",
+          isin: "∈",
+          notin: "∉",
+          ni: "∋",
+          prod: "∏",
+          sum: "∑",
+          minus: "−",
+          lowast: "∗",
+          radic: "√",
+          prop: "∝",
+          infin: "∞",
+          ang: "∠",
+          and: "∧",
+          or: "∨",
+          cap: "∩",
+          cup: "∪",
+          int: "∫",
+          there4: "∴",
+          sim: "∼",
+          cong: "≅",
+          asymp: "≈",
+          ne: "≠",
+          equiv: "≡",
+          le: "≤",
+          ge: "≥",
+          sub: "⊂",
+          sup: "⊃",
+          nsub: "⊄",
+          sube: "⊆",
+          supe: "⊇",
+          oplus: "⊕",
+          otimes: "⊗",
+          perp: "⊥",
+          sdot: "⋅",
+          Alpha: "Α",
+          Beta: "Β",
+          Gamma: "Γ",
+          Delta: "Δ",
+          Epsilon: "Ε",
+          Zeta: "Ζ",
+          Eta: "Η",
+          Theta: "Θ",
+          Iota: "Ι",
+          Kappa: "Κ",
+          Lambda: "Λ",
+          Mu: "Μ",
+          Nu: "Ν",
+          Xi: "Ξ",
+          Omicron: "Ο",
+          Pi: "Π",
+          Rho: "Ρ",
+          Sigma: "Σ",
+          Tau: "Τ",
+          Upsilon: "Υ",
+          Phi: "Φ",
+          Chi: "Χ",
+          Psi: "Ψ",
+          Omega: "Ω",
+          alpha: "α",
+          beta: "β",
+          gamma: "γ",
+          delta: "δ",
+          epsilon: "ε",
+          zeta: "ζ",
+          eta: "η",
+          theta: "θ",
+          iota: "ι",
+          kappa: "κ",
+          lambda: "λ",
+          mu: "μ",
+          nu: "ν",
+          xi: "ξ",
+          omicron: "ο",
+          pi: "π",
+          rho: "ρ",
+          sigmaf: "ς",
+          sigma: "σ",
+          tau: "τ",
+          upsilon: "υ",
+          phi: "φ",
+          chi: "χ",
+          psi: "ψ",
+          omega: "ω",
+          thetasym: "ϑ",
+          upsih: "ϒ",
+          piv: "ϖ",
+          OElig: "Œ",
+          oelig: "œ",
+          Scaron: "Š",
+          scaron: "š",
+          Yuml: "Ÿ",
+          fnof: "ƒ",
+          circ: "ˆ",
+          tilde: "˜",
+          ensp: " ",
+          emsp: " ",
+          thinsp: " ",
+          zwnj: "‌",
+          zwj: "‍",
+          lrm: "‎",
+          rlm: "‏",
+          ndash: "–",
+          mdash: "—",
+          lsquo: "‘",
+          rsquo: "’",
+          sbquo: "‚",
+          ldquo: "“",
+          rdquo: "”",
+          bdquo: "„",
+          dagger: "†",
+          Dagger: "‡",
+          bull: "•",
+          hellip: "…",
+          permil: "‰",
+          prime: "′",
+          Prime: "″",
+          lsaquo: "‹",
+          rsaquo: "›",
+          oline: "‾",
+          euro: "€",
+          trade: "™",
+          larr: "←",
+          uarr: "↑",
+          rarr: "→",
+          darr: "↓",
+          harr: "↔",
+          crarr: "↵",
+          lceil: "⌈",
+          rceil: "⌉",
+          lfloor: "⌊",
+          rfloor: "⌋",
+          loz: "◊",
+          spades: "♠",
+          clubs: "♣",
+          hearts: "♥",
+          diams: "♦",
+        };
+      },
+      {},
+    ],
+    4: [
+      function (e3, t, n) {
+        var r =
+            /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/,
+          o = new RegExp(
+            "[\\-\\.0-9" + r.source.slice(1, -1) + "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]",
+          ),
+          i = new RegExp("^" + r.source + o.source + "*(?::" + r.source + o.source + "*)?$");
+        function a() {}
+        function u(e4, t2) {
+          return ((t2.lineNumber = e4.lineNumber), (t2.columnNumber = e4.columnNumber), t2);
+        }
+        function c(e4, t2, n2) {
+          for (var r2 = e4.tagName, o2 = null, i2 = e4.length; i2--;) {
+            var a2 = e4[i2],
+              u2 = a2.qName,
+              c2 = a2.value;
+            u2 =
+              0 < (f = u2.indexOf(":"))
+                ? ((s2 = a2.prefix = u2.slice(0, f)), (d = u2.slice(f + 1)), "xmlns" === s2 && d)
+                : ((s2 = null), "xmlns" === (d = u2) && "");
+            ((a2.localName = d),
+              false !== u2 &&
+                (null == o2 && ((o2 = {}), l(n2, (n2 = {}))),
+                (n2[u2] = o2[u2] = c2),
+                (a2.uri = "http://www.w3.org/2000/xmlns/"),
+                t2.startPrefixMapping(u2, c2)));
+          }
+          var s2;
+          for (i2 = e4.length; i2--;)
+            (s2 = (a2 = e4[i2]).prefix) &&
+              ("xml" === s2 && (a2.uri = "http://www.w3.org/XML/1998/namespace"), "xmlns" !== s2) &&
+              (a2.uri = n2[s2 || ""]);
+          var f,
+            d =
+              0 < (f = r2.indexOf(":"))
+                ? ((s2 = e4.prefix = r2.slice(0, f)), (e4.localName = r2.slice(f + 1)))
+                : ((s2 = null), (e4.localName = r2)),
+            p = (e4.uri = n2[s2 || ""]);
+          if ((t2.startElement(p, d, r2, e4), !e4.closed))
+            return ((e4.currentNSMap = n2), (e4.localNSMap = o2), 1);
+          if ((t2.endElement(p, d, r2), o2)) for (s2 in o2) t2.endPrefixMapping(s2);
+        }
+        function l(e4, t2) {
+          for (var n2 in e4) t2[n2] = e4[n2];
+        }
+        function s(e4) {}
+        ((a.prototype = {
+          parse: function (e4, t2, n2) {
+            var r2 = this.domBuilder;
+            (r2.startDocument(),
+              l(t2, (t2 = {})),
+              (function (e5, t3, n3, r3, o2) {
+                function i2(e6) {
+                  var t4 = e6.slice(1, -1);
+                  return t4 in n3
+                    ? n3[t4]
+                    : "#" === t4.charAt(0)
+                      ? 65535 < (t4 = parseInt(t4.substr(1).replace("x", "0x")))
+                        ? ((t4 -= 65536),
+                          String.fromCharCode(55296 + (t4 >> 10), 56320 + (1023 & t4)))
+                        : String.fromCharCode(t4)
+                      : (o2.error("entity not found:" + e6), e6);
+                }
+                function a2(t4) {
+                  var n4;
+                  y < t4 &&
+                    ((n4 = e5.substring(y, t4).replace(/&#?\w+;/g, i2)),
+                    m && l2(y),
+                    r3.characters(n4, 0, t4 - y),
+                    (y = t4));
+                }
+                function l2(t4, n4) {
+                  for (; d <= t4 && (n4 = p.exec(e5));)
+                    ((f = n4.index), (d = f + n4[0].length), m.lineNumber++);
+                  m.columnNumber = t4 - f + 1;
+                }
+                for (
+                  var f = 0,
+                    d = 0,
+                    p = /.*(?:\r\n?|\n)|.*$/g,
+                    m = r3.locator,
+                    E = [{ currentNSMap: t3 }],
+                    h = {},
+                    y = 0;
+                  ;
+                ) {
+                  try {
+                    var b,
+                      _,
+                      v = e5.indexOf("<", y);
+                    if (v < 0)
+                      return (
+                        e5.substr(y).match(/^\s*$/) ||
+                        ((_ = (b = r3.doc).createTextNode(e5.substr(y))),
+                        b.appendChild(_),
+                        (r3.currentElement = _))
+                      );
+                    switch ((y < v && a2(v), e5.charAt(v + 1))) {
+                      case "/":
+                        var T = e5.indexOf(">", v + 3),
+                          g = e5.substring(v + 2, T),
+                          w = E.pop(),
+                          N =
+                            (T < 0
+                              ? ((g = e5.substring(v + 2).replace(/[\s<].*/, "")),
+                                o2.error("end tag name: " + g + " is not complete:" + w.tagName),
+                                (T = v + 1 + g.length))
+                              : g.match(/\s</) &&
+                                ((g = g.replace(/[\s<].*/, "")),
+                                o2.error("end tag name: " + g + " maybe not complete"),
+                                (T = v + 1 + g.length)),
+                            w.localNSMap),
+                          S = w.tagName == g;
+                        if (S || (w.tagName && w.tagName.toLowerCase() == g.toLowerCase())) {
+                          if ((r3.endElement(w.uri, w.localName, g), N))
+                            for (var A in N) r3.endPrefixMapping(A);
+                          S ||
+                            o2.fatalError(
+                              "end tag name: " +
+                                g +
+                                " is not match the current start tagName:" +
+                                w.tagName,
+                            );
+                        } else E.push(w);
+                        T++;
+                        break;
+                      case "?":
+                        (m && l2(v),
+                          (L = v),
+                          (x = r3),
+                          (j = void 0),
+                          (T =
+                            (j = (D = e5).indexOf("?>", L)) &&
+                            (D = D.substring(L, j).match(/^<\?(\S*)\s*([\s\S]*?)\s*$/))
+                              ? (D[0].length, x.processingInstruction(D[1], D[2]), j + 2)
+                              : -1));
+                        break;
+                      case "!":
+                        (m && l2(v),
+                          (T = (function (e6, t4, n4, r4) {
+                            var o3, i3;
+                            return "-" === e6.charAt(t4 + 2)
+                              ? "-" === e6.charAt(t4 + 3)
+                                ? t4 < (i3 = e6.indexOf("-->", t4 + 4))
+                                  ? (n4.comment(e6, t4 + 4, i3 - t4 - 4), i3 + 3)
+                                  : (r4.error("Unclosed comment"), -1)
+                                : -1
+                              : "CDATA[" == e6.substr(t4 + 3, 6)
+                                ? ((i3 = e6.indexOf("]]>", t4 + 9)),
+                                  n4.startCDATA(),
+                                  n4.characters(e6, t4 + 9, i3 - t4 - 9),
+                                  n4.endCDATA(),
+                                  i3 + 3)
+                                : 1 <
+                                      (i3 = (r4 = (function (e7, t5) {
+                                        var n5,
+                                          r5 = [],
+                                          o4 = /'[^']+'|"[^"]+"|[^\s<>\/=]+=?|(\/?\s*>|<)/g;
+                                        for (o4.lastIndex = t5, o4.exec(e7); (n5 = o4.exec(e7));)
+                                          if ((r5.push(n5), n5[1])) return r5;
+                                      })(e6, t4)).length) && /!doctype/i.test(r4[0][0])
+                                  ? ((e6 = r4[1][0]),
+                                    (t4 = 3 < i3 && /^public$/i.test(r4[2][0]) && r4[3][0]),
+                                    (o3 = 4 < i3 && r4[4][0]),
+                                    (r4 = r4[i3 - 1]),
+                                    n4.startDTD(
+                                      e6,
+                                      t4 && t4.replace(/^(['"])(.*?)\1$/, "$2"),
+                                      o3 && o3.replace(/^(['"])(.*?)\1$/, "$2"),
+                                    ),
+                                    n4.endDTD(),
+                                    r4.index + r4[0].length)
+                                  : -1;
+                          })(e5, v, r3, o2)));
+                        break;
+                      default:
+                        m && l2(v);
+                        var O = new s(),
+                          R = E[E.length - 1].currentNSMap,
+                          I =
+                            ((T = (function (e6, t4, n4, r4, o3, i3) {
+                              for (var a3, u2 = ++t4, c2 = 0; ;) {
+                                var l3 = e6.charAt(u2);
+                                switch (l3) {
+                                  case "=":
+                                    if (1 === c2) a3 = e6.slice(t4, u2);
+                                    else if (2 !== c2)
+                                      throw new Error("attribute equal must after attrName");
+                                    c2 = 3;
+                                    break;
+                                  case "'":
+                                  case '"':
+                                    if (3 === c2 || 1 === c2) {
+                                      if (
+                                        (1 === c2 &&
+                                          (i3.warning('attribute value must after "="'),
+                                          (a3 = e6.slice(t4, u2))),
+                                        (t4 = u2 + 1),
+                                        !(0 < (u2 = e6.indexOf(l3, t4))))
+                                      )
+                                        throw new Error(
+                                          "attribute value no end '" + l3 + "' match",
+                                        );
+                                      ((s2 = e6.slice(t4, u2).replace(/&#?\w+;/g, o3)),
+                                        n4.add(a3, s2, t4 - 1));
+                                    } else {
+                                      if (4 != c2)
+                                        throw new Error('attribute value must after "="');
+                                      ((s2 = e6.slice(t4, u2).replace(/&#?\w+;/g, o3)),
+                                        n4.add(a3, s2, t4),
+                                        i3.warning(
+                                          'attribute "' + a3 + '" missed start quot(' + l3 + ")!!",
+                                        ),
+                                        (t4 = u2 + 1));
+                                    }
+                                    c2 = 5;
+                                    break;
+                                  case "/":
+                                    switch (c2) {
+                                      case 0:
+                                        n4.setTagName(e6.slice(t4, u2));
+                                      case 5:
+                                      case 6:
+                                      case 7:
+                                        ((c2 = 7), (n4.closed = true));
+                                      case 4:
+                                      case 1:
+                                      case 2:
+                                        break;
+                                      default:
+                                        throw new Error("attribute invalid close char('/')");
+                                    }
+                                    break;
+                                  case "":
+                                    return (
+                                      i3.error("unexpected end of input"),
+                                      0 == c2 && n4.setTagName(e6.slice(t4, u2)),
+                                      u2
+                                    );
+                                  case ">":
+                                    switch (c2) {
+                                      case 0:
+                                        n4.setTagName(e6.slice(t4, u2));
+                                      case 5:
+                                      case 6:
+                                      case 7:
+                                        break;
+                                      case 4:
+                                      case 1:
+                                        "/" === (s2 = e6.slice(t4, u2)).slice(-1) &&
+                                          ((n4.closed = true), (s2 = s2.slice(0, -1)));
+                                      case 2:
+                                        (2 === c2 && (s2 = a3),
+                                          4 == c2
+                                            ? (i3.warning(
+                                                'attribute "' + s2 + '" missed quot(")!!',
+                                              ),
+                                              n4.add(a3, s2.replace(/&#?\w+;/g, o3), t4))
+                                            : (("http://www.w3.org/1999/xhtml" === r4[""] &&
+                                                s2.match(/^(?:disabled|checked|selected)$/i)) ||
+                                                i3.warning(
+                                                  'attribute "' +
+                                                    s2 +
+                                                    '" missed value!! "' +
+                                                    s2 +
+                                                    '" instead!!',
+                                                ),
+                                              n4.add(s2, s2, t4)));
+                                        break;
+                                      case 3:
+                                        throw new Error("attribute value missed!!");
+                                    }
+                                    return u2;
+                                  case "":
+                                    l3 = " ";
+                                  default:
+                                    if (l3 <= " ")
+                                      switch (c2) {
+                                        case 0:
+                                          (n4.setTagName(e6.slice(t4, u2)), (c2 = 6));
+                                          break;
+                                        case 1:
+                                          ((a3 = e6.slice(t4, u2)), (c2 = 2));
+                                          break;
+                                        case 4:
+                                          var s2 = e6.slice(t4, u2).replace(/&#?\w+;/g, o3);
+                                          (i3.warning('attribute "' + s2 + '" missed quot(")!!'),
+                                            n4.add(a3, s2, t4));
+                                        case 5:
+                                          c2 = 6;
+                                      }
+                                    else
+                                      switch (c2) {
+                                        case 2:
+                                          (n4.tagName,
+                                            ("http://www.w3.org/1999/xhtml" === r4[""] &&
+                                              a3.match(/^(?:disabled|checked|selected)$/i)) ||
+                                              i3.warning(
+                                                'attribute "' +
+                                                  a3 +
+                                                  '" missed value!! "' +
+                                                  a3 +
+                                                  '" instead2!!',
+                                              ),
+                                            n4.add(a3, a3, t4),
+                                            (t4 = u2),
+                                            (c2 = 1));
+                                          break;
+                                        case 5:
+                                          i3.warning('attribute space is required"' + a3 + '"!!');
+                                        case 6:
+                                          ((c2 = 1), (t4 = u2));
+                                          break;
+                                        case 3:
+                                          ((c2 = 4), (t4 = u2));
+                                          break;
+                                        case 7:
+                                          throw new Error(
+                                            "elements closed character '/' and '>' must be connected to",
+                                          );
+                                      }
+                                }
+                                u2++;
+                              }
+                            })(e5, v, O, R, i2, o2)),
+                            O.length);
+                        if (
+                          (!O.closed &&
+                            (function (e6, t4, n4, r4) {
+                              var o3 = r4[n4];
+                              return (
+                                null == o3 &&
+                                  ((o3 = e6.lastIndexOf("</" + n4 + ">")) < t4 &&
+                                    (o3 = e6.lastIndexOf("</" + n4)),
+                                  (r4[n4] = o3)),
+                                o3 < t4
+                              );
+                            })(e5, T, O.tagName, h) &&
+                            ((O.closed = true), n3.nbsp || o2.warning("unclosed xml attribute")),
+                          m && I)
+                        ) {
+                          for (var P = u(m, {}), M = 0; M < I; M++) {
+                            var C = O[M];
+                            (l2(C.offset), (C.locator = u(m, {})));
+                          }
+                          ((r3.locator = P), c(O, r3, R) && E.push(O), (r3.locator = m));
+                        } else c(O, r3, R) && E.push(O);
+                        "http://www.w3.org/1999/xhtml" !== O.uri || O.closed
+                          ? T++
+                          : (T = (function (e6, t4, n4, r4, o3) {
+                              if (/^(?:script|textarea)$/i.test(n4)) {
+                                var i3 = e6.indexOf("</" + n4 + ">", t4);
+                                e6 = e6.substring(t4 + 1, i3);
+                                if (/[&<]/.test(e6))
+                                  return (
+                                    /^script$/i.test(n4) || (e6 = e6.replace(/&#?\w+;/g, r4)),
+                                    o3.characters(e6, 0, e6.length),
+                                    i3
+                                  );
+                              }
+                              return t4 + 1;
+                            })(e5, T, O.tagName, i2, r3));
+                    }
+                  } catch (D2) {
+                    (o2.error("element parse error: " + D2), (T = -1));
+                  }
+                  y < T ? (y = T) : a2(Math.max(v, y) + 1);
+                }
+                var D, L, x, j;
+              })(e4, t2, n2, r2, this.errorHandler),
+              r2.endDocument());
+          },
+        }),
+          (s.prototype = {
+            setTagName: function (e4) {
+              if (!i.test(e4)) throw new Error("invalid tagName:" + e4);
+              this.tagName = e4;
+            },
+            add: function (e4, t2, n2) {
+              if (!i.test(e4)) throw new Error("invalid attribute:" + e4);
+              this[this.length++] = { qName: e4, value: t2, offset: n2 };
+            },
+            length: 0,
+            getLocalName: function (e4) {
+              return this[e4].localName;
+            },
+            getLocator: function (e4) {
+              return this[e4].locator;
+            },
+            getQName: function (e4) {
+              return this[e4].qName;
+            },
+            getURI: function (e4) {
+              return this[e4].uri;
+            },
+            getValue: function (e4) {
+              return this[e4].value;
+            },
+          }),
+          (n.XMLReader = a));
+      },
+      {},
+    ],
+    5: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        function a(e3, t2, n2) {
+          t2 = c(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], c(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function u() {
+          return (u =
+            "undefined" != typeof Reflect && Reflect.get
+              ? Reflect.get.bind()
+              : function (e3, t2, n2) {
+                  var r2 = (function (e4, t3) {
+                    for (; !{}.hasOwnProperty.call(e4, t3) && null !== (e4 = c(e4)););
+                    return e4;
+                  })(e3, t2);
+                  if (r2)
+                    return (r2 = Object.getOwnPropertyDescriptor(r2, t2)).get
+                      ? r2.get.call(arguments.length < 3 ? e3 : n2)
+                      : r2.value;
+                }).apply(null, arguments);
+        }
+        function c(e3) {
+          return (c = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function l(e3, t2) {
+          return (l = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./HTMLAudioElement")) && t.__esModule ? t : { default: t }));
+        var s = 1,
+          f = {};
+        r.default = (function (e3) {
+          function t2(e4) {
+            var n3;
+            if (!(this instanceof t2)) throw new TypeError("Cannot call a class as a function");
+            (((n3 = a(this, t2))._$sn = s++),
+              (n3.HAVE_NOTHING = 0),
+              (n3.HAVE_METADATA = 1),
+              (n3.HAVE_CURRENT_DATA = 2),
+              (n3.HAVE_FUTURE_DATA = 3),
+              (n3.HAVE_ENOUGH_DATA = 4),
+              (n3.readyState = 0));
+            var r2 = wx.createInnerAudioContext();
+            return (
+              (f[n3._$sn] = r2),
+              (n3._canplayEvents = [
+                "load",
+                "loadend",
+                "canplay",
+                "canplaythrough",
+                "loadedmetadata",
+              ]),
+              r2.onCanplay(function () {
+                ((n3._loaded = true),
+                  (n3.readyState = n3.HAVE_CURRENT_DATA),
+                  n3._canplayEvents.forEach(function (e5) {
+                    n3.dispatchEvent({ type: e5 });
+                  }));
+              }),
+              r2.onPlay(function () {
+                ((n3._paused = f[n3._$sn].paused), n3.dispatchEvent({ type: "play" }));
+              }),
+              r2.onPause(function () {
+                ((n3._paused = f[n3._$sn].paused), n3.dispatchEvent({ type: "pause" }));
+              }),
+              r2.onEnded(function () {
+                ((n3._paused = f[n3._$sn].paused),
+                  false === f[n3._$sn].loop && n3.dispatchEvent({ type: "ended" }),
+                  (n3.readyState = 4));
+              }),
+              r2.onError(function () {
+                ((n3._paused = f[n3._$sn].paused), n3.dispatchEvent({ type: "error" }));
+              }),
+              e4 ? (n3.src = e4) : (n3._src = ""),
+              (n3._loop = r2.loop),
+              (n3._autoplay = r2.autoplay),
+              (n3._paused = r2.paused),
+              (n3._volume = r2.volume),
+              (n3._muted = false),
+              n3
+            );
+          }
+          var n2 = t2;
+          if ("function" != typeof e3 && null !== e3)
+            throw new TypeError("Super expression must either be null or a function");
+          return (
+            (n2.prototype = Object.create(e3 && e3.prototype, {
+              constructor: { value: n2, writable: true, configurable: true },
+            })),
+            Object.defineProperty(n2, "prototype", { writable: false }),
+            e3 && l(n2, e3),
+            (n2 = t2),
+            (e3 = [
+              {
+                key: "addEventListener",
+                value: function (e4, n3) {
+                  var r2,
+                    o2,
+                    i2,
+                    a2,
+                    l2,
+                    s2 = 2 < arguments.length && void 0 !== arguments[2] ? arguments[2] : {};
+                  ((r2 = t2),
+                    (o2 = "addEventListener"),
+                    (i2 = this),
+                    (l2 = u(c(1 & (a2 = 3) ? r2.prototype : r2), o2, i2)),
+                    (2 & a2 && "function" == typeof l2
+                      ? function (e5) {
+                          return l2.apply(i2, e5);
+                        }
+                      : l2)([e4, n3, s2]),
+                    (e4 = String(e4).toLowerCase()),
+                    this._loaded &&
+                      -1 !== this._canplayEvents.indexOf(e4) &&
+                      this.dispatchEvent({ type: e4 }));
+                },
+              },
+              { key: "load", value: function () {} },
+              {
+                key: "play",
+                value: function () {
+                  f[this._$sn].play();
+                },
+              },
+              {
+                key: "resume",
+                value: function () {
+                  f[this._$sn].resume();
+                },
+              },
+              {
+                key: "pause",
+                value: function () {
+                  f[this._$sn].pause();
+                },
+              },
+              {
+                key: "stop",
+                value: function () {
+                  f[this._$sn].stop();
+                },
+              },
+              {
+                key: "destroy",
+                value: function () {
+                  f[this._$sn].destroy();
+                },
+              },
+              {
+                key: "canPlayType",
+                value: function () {
+                  var e4 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : "";
+                  return "string" == typeof e4 &&
+                    (-1 < e4.indexOf("audio/mpeg") || e4.indexOf("audio/mp4"))
+                    ? "probably"
+                    : "";
+                },
+              },
+              {
+                key: "currentTime",
+                get: function () {
+                  return f[this._$sn].currentTime;
+                },
+                set: function (e4) {
+                  f[this._$sn].seek(e4);
+                },
+              },
+              {
+                key: "duration",
+                get: function () {
+                  return f[this._$sn].duration;
+                },
+              },
+              {
+                key: "src",
+                get: function () {
+                  return this._src;
+                },
+                set: function (e4) {
+                  ((this._src = e4),
+                    (this._loaded = false),
+                    (this.readyState = this.HAVE_NOTHING),
+                    (f[this._$sn].src = e4));
+                },
+              },
+              {
+                key: "loop",
+                get: function () {
+                  return this._loop;
+                },
+                set: function (e4) {
+                  ((this._loop = e4), (f[this._$sn].loop = e4));
+                },
+              },
+              {
+                key: "autoplay",
+                get: function () {
+                  return this.autoplay;
+                },
+                set: function (e4) {
+                  ((this._autoplay = e4), (f[this._$sn].autoplay = e4));
+                },
+              },
+              {
+                key: "paused",
+                get: function () {
+                  return this._paused;
+                },
+              },
+              {
+                key: "volume",
+                get: function () {
+                  return this._volume;
+                },
+                set: function (e4) {
+                  ((this._volume = e4), this._muted || (f[this._$sn].volume = e4));
+                },
+              },
+              {
+                key: "muted",
+                get: function () {
+                  return this._muted;
+                },
+                set: function (e4) {
+                  ((this._muted = e4), (f[this._$sn].volume = e4 ? 0 : this._volume));
+                },
+              },
+              {
+                key: "cloneNode",
+                value: function () {
+                  var e4 = new t2();
+                  return (
+                    (e4.loop = this.loop),
+                    (e4.autoplay = this.autoplay),
+                    (e4.src = this.src),
+                    e4
+                  );
+                },
+              },
+            ]) && i(n2.prototype, e3),
+            Object.defineProperty(n2, "prototype", { writable: false }),
+            n2
+          );
+        })(t.default);
+      },
+      { "./HTMLAudioElement": 13 },
+    ],
+    6: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.default = function () {
+            var e4 = wx.createCanvas();
+            return (
+              (e4.type = "canvas"),
+              (e4.getBoundingClientRect = function () {
+                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+              }),
+              (e4.style = {
+                top: "0px",
+                left: "0px",
+                width: "".concat(r.innerWidth, "px"),
+                height: "".concat(r.innerHeight, "px"),
+              }),
+              (e4.addEventListener = function (e5, t2) {
+                var n2 = 2 < arguments.length && void 0 !== arguments[2] ? arguments[2] : {};
+                ("function" == typeof getApp ? GameGlobal.document : document).addEventListener(
+                  e5,
+                  t2,
+                  n2,
+                );
+              }),
+              (e4.removeEventListener = function (e5, t2) {
+                ("function" == typeof getApp ? GameGlobal.document : document).removeEventListener(
+                  e5,
+                  t2,
+                );
+              }),
+              (e4.dispatchEvent = function () {
+                var e5 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : {};
+                console.log("canvas.dispatchEvent", e5.type, e5);
+              }),
+              Object.defineProperty(e4, "clientWidth", {
+                enumerable: true,
+                get: function () {
+                  return r.innerWidth;
+                },
+              }),
+              Object.defineProperty(e4, "clientHeight", {
+                enumerable: true,
+                get: function () {
+                  return r.innerHeight;
+                },
+              }),
+              e4
+            );
+          }));
+        var r = e3("./WindowProperties");
+      },
+      { "./WindowProperties": 24 },
+    ],
+    7: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2, n2) {
+          t2 = a(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], a(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function a(e3) {
+          return (a = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function u(e3, t2) {
+          return (u = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        function c(e3, t2, n2) {
+          (t2 = l(t2)) in e3
+            ? Object.defineProperty(e3, t2, {
+                value: n2,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+              })
+            : (e3[t2] = n2);
+        }
+        function l(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != o(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != o((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == o(e3) ? e3 : e3 + ""
+          );
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./Node")) && t.__esModule ? t : { default: t }),
+          (r.default = (function (e3) {
+            function t2() {
+              var e4;
+              if (this instanceof t2)
+                return (c((e4 = i(this, t2)), "className", ""), c(e4, "children", []), e4);
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && u(n2, e3),
+              (n2 = t2),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)));
+      },
+      { "./Node": 21 },
+    ],
+    8: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (r.default = (function (e3, t2, n2) {
+            return (
+              t2 && i(e3.prototype, t2),
+              n2 && i(e3, n2),
+              Object.defineProperty(e3, "prototype", { writable: false }),
+              e3
+            );
+          })(function e3() {
+            if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+          })));
+      },
+      {},
+    ],
+    9: [
+      function (t, n, r) {
+        (Object.defineProperty(r, "__esModule", { value: true }), (r.default = void 0));
+        var o = t("../util/index.js");
+        function i(t2) {
+          return (i =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function a(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(e3, c(r2.key), r2));
+          }
+        }
+        function u(e3, t2, n2) {
+          (t2 = c(t2)) in e3
+            ? Object.defineProperty(e3, t2, {
+                value: n2,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+              })
+            : (e3[t2] = n2);
+        }
+        function c(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != i(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != i((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == i(e3) ? e3 : e3 + ""
+          );
+        }
+        var l = (r.default = (function (e3, t2, n2) {
+          return (
+            t2 && a(e3.prototype, t2),
+            n2 && a(e3, n2),
+            Object.defineProperty(e3, "prototype", { writable: false }),
+            e3
+          );
+        })(function e3(t2) {
+          if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+          (u(this, "touches", []),
+            u(this, "targetTouches", []),
+            u(this, "changedTouches", []),
+            u(this, "preventDefault", o.noop),
+            u(this, "stopPropagation", o.noop),
+            (this.type = t2),
+            (this.target = window.canvas),
+            (this.currentTarget = window.canvas));
+        }));
+        function s(e3) {
+          return function (t2) {
+            var n2 = new l(e3);
+            ((n2.touches = t2.touches),
+              (n2.targetTouches = Array.prototype.slice.call(t2.touches)),
+              (n2.changedTouches = t2.changedTouches),
+              (n2.timeStamp = t2.timeStamp),
+              ("function" == typeof getApp ? GameGlobal.document : document).dispatchEvent(n2));
+          };
+        }
+        (wx.onTouchStart(s("touchstart")),
+          wx.onTouchMove(s("touchmove")),
+          wx.onTouchEnd(s("touchend")),
+          wx.onTouchCancel(s("touchcancel")));
+      },
+      { "../util/index.js": 31 },
+    ],
+    10: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          Object.defineProperty(n, "MouseEvent", {
+            enumerable: true,
+            get: function () {
+              return o.default;
+            },
+          }),
+          Object.defineProperty(n, "TouchEvent", {
+            enumerable: true,
+            get: function () {
+              return r.default;
+            },
+          }));
+        var r = i(e3("./TouchEvent")),
+          o = i(e3("./MouseEvent"));
+        function i(e4) {
+          return e4 && e4.__esModule ? e4 : { default: e4 };
+        }
+      },
+      { "./MouseEvent": 8, "./TouchEvent": 9 },
+    ],
+    11: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }), (r.default = void 0));
+        var a,
+          u,
+          c = /* @__PURE__ */ new WeakMap();
+        r.default =
+          ((a = function e3() {
+            if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+            c.set(this, {});
+          }),
+          (u = [
+            {
+              key: "addEventListener",
+              value: function (e3, t2) {
+                var n2 = 2 < arguments.length && void 0 !== arguments[2] ? arguments[2] : {},
+                  r2 = c.get(this);
+                (r2 || c.set(this, (r2 = {})),
+                  r2[e3] || (r2[e3] = []),
+                  r2[e3].push(t2),
+                  n2.capture,
+                  n2.once,
+                  n2.passive);
+              },
+            },
+            {
+              key: "removeEventListener",
+              value: function (e3, t2) {
+                var n2 = c.get(this);
+                if (n2) {
+                  var r2 = n2[e3];
+                  if (r2 && 0 < r2.length) {
+                    for (var o2 = r2.length; o2--;)
+                      if (r2[o2] === t2) {
+                        r2.splice(o2, 1);
+                        break;
+                      }
+                  }
+                }
+              },
+            },
+            {
+              key: "dispatchEvent",
+              value: function () {
+                var e3 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : {},
+                  t2 = c.get(this)[e3.type];
+                if (t2) for (var n2 = 0; n2 < t2.length; n2++) t2[n2](e3);
+              },
+            },
+          ]) && i(a.prototype, u),
+          Object.defineProperty(a, "prototype", { writable: false }),
+          a);
+      },
+      {},
+    ],
+    12: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        var a, u;
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (r.default =
+            ((a = function e3() {
+              if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+            }),
+            (u = [{ key: "construct", value: function () {} }]) && i(a.prototype, u),
+            Object.defineProperty(a, "prototype", { writable: false }),
+            a)));
+      },
+      {},
+    ],
+    13: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2, n2) {
+          t2 = a(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], a(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function a(e3) {
+          return (a = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function u(e3, t2) {
+          return (u = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./HTMLMediaElement")) && t.__esModule ? t : { default: t }),
+          (r.default = (function (e3) {
+            function t2() {
+              if (this instanceof t2) return i(this, t2, ["audio"]);
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && u(n2, e3),
+              (n2 = t2),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)));
+      },
+      { "./HTMLMediaElement": 17 },
+    ],
+    14: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.default = void 0),
+          (e3 = (e3 = e3("./Canvas")) && e3.__esModule ? e3 : { default: e3 }),
+          (GameGlobal.screencanvas = GameGlobal.screencanvas || new e3.default()),
+          (e3 = GameGlobal.screencanvas.constructor),
+          (n.default = e3));
+      },
+      { "./Canvas": 6 },
+    ],
+    15: [
+      function (t, n, r) {
+        (Object.defineProperty(r, "__esModule", { value: true }), (r.default = void 0));
+        var o = (o = t("./Element")) && o.__esModule ? o : { default: o },
+          i = t("./util/index.js"),
+          a = t("./WindowProperties");
+        function u(t2) {
+          return (u =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function c(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(e3, p(r2.key), r2));
+          }
+        }
+        function l(e3, t2, n2) {
+          t2 = s(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], s(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != u(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function s(e3) {
+          return (s = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function f(e3, t2) {
+          return (f = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        function d(e3, t2, n2) {
+          (t2 = p(t2)) in e3
+            ? Object.defineProperty(e3, t2, {
+                value: n2,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+              })
+            : (e3[t2] = n2);
+        }
+        function p(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != u(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != u((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == u(e3) ? e3 : e3 + ""
+          );
+        }
+        r.default = (function (e3) {
+          function t2() {
+            var e4 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : "",
+              n3 = this,
+              r2 = t2;
+            if (n3 instanceof r2)
+              return (
+                d((n3 = l(this, t2)), "className", ""),
+                d(n3, "childern", []),
+                d(n3, "style", {
+                  width: "".concat(a.innerWidth, "px"),
+                  height: "".concat(a.innerHeight, "px"),
+                }),
+                d(n3, "insertBefore", i.noop),
+                d(n3, "innerHTML", ""),
+                (n3.tagName = e4.toUpperCase()),
+                n3
+              );
+            throw new TypeError("Cannot call a class as a function");
+          }
+          var n2 = t2;
+          if ("function" != typeof e3 && null !== e3)
+            throw new TypeError("Super expression must either be null or a function");
+          return (
+            (n2.prototype = Object.create(e3 && e3.prototype, {
+              constructor: { value: n2, writable: true, configurable: true },
+            })),
+            Object.defineProperty(n2, "prototype", { writable: false }),
+            e3 && f(n2, e3),
+            (n2 = t2),
+            (e3 = [
+              {
+                key: "setAttribute",
+                value: function (e4, t3) {
+                  this[e4] = t3;
+                },
+              },
+              {
+                key: "getAttribute",
+                value: function (e4) {
+                  return this[e4];
+                },
+              },
+              {
+                key: "clientWidth",
+                get: function () {
+                  var e4 = parseInt(this.style.fontSize, 10) * this.innerHTML.length;
+                  return Number.isNaN(e4) ? 0 : e4;
+                },
+              },
+              {
+                key: "clientHeight",
+                get: function () {
+                  var e4 = parseInt(this.style.fontSize, 10);
+                  return Number.isNaN(e4) ? 0 : e4;
+                },
+              },
+              {
+                key: "getBoundingClientRect",
+                value: function () {
+                  return { top: 0, left: 0, width: a.innerWidth, height: a.innerHeight };
+                },
+              },
+              { key: "focus", value: function () {} },
+            ]) && c(n2.prototype, e3),
+            Object.defineProperty(n2, "prototype", { writable: false }),
+            n2
+          );
+        })(o.default);
+      },
+      { "./Element": 7, "./WindowProperties": 24, "./util/index.js": 31 },
+    ],
+    16: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }), (n.default = void 0));
+        var r = wx.createImage().constructor;
+        n.default = r;
+      },
+      {},
+    ],
+    17: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        function a(e3, t2, n2) {
+          t2 = u(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], u(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function u(e3) {
+          return (u = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function c(e3, t2) {
+          return (c = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./HTMLElement")) && t.__esModule ? t : { default: t }),
+          (r.default = (function (e3) {
+            function t2(e4) {
+              if (this instanceof t2) return a(this, t2, [e4]);
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && c(n2, e3),
+              (n2 = t2),
+              (e3 = [
+                { key: "addTextTrack", value: function () {} },
+                { key: "captureStream", value: function () {} },
+                { key: "fastSeek", value: function () {} },
+                { key: "load", value: function () {} },
+                { key: "pause", value: function () {} },
+                { key: "play", value: function () {} },
+              ]) && i(n2.prototype, e3),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)));
+      },
+      { "./HTMLElement": 15 },
+    ],
+    18: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2, n2) {
+          t2 = a(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], a(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function a(e3) {
+          return (a = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function u(e3, t2) {
+          return (u = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./HTMLMediaElement")) && t.__esModule ? t : { default: t }),
+          (r.default = (function (e3) {
+            function t2() {
+              if (this instanceof t2) return i(this, t2, ["video"]);
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && u(n2, e3),
+              (n2 = t2),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)));
+      },
+      { "./HTMLMediaElement": 17 },
+    ],
+    19: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.default = function () {
+            var e4 = wx.createImage();
+            return ((e4.premultiplyAlpha = false), e4);
+          }));
+      },
+      {},
+    ],
+    20: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (r.default = (function (e3, t2, n2) {
+            return (
+              t2 && i(e3.prototype, t2),
+              n2 && i(e3, n2),
+              Object.defineProperty(e3, "prototype", { writable: false }),
+              e3
+            );
+          })(function e3() {
+            if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+          })));
+      },
+      {},
+    ],
+    21: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(e3, l(r2.key), r2));
+          }
+        }
+        function a(e3, t2, n2) {
+          t2 = u(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], u(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function u(e3) {
+          return (u = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function c(e3, t2) {
+          return (c = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        function l(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != o(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != o((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == o(e3) ? e3 : e3 + ""
+          );
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./EventTarget.js")) && t.__esModule ? t : { default: t }),
+          (r.default = (function (e3) {
+            function t2() {
+              var e4, n3, r2, o2;
+              if (this instanceof t2)
+                return (
+                  (n3 = e4 = a(this, t2)),
+                  (o2 = []),
+                  (r2 = l((r2 = "childNodes"))) in n3
+                    ? Object.defineProperty(n3, r2, {
+                        value: o2,
+                        enumerable: true,
+                        configurable: true,
+                        writable: true,
+                      })
+                    : (n3[r2] = o2),
+                  e4
+                );
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && c(n2, e3),
+              (n2 = t2),
+              (e3 = [
+                {
+                  key: "appendChild",
+                  value: function (e4) {
+                    this.childNodes.push(e4);
+                  },
+                },
+                {
+                  key: "cloneNode",
+                  value: function () {
+                    var e4 = Object.create(this);
+                    return (Object.assign(e4, this), e4);
+                  },
+                },
+                {
+                  key: "removeChild",
+                  value: function (e4) {
+                    var t3 = this.childNodes.findIndex(function (t4) {
+                      return t4 === e4;
+                    });
+                    return -1 < t3 ? this.childNodes.splice(t3, 1) : null;
+                  },
+                },
+              ]) && i(n2.prototype, e3),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)));
+      },
+      { "./EventTarget.js": 11 },
+    ],
+    22: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((i2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((i2 = r2.key), "string")),
+                "symbol" == o(i2) ? i2 : i2 + ""),
+                r2,
+              ));
+          }
+          var i2;
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          ((r = r.default =
+            (function (e3, t2, n2) {
+              return (
+                t2 && i(e3.prototype, t2),
+                n2 && i(e3, n2),
+                Object.defineProperty(e3, "prototype", { writable: false }),
+                e3
+              );
+            })(function e3() {
+              if (!(this instanceof e3)) throw new TypeError("Cannot call a class as a function");
+            })).ACTIVE_ATTRIBUTES = 35721),
+          (r.ACTIVE_TEXTURE = 34016),
+          (r.ACTIVE_UNIFORMS = 35718),
+          (r.ALIASED_LINE_WIDTH_RANGE = 33902),
+          (r.ALIASED_POINT_SIZE_RANGE = 33901),
+          (r.ALPHA = 6406),
+          (r.ALPHA_BITS = 3413),
+          (r.ALWAYS = 519),
+          (r.ARRAY_BUFFER = 34962),
+          (r.ARRAY_BUFFER_BINDING = 34964),
+          (r.ATTACHED_SHADERS = 35717),
+          (r.BACK = 1029),
+          (r.BLEND = 3042),
+          (r.BLEND_COLOR = 32773),
+          (r.BLEND_DST_ALPHA = 32970),
+          (r.BLEND_DST_RGB = 32968),
+          (r.BLEND_EQUATION = 32777),
+          (r.BLEND_EQUATION_ALPHA = 34877),
+          (r.BLEND_EQUATION_RGB = 32777),
+          (r.BLEND_SRC_ALPHA = 32971),
+          (r.BLEND_SRC_RGB = 32969),
+          (r.BLUE_BITS = 3412),
+          (r.BOOL = 35670),
+          (r.BOOL_VEC2 = 35671),
+          (r.BOOL_VEC3 = 35672),
+          (r.BOOL_VEC4 = 35673),
+          (r.BROWSER_DEFAULT_WEBGL = 37444),
+          (r.BUFFER_SIZE = 34660),
+          (r.BUFFER_USAGE = 34661),
+          (r.BYTE = 5120),
+          (r.CCW = 2305),
+          (r.CLAMP_TO_EDGE = 33071),
+          (r.COLOR_ATTACHMENT0 = 36064),
+          (r.COLOR_BUFFER_BIT = 16384),
+          (r.COLOR_CLEAR_VALUE = 3106),
+          (r.COLOR_WRITEMASK = 3107),
+          (r.COMPILE_STATUS = 35713),
+          (r.COMPRESSED_TEXTURE_FORMATS = 34467),
+          (r.CONSTANT_ALPHA = 32771),
+          (r.CONSTANT_COLOR = 32769),
+          (r.CONTEXT_LOST_WEBGL = 37442),
+          (r.CULL_FACE = 2884),
+          (r.CULL_FACE_MODE = 2885),
+          (r.CURRENT_PROGRAM = 35725),
+          (r.CURRENT_VERTEX_ATTRIB = 34342),
+          (r.CW = 2304),
+          (r.DECR = 7683),
+          (r.DECR_WRAP = 34056),
+          (r.DELETE_STATUS = 35712),
+          (r.DEPTH_ATTACHMENT = 36096),
+          (r.DEPTH_BITS = 3414),
+          (r.DEPTH_BUFFER_BIT = 256),
+          (r.DEPTH_CLEAR_VALUE = 2931),
+          (r.DEPTH_COMPONENT = 6402),
+          (r.DEPTH_COMPONENT16 = 33189),
+          (r.DEPTH_FUNC = 2932),
+          (r.DEPTH_RANGE = 2928),
+          (r.DEPTH_STENCIL = 34041),
+          (r.DEPTH_STENCIL_ATTACHMENT = 33306),
+          (r.DEPTH_TEST = 2929),
+          (r.DEPTH_WRITEMASK = 2930),
+          (r.DITHER = 3024),
+          (r.DONT_CARE = 4352),
+          (r.DST_ALPHA = 772),
+          (r.DST_COLOR = 774),
+          (r.DYNAMIC_DRAW = 35048),
+          (r.ELEMENT_ARRAY_BUFFER = 34963),
+          (r.ELEMENT_ARRAY_BUFFER_BINDING = 34965),
+          (r.EQUAL = 514),
+          (r.FASTEST = 4353),
+          (r.FLOAT = 5126),
+          (r.FLOAT_MAT2 = 35674),
+          (r.FLOAT_MAT3 = 35675),
+          (r.FLOAT_MAT4 = 35676),
+          (r.FLOAT_VEC2 = 35664),
+          (r.FLOAT_VEC3 = 35665),
+          (r.FLOAT_VEC4 = 35666),
+          (r.FRAGMENT_SHADER = 35632),
+          (r.FRAMEBUFFER = 36160),
+          (r.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 36049),
+          (r.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = 36048),
+          (r.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 36051),
+          (r.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = 36050),
+          (r.FRAMEBUFFER_BINDING = 36006),
+          (r.FRAMEBUFFER_COMPLETE = 36053),
+          (r.FRAMEBUFFER_INCOMPLETE_ATTACHMENT = 36054),
+          (r.FRAMEBUFFER_INCOMPLETE_DIMENSIONS = 36057),
+          (r.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 36055),
+          (r.FRAMEBUFFER_UNSUPPORTED = 36061),
+          (r.FRONT = 1028),
+          (r.FRONT_AND_BACK = 1032),
+          (r.FRONT_FACE = 2886),
+          (r.FUNC_ADD = 32774),
+          (r.FUNC_REVERSE_SUBTRACT = 32779),
+          (r.FUNC_SUBTRACT = 32778),
+          (r.GENERATE_MIPMAP_HINT = 33170),
+          (r.GEQUAL = 518),
+          (r.GREATER = 516),
+          (r.GREEN_BITS = 3411),
+          (r.HIGH_FLOAT = 36338),
+          (r.HIGH_INT = 36341),
+          (r.IMPLEMENTATION_COLOR_READ_FORMAT = 35739),
+          (r.IMPLEMENTATION_COLOR_READ_TYPE = 35738),
+          (r.INCR = 7682),
+          (r.INCR_WRAP = 34055),
+          (r.INT = 5124),
+          (r.INT_VEC2 = 35667),
+          (r.INT_VEC3 = 35668),
+          (r.INT_VEC4 = 35669),
+          (r.INVALID_ENUM = 1280),
+          (r.INVALID_FRAMEBUFFER_OPERATION = 1286),
+          (r.INVALID_OPERATION = 1282),
+          (r.INVALID_VALUE = 1281),
+          (r.INVERT = 5386),
+          (r.KEEP = 7680),
+          (r.LEQUAL = 515),
+          (r.LESS = 513),
+          (r.LINEAR = 9729),
+          (r.LINEAR_MIPMAP_LINEAR = 9987),
+          (r.LINEAR_MIPMAP_NEAREST = 9985),
+          (r.LINES = 1),
+          (r.LINE_LOOP = 2),
+          (r.LINE_STRIP = 3),
+          (r.LINE_WIDTH = 2849),
+          (r.LINK_STATUS = 35714),
+          (r.LOW_FLOAT = 36336),
+          (r.LOW_INT = 36339),
+          (r.LUMINANCE = 6409),
+          (r.LUMINANCE_ALPHA = 6410),
+          (r.MAX_COMBINED_TEXTURE_IMAGE_UNITS = 35661),
+          (r.MAX_CUBE_MAP_TEXTURE_SIZE = 34076),
+          (r.MAX_FRAGMENT_UNIFORM_VECTORS = 36349),
+          (r.MAX_RENDERBUFFER_SIZE = 34024),
+          (r.MAX_TEXTURE_IMAGE_UNITS = 34930),
+          (r.MAX_TEXTURE_SIZE = 3379),
+          (r.MAX_VARYING_VECTORS = 36348),
+          (r.MAX_VERTEX_ATTRIBS = 34921),
+          (r.MAX_VERTEX_TEXTURE_IMAGE_UNITS = 35660),
+          (r.MAX_VERTEX_UNIFORM_VECTORS = 36347),
+          (r.MAX_VIEWPORT_DIMS = 3386),
+          (r.MEDIUM_FLOAT = 36337),
+          (r.MEDIUM_INT = 36340),
+          (r.MIRRORED_REPEAT = 33648),
+          (r.NEAREST = 9728),
+          (r.NEAREST_MIPMAP_LINEAR = 9986),
+          (r.NEAREST_MIPMAP_NEAREST = 9984),
+          (r.NEVER = 512),
+          (r.NICEST = 4354),
+          (r.NONE = 0),
+          (r.NOTEQUAL = 517),
+          (r.NO_ERROR = 0),
+          (r.ONE = 1),
+          (r.ONE_MINUS_CONSTANT_ALPHA = 32772),
+          (r.ONE_MINUS_CONSTANT_COLOR = 32770),
+          (r.ONE_MINUS_DST_ALPHA = 773),
+          (r.ONE_MINUS_DST_COLOR = 775),
+          (r.ONE_MINUS_SRC_ALPHA = 771),
+          (r.ONE_MINUS_SRC_COLOR = 769),
+          (r.OUT_OF_MEMORY = 1285),
+          (r.PACK_ALIGNMENT = 3333),
+          (r.POINTS = 0),
+          (r.POLYGON_OFFSET_FACTOR = 32824),
+          (r.POLYGON_OFFSET_FILL = 32823),
+          (r.POLYGON_OFFSET_UNITS = 10752),
+          (r.RED_BITS = 3410),
+          (r.RENDERBUFFER = 36161),
+          (r.RENDERBUFFER_ALPHA_SIZE = 36179),
+          (r.RENDERBUFFER_BINDING = 36007),
+          (r.RENDERBUFFER_BLUE_SIZE = 36178),
+          (r.RENDERBUFFER_DEPTH_SIZE = 36180),
+          (r.RENDERBUFFER_GREEN_SIZE = 36177),
+          (r.RENDERBUFFER_HEIGHT = 36163),
+          (r.RENDERBUFFER_INTERNAL_FORMAT = 36164),
+          (r.RENDERBUFFER_RED_SIZE = 36176),
+          (r.RENDERBUFFER_STENCIL_SIZE = 36181),
+          (r.RENDERBUFFER_WIDTH = 36162),
+          (r.RENDERER = 7937),
+          (r.REPEAT = 10497),
+          (r.REPLACE = 7681),
+          (r.RGB = 6407),
+          (r.RGB5_A1 = 32855),
+          (r.RGB565 = 36194),
+          (r.RGBA = 6408),
+          (r.RGBA4 = 32854),
+          (r.SAMPLER_2D = 35678),
+          (r.SAMPLER_CUBE = 35680),
+          (r.SAMPLES = 32937),
+          (r.SAMPLE_ALPHA_TO_COVERAGE = 32926),
+          (r.SAMPLE_BUFFERS = 32936),
+          (r.SAMPLE_COVERAGE = 32928),
+          (r.SAMPLE_COVERAGE_INVERT = 32939),
+          (r.SAMPLE_COVERAGE_VALUE = 32938),
+          (r.SCISSOR_BOX = 3088),
+          (r.SCISSOR_TEST = 3089),
+          (r.SHADER_TYPE = 35663),
+          (r.SHADING_LANGUAGE_VERSION = 35724),
+          (r.SHORT = 5122),
+          (r.SRC_ALPHA = 770),
+          (r.SRC_ALPHA_SATURATE = 776),
+          (r.SRC_COLOR = 768),
+          (r.STATIC_DRAW = 35044),
+          (r.STENCIL_ATTACHMENT = 36128),
+          (r.STENCIL_BACK_FAIL = 34817),
+          (r.STENCIL_BACK_FUNC = 34816),
+          (r.STENCIL_BACK_PASS_DEPTH_FAIL = 34818),
+          (r.STENCIL_BACK_PASS_DEPTH_PASS = 34819),
+          (r.STENCIL_BACK_REF = 36003),
+          (r.STENCIL_BACK_VALUE_MASK = 36004),
+          (r.STENCIL_BACK_WRITEMASK = 36005),
+          (r.STENCIL_BITS = 3415),
+          (r.STENCIL_BUFFER_BIT = 1024),
+          (r.STENCIL_CLEAR_VALUE = 2961),
+          (r.STENCIL_FAIL = 2964),
+          (r.STENCIL_FUNC = 2962),
+          (r.STENCIL_INDEX8 = 36168),
+          (r.STENCIL_PASS_DEPTH_FAIL = 2965),
+          (r.STENCIL_PASS_DEPTH_PASS = 2966),
+          (r.STENCIL_REF = 2967),
+          (r.STENCIL_TEST = 2960),
+          (r.STENCIL_VALUE_MASK = 2963),
+          (r.STENCIL_WRITEMASK = 2968),
+          (r.STREAM_DRAW = 35040),
+          (r.SUBPIXEL_BITS = 3408),
+          (r.TEXTURE = 5890),
+          (r.TEXTURE0 = 33984),
+          (r.TEXTURE1 = 33985),
+          (r.TEXTURE2 = 33986),
+          (r.TEXTURE3 = 33987),
+          (r.TEXTURE4 = 33988),
+          (r.TEXTURE5 = 33989),
+          (r.TEXTURE6 = 33990),
+          (r.TEXTURE7 = 33991),
+          (r.TEXTURE8 = 33992),
+          (r.TEXTURE9 = 33993),
+          (r.TEXTURE10 = 33994),
+          (r.TEXTURE11 = 33995),
+          (r.TEXTURE12 = 33996),
+          (r.TEXTURE13 = 33997),
+          (r.TEXTURE14 = 33998),
+          (r.TEXTURE15 = 33999),
+          (r.TEXTURE16 = 34e3),
+          (r.TEXTURE17 = 34001),
+          (r.TEXTURE18 = 34002),
+          (r.TEXTURE19 = 34003),
+          (r.TEXTURE20 = 34004),
+          (r.TEXTURE21 = 34005),
+          (r.TEXTURE22 = 34006),
+          (r.TEXTURE23 = 34007),
+          (r.TEXTURE24 = 34008),
+          (r.TEXTURE25 = 34009),
+          (r.TEXTURE26 = 34010),
+          (r.TEXTURE27 = 34011),
+          (r.TEXTURE28 = 34012),
+          (r.TEXTURE29 = 34013),
+          (r.TEXTURE30 = 34014),
+          (r.TEXTURE31 = 34015),
+          (r.TEXTURE_2D = 3553),
+          (r.TEXTURE_BINDING_2D = 32873),
+          (r.TEXTURE_BINDING_CUBE_MAP = 34068),
+          (r.TEXTURE_CUBE_MAP = 34067),
+          (r.TEXTURE_CUBE_MAP_NEGATIVE_X = 34070),
+          (r.TEXTURE_CUBE_MAP_NEGATIVE_Y = 34072),
+          (r.TEXTURE_CUBE_MAP_NEGATIVE_Z = 34074),
+          (r.TEXTURE_CUBE_MAP_POSITIVE_X = 34069),
+          (r.TEXTURE_CUBE_MAP_POSITIVE_Y = 34071),
+          (r.TEXTURE_CUBE_MAP_POSITIVE_Z = 34073),
+          (r.TEXTURE_MAG_FILTER = 10240),
+          (r.TEXTURE_MIN_FILTER = 10241),
+          (r.TEXTURE_WRAP_S = 10242),
+          (r.TEXTURE_WRAP_T = 10243),
+          (r.TRIANGLES = 4),
+          (r.TRIANGLE_FAN = 6),
+          (r.TRIANGLE_STRIP = 5),
+          (r.UNPACK_ALIGNMENT = 3317),
+          (r.UNPACK_COLORSPACE_CONVERSION_WEBGL = 37443),
+          (r.UNPACK_FLIP_Y_WEBGL = 37440),
+          (r.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 37441),
+          (r.UNSIGNED_BYTE = 5121),
+          (r.UNSIGNED_INT = 5125),
+          (r.UNSIGNED_SHORT = 5123),
+          (r.UNSIGNED_SHORT_4_4_4_4 = 32819),
+          (r.UNSIGNED_SHORT_5_5_5_1 = 32820),
+          (r.UNSIGNED_SHORT_5_6_5 = 33635),
+          (r.VALIDATE_STATUS = 35715),
+          (r.VENDOR = 7936),
+          (r.VERSION = 7938),
+          (r.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 34975),
+          (r.VERTEX_ATTRIB_ARRAY_ENABLED = 34338),
+          (r.VERTEX_ATTRIB_ARRAY_NORMALIZED = 34922),
+          (r.VERTEX_ATTRIB_ARRAY_POINTER = 34373),
+          (r.VERTEX_ATTRIB_ARRAY_SIZE = 34339),
+          (r.VERTEX_ATTRIB_ARRAY_STRIDE = 34340),
+          (r.VERTEX_ATTRIB_ARRAY_TYPE = 34341),
+          (r.VERTEX_SHADER = 35633),
+          (r.VIEWPORT = 2978),
+          (r.ZERO = 0));
+      },
+      {},
+    ],
+    23: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(e3, u(r2.key), r2));
+          }
+        }
+        function a(e3, t2, n2) {
+          (t2 = u(t2)) in e3
+            ? Object.defineProperty(e3, t2, {
+                value: n2,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+              })
+            : (e3[t2] = n2);
+        }
+        function u(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != o(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != o((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == o(e3) ? e3 : e3 + ""
+          );
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }), (r.default = void 0));
+        var c = /* @__PURE__ */ new WeakMap();
+        r = r.default = (function () {
+          function e3(t3) {
+            var n3 = this,
+              r2 = 1 < arguments.length && void 0 !== arguments[1] ? arguments[1] : [],
+              o2 = this,
+              i2 = e3;
+            if (!(o2 instanceof i2)) throw new TypeError("Cannot call a class as a function");
+            if (
+              (a(this, "binaryType", ""),
+              a(this, "bufferedAmount", 0),
+              a(this, "extensions", ""),
+              a(this, "onclose", null),
+              a(this, "onerror", null),
+              a(this, "onmessage", null),
+              a(this, "onopen", null),
+              a(this, "protocol", ""),
+              a(this, "readyState", 3),
+              "string" != typeof t3 || !/(^ws:\/\/)|(^wss:\/\/)/.test(t3))
+            )
+              throw new TypeError(
+                "Failed to construct 'WebSocket': The URL '".concat(t3, "' is invalid"),
+              );
+            return (
+              (this.url = t3),
+              (this.readyState = e3.CONNECTING),
+              (o2 = wx.connectSocket({
+                url: t3,
+                protocols: Array.isArray(r2) ? r2 : [r2],
+                tcpNoDelay: true,
+              })),
+              c.set(this, o2),
+              o2.onClose(function (t4) {
+                ((n3.readyState = e3.CLOSED), "function" == typeof n3.onclose && n3.onclose(t4));
+              }),
+              o2.onMessage(function (e4) {
+                "function" == typeof n3.onmessage && n3.onmessage(e4);
+              }),
+              o2.onOpen(function () {
+                ((n3.readyState = e3.OPEN), "function" == typeof n3.onopen && n3.onopen());
+              }),
+              o2.onError(function (e4) {
+                "function" == typeof n3.onerror && n3.onerror(new Error(e4.errMsg));
+              }),
+              this
+            );
+          }
+          return (
+            (t2 = e3),
+            (n2 = [
+              {
+                key: "close",
+                value: function (t3, n3) {
+                  ((this.readyState = e3.CLOSING), c.get(this).close({ code: t3, reason: n3 }));
+                },
+              },
+              {
+                key: "send",
+                value: function (e4) {
+                  if (!(
+                    "string" == typeof e4 ||
+                    e4 instanceof ArrayBuffer ||
+                    ArrayBuffer.isView(e4)
+                  ))
+                    throw new TypeError(
+                      "Failed to send message: The data ".concat(e4, " is invalid"),
+                    );
+                  c.get(this).send({ data: e4 });
+                },
+              },
+            ]) && i(t2.prototype, n2),
+            Object.defineProperty(t2, "prototype", { writable: false }),
+            t2
+          );
+          var t2, n2;
+        })();
+        (a(r, "CONNECTING", 0), a(r, "OPEN", 1), a(r, "CLOSING", 2), a(r, "CLOSED", 3));
+      },
+      {},
+    ],
+    24: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.screen =
+            n.performance =
+            n.ontouchstart =
+            n.ontouchmove =
+            n.ontouchend =
+            n.innerWidth =
+            n.innerHeight =
+            n.devicePixelRatio =
+              void 0));
+        var r = (i = wx.getSystemInfoSync()).screenWidth,
+          o = i.screenHeight,
+          i = ((n.devicePixelRatio = i.devicePixelRatio), (n.innerWidth = r)),
+          a = (n.innerHeight = o);
+        ((n.screen = {
+          width: r,
+          height: o,
+          availWidth: i,
+          availHeight: a,
+          availLeft: 0,
+          availTop: 0,
+        }),
+          (n.performance = { now: Date.now }),
+          (n.ontouchstart = null),
+          (n.ontouchmove = null),
+          (n.ontouchend = null));
+      },
+      {},
+    ],
+    25: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function i(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var r2 = t2[n2];
+            ((r2.enumerable = r2.enumerable || false),
+              (r2.configurable = true),
+              "value" in r2 && (r2.writable = true),
+              Object.defineProperty(e3, s(r2.key), r2));
+          }
+        }
+        function a(e3, t2, n2) {
+          t2 = u(t2);
+          var r2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], u(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = r2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function u(e3) {
+          return (u = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function c(e3, t2) {
+          return (c = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        function l(e3, t2, n2) {
+          (t2 = s(t2)) in e3
+            ? Object.defineProperty(e3, t2, {
+                value: n2,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+              })
+            : (e3[t2] = n2);
+        }
+        function s(e3) {
+          return (
+            (e3 = (function (e4, t2) {
+              if ("object" != o(e4) || !e4) return e4;
+              var n2 = e4[Symbol.toPrimitive];
+              if (void 0 === n2) return String(e4);
+              if ("object" != o((n2 = n2.call(e4, t2)))) return n2;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            })(e3, "string")),
+            "symbol" == o(e3) ? e3 : e3 + ""
+          );
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }),
+          (r.default = void 0),
+          (t = (t = t("./EventTarget.js")) && t.__esModule ? t : { default: t }));
+        var f = /* @__PURE__ */ new WeakMap(),
+          d = /* @__PURE__ */ new WeakMap(),
+          p = /* @__PURE__ */ new WeakMap(),
+          m = /* @__PURE__ */ new WeakMap(),
+          E = /* @__PURE__ */ new WeakMap();
+        function h(e3) {
+          if ("function" == typeof this["on".concat(e3)]) {
+            for (
+              var t2 = arguments.length, n2 = new Array(1 < t2 ? t2 - 1 : 0), r2 = 1;
+              r2 < t2;
+              r2++
+            )
+              n2[r2 - 1] = arguments[r2];
+            this["on".concat(e3)].apply(this, n2);
+          }
+        }
+        function y(e3) {
+          ((this.readyState = e3), h.call(this, "readystatechange"));
+        }
+        ((r = r.default =
+          (function (e3) {
+            function t2() {
+              var e4;
+              if (this instanceof t2)
+                return (
+                  l((e4 = a(this, t2)), "timeout", 0),
+                  l(e4, "onabort", null),
+                  l(e4, "onerror", null),
+                  l(e4, "onload", null),
+                  l(e4, "onloadstart", null),
+                  l(e4, "onprogress", null),
+                  l(e4, "ontimeout", null),
+                  l(e4, "onloadend", null),
+                  l(e4, "onreadystatechange", null),
+                  l(e4, "readyState", 0),
+                  l(e4, "response", null),
+                  l(e4, "responseText", null),
+                  l(e4, "responseType", ""),
+                  l(e4, "responseXML", null),
+                  l(e4, "status", 0),
+                  l(e4, "statusText", ""),
+                  l(e4, "upload", {}),
+                  l(e4, "withCredentials", false),
+                  p.set(e4, { "content-type": "application/x-www-form-urlencoded" }),
+                  m.set(e4, {}),
+                  e4
+                );
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && c(n2, e3),
+              (n2 = t2),
+              (e3 = [
+                {
+                  key: "abort",
+                  value: function () {
+                    var e4 = E.get(this);
+                    e4 && e4.abort();
+                  },
+                },
+                {
+                  key: "getAllResponseHeaders",
+                  value: function () {
+                    var e4 = m.get(this);
+                    return Object.keys(e4)
+                      .map(function (t3) {
+                        return "".concat(t3, ": ").concat(e4[t3]);
+                      })
+                      .join("\n");
+                  },
+                },
+                {
+                  key: "getResponseHeader",
+                  value: function (e4) {
+                    return m.get(this)[e4];
+                  },
+                },
+                {
+                  key: "open",
+                  value: function (e4, n3) {
+                    (d.set(this, e4), f.set(this, n3), y.call(this, t2.OPENED));
+                  },
+                },
+                { key: "overrideMimeType", value: function () {} },
+                {
+                  key: "send",
+                  value: function () {
+                    var e4 = this,
+                      n3 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : "";
+                    if (this.readyState !== t2.OPENED)
+                      throw new Error(
+                        "Failed to execute 'send' on 'XMLHttpRequest': The object's state must be OPENED.",
+                      );
+                    ((n3 = wx.request({
+                      data: n3,
+                      url: f.get(this),
+                      method: d.get(this),
+                      header: p.get(this),
+                      dataType: "other",
+                      responseType: "arraybuffer" === this.responseType ? "arraybuffer" : "text",
+                      timeout: this.timeout || void 0,
+                      success: function (n4) {
+                        var r2 = n4.data,
+                          o2 = n4.header;
+                        switch (
+                          ((e4.status = n4.statusCode),
+                          m.set(e4, o2),
+                          h.call(e4, "loadstart"),
+                          y.call(e4, t2.HEADERS_RECEIVED),
+                          y.call(e4, t2.LOADING),
+                          e4.responseType)
+                        ) {
+                          case "json":
+                            e4.responseText = r2;
+                            try {
+                              e4.response = JSON.parse(r2);
+                            } catch (t3) {
+                              e4.response = null;
+                            }
+                            break;
+                          case "":
+                          case "text":
+                            e4.responseText = e4.response = r2;
+                            break;
+                          case "arraybuffer":
+                            ((e4.response = r2), (e4.responseText = ""));
+                            for (
+                              var i2 = new Uint8Array(r2), a2 = i2.byteLength, u2 = 0;
+                              u2 < a2;
+                              u2++
+                            )
+                              e4.responseText += String.fromCharCode(i2[u2]);
+                            break;
+                          default:
+                            e4.response = null;
+                        }
+                        (y.call(e4, t2.DONE), h.call(e4, "load"), h.call(e4, "loadend"));
+                      },
+                      fail: function (t3) {
+                        (-1 !== (t3 = t3.errMsg).indexOf("abort")
+                          ? h.call(e4, "abort")
+                          : -1 !== t3.indexOf("timeout")
+                            ? h.call(e4, "timeout")
+                            : h.call(e4, "error", t3),
+                          h.call(e4, "loadend"));
+                      },
+                    })),
+                      E.set(this, n3));
+                  },
+                },
+                {
+                  key: "setRequestHeader",
+                  value: function (e4, t3) {
+                    var n3 = p.get(this);
+                    ((n3[e4] = t3), p.set(this, n3));
+                  },
+                },
+                {
+                  key: "addEventListener",
+                  value: function (e4, t3) {
+                    var n3;
+                    "function" == typeof t3 &&
+                      ((n3 = this),
+                      (this["on" + e4] = function (e5) {
+                        t3.call(n3, e5);
+                      }));
+                  },
+                },
+              ]) && i(n2.prototype, e3),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(t.default)),
+          l(r, "UNSEND", 0),
+          l(r, "OPENED", 1),
+          l(r, "HEADERS_RECEIVED", 2),
+          l(r, "LOADING", 3),
+          l(r, "DONE", 4));
+      },
+      { "./EventTarget.js": 11 },
+    ],
+    26: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        (Object.defineProperty(r, "__esModule", { value: true }), (r.default = void 0));
+        var i,
+          a,
+          u,
+          c,
+          l =
+            ((i = t("./window")),
+            "function" == typeof WeakMap &&
+              ((u = /* @__PURE__ */ new WeakMap()), (c = /* @__PURE__ */ new WeakMap())),
+            (function (e3, t2) {
+              if (!t2 && e3 && e3.__esModule) return e3;
+              var n2,
+                r2,
+                i2 = { __proto__: null, default: e3 };
+              if (null !== e3 && ("object" == o(e3) || "function" == typeof e3)) {
+                if ((n2 = t2 ? c : u)) {
+                  if (n2.has(e3)) return n2.get(e3);
+                  n2.set(e3, i2);
+                }
+                for (var a2 in e3)
+                  "default" !== a2 &&
+                    {}.hasOwnProperty.call(e3, a2) &&
+                    ((r2 =
+                      (n2 = Object.defineProperty) && Object.getOwnPropertyDescriptor(e3, a2)) &&
+                    (r2.get || r2.set)
+                      ? n2(i2, a2, r2)
+                      : (i2[a2] = e3[a2]));
+              }
+              return i2;
+            })(i, a)),
+          s = E(t("./HTMLElement")),
+          f = E(t("./HTMLVideoElement")),
+          d = E(t("./Image")),
+          p = E(t("./Audio")),
+          m = E(t("./Canvas"));
+        function E(e3) {
+          return e3 && e3.__esModule ? e3 : { default: e3 };
+        }
+        t("./EventIniter/index.js");
+        var h = {},
+          y = {
+            readyState: "complete",
+            visibilityState: "visible",
+            documentElement: l,
+            hidden: false,
+            style: {},
+            location: l.location,
+            ontouchstart: null,
+            ontouchmove: null,
+            ontouchend: null,
+            head: new s.default("head"),
+            body: new s.default("body"),
+            createElement: function (e3) {
+              return "canvas" === e3
+                ? new m.default()
+                : "audio" === e3
+                  ? new p.default()
+                  : "img" === e3
+                    ? new d.default()
+                    : "video" === e3
+                      ? new f.default()
+                      : new s.default(e3);
+            },
+            createElementNS: function (e3, t2) {
+              return this.createElement(t2);
+            },
+            getElementById: function (e3) {
+              return e3 === l.canvas.id ? l.canvas : null;
+            },
+            getElementsByTagName: function (e3) {
+              return "head" === e3
+                ? [y.head]
+                : "body" === e3
+                  ? [y.body]
+                  : "canvas" === e3
+                    ? [l.canvas]
+                    : [];
+            },
+            getElementsByName: function (e3) {
+              return "head" === e3
+                ? [y.head]
+                : "body" === e3
+                  ? [y.body]
+                  : "canvas" === e3
+                    ? [l.canvas]
+                    : [];
+            },
+            querySelector: function (e3) {
+              return "head" === e3
+                ? y.head
+                : "body" === e3
+                  ? y.body
+                  : "canvas" === e3 || e3 === "#".concat(l.canvas.id)
+                    ? l.canvas
+                    : null;
+            },
+            querySelectorAll: function (e3) {
+              return "head" === e3
+                ? [y.head]
+                : "body" === e3
+                  ? [y.body]
+                  : "canvas" === e3
+                    ? [l.canvas]
+                    : [];
+            },
+            addEventListener: function (e3, t2) {
+              (h[e3] || (h[e3] = []), h[e3].push(t2));
+            },
+            removeEventListener: function (e3, t2) {
+              var n2 = h[e3];
+              if (n2 && 0 < n2.length) {
+                for (var r2 = n2.length; r2--;)
+                  if (n2[r2] === t2) {
+                    n2.splice(r2, 1);
+                    break;
+                  }
+              }
+            },
+            dispatchEvent: function (e3) {
+              var t2 = h[e3.type];
+              if (t2) for (var n2 = 0; n2 < t2.length; n2++) t2[n2](e3);
+            },
+          };
+        r.default = y;
+      },
+      {
+        "./Audio": 5,
+        "./Canvas": 6,
+        "./EventIniter/index.js": 10,
+        "./HTMLElement": 15,
+        "./HTMLVideoElement": 18,
+        "./Image": 19,
+        "./window": 32,
+      },
+    ],
+    27: [
+      function (t, n, r) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        var i,
+          a,
+          u,
+          c,
+          l =
+            ((i = t("./window")),
+            "function" == typeof WeakMap &&
+              ((u = /* @__PURE__ */ new WeakMap()), (c = /* @__PURE__ */ new WeakMap())),
+            (function (e3, t2) {
+              if (!t2 && e3 && e3.__esModule) return e3;
+              var n2,
+                r2,
+                i2 = { __proto__: null, default: e3 };
+              if (null !== e3 && ("object" == o(e3) || "function" == typeof e3)) {
+                if ((n2 = t2 ? c : u)) {
+                  if (n2.has(e3)) return n2.get(e3);
+                  n2.set(e3, i2);
+                }
+                for (var a2 in e3)
+                  "default" !== a2 &&
+                    {}.hasOwnProperty.call(e3, a2) &&
+                    ((r2 =
+                      (n2 = Object.defineProperty) && Object.getOwnPropertyDescriptor(e3, a2)) &&
+                    (r2.get || r2.set)
+                      ? n2(i2, a2, r2)
+                      : (i2[a2] = e3[a2]));
+              }
+              return i2;
+            })(i, a)),
+          s = (s = t("./document")) && s.__esModule ? s : { default: s };
+        var f = GameGlobal;
+        if (!GameGlobal.__isAdapterInjected)
+          if (
+            ((GameGlobal.__isAdapterInjected = true),
+            (l.document = s.default),
+            (l.addEventListener = function (e3, t2) {
+              l.document.addEventListener(e3, t2);
+            }),
+            (l.removeEventListener = function (e3, t2) {
+              l.document.removeEventListener(e3, t2);
+            }),
+            (l.dispatchEvent = function () {
+              var e3 = 0 < arguments.length && void 0 !== arguments[0] ? arguments[0] : {};
+              console.log("window.dispatchEvent", e3.type, e3);
+            }),
+            (s = wx.getSystemInfoSync().platform),
+            "undefined" == typeof __devtoolssubcontext && "devtools" === s)
+          ) {
+            for (var d in l) {
+              var p = Object.getOwnPropertyDescriptor(f, d);
+              (p && true !== p.configurable) || Object.defineProperty(window, d, { value: l[d] });
+            }
+            for (var m in l.document) {
+              var E = Object.getOwnPropertyDescriptor(f.document, m);
+              (E && true !== E.configurable) ||
+                Object.defineProperty(f.document, m, { value: l.document[m] });
+            }
+            window.parent = window;
+          } else {
+            for (var h in l) f[h] = l[h];
+            ((f.window = l), ((window = f).top = window.parent = window));
+          }
+        ((f.CCWebAssembly = f.WebAssembly = f.WXWebAssembly),
+          t("../../../../common/xmldom/dom-parser"),
+          t("../unify"),
+          t("../fs-utils"));
+      },
+      {
+        "../../../../common/xmldom/dom-parser": 1,
+        "../fs-utils": 33,
+        "../unify": 34,
+        "./document": 26,
+        "./window": 32,
+      },
+    ],
+    28: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.default = void 0),
+          (n.default = {
+            get length() {
+              return wx.getStorageInfoSync().keys.length;
+            },
+            key: function (e4) {
+              return wx.getStorageInfoSync().keys[e4];
+            },
+            getItem: function (e4) {
+              return wx.getStorageSync(e4);
+            },
+            setItem: function (e4, t2) {
+              return wx.setStorageSync(e4, t2);
+            },
+            removeItem: function (e4) {
+              wx.removeStorageSync(e4);
+            },
+            clear: function () {
+              wx.clearStorageSync();
+            },
+          }));
+      },
+      {},
+    ],
+    29: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }),
+          (n.default = void 0),
+          (n.default = { href: "game.js", protocol: "", reload: function () {} }));
+      },
+      {},
+    ],
+    30: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }), (n.default = void 0));
+        e3 = e3("./util/index.js");
+        var r = wx.getSystemInfoSync(),
+          o = (console.log(r), r.system),
+          i = r.platform,
+          a = r.language,
+          u =
+            ((r = r.version),
+            (o =
+              -1 !== o.toLowerCase().indexOf("android")
+                ? "Android; CPU ".concat(o)
+                : "iPhone; CPU iPhone OS ".concat(o, " like Mac OS X")),
+            (r = "Mozilla/5.0 ("
+              .concat(
+                o,
+                ") AppleWebKit/603.1.30 (KHTML, like Gecko) Mobile/14E8301 MicroMessenger/",
+              )
+              .concat(r, " MiniGame NetType/WIFI Language/")
+              .concat(a)),
+            {
+              platform: i,
+              language: a,
+              appVersion: "5.0 (".concat(
+                o,
+                ") AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+              ),
+              userAgent: r,
+              onLine: true,
+              geolocation: {
+                getCurrentPosition: e3.noop,
+                watchPosition: e3.noop,
+                clearWatch: e3.noop,
+              },
+            });
+        (wx.onNetworkStatusChange &&
+          wx.onNetworkStatusChange(function (e4) {
+            u.onLine = e4.isConnected;
+          }),
+          (n.default = u));
+      },
+      { "./util/index.js": 31 },
+    ],
+    31: [
+      function (e3, t, n) {
+        (Object.defineProperty(n, "__esModule", { value: true }), (n.noop = function () {}));
+      },
+      {},
+    ],
+    32: [
+      function (e3, t, n) {
+        Object.defineProperty(n, "__esModule", { value: true });
+        var r = {
+            canvas: true,
+            setTimeout: true,
+            setInterval: true,
+            clearTimeout: true,
+            clearInterval: true,
+            requestAnimationFrame: true,
+            cancelAnimationFrame: true,
+            navigator: true,
+            XMLHttpRequest: true,
+            WebSocket: true,
+            Image: true,
+            ImageBitmap: true,
+            Audio: true,
+            FileReader: true,
+            HTMLElement: true,
+            HTMLImageElement: true,
+            HTMLCanvasElement: true,
+            HTMLMediaElement: true,
+            HTMLAudioElement: true,
+            HTMLVideoElement: true,
+            WebGLRenderingContext: true,
+            TouchEvent: true,
+            MouseEvent: true,
+            DeviceMotionEvent: true,
+            localStorage: true,
+            location: true,
+          },
+          o =
+            (Object.defineProperty(n, "Audio", {
+              enumerable: true,
+              get: function () {
+                return s.default;
+              },
+            }),
+            Object.defineProperty(n, "DeviceMotionEvent", {
+              enumerable: true,
+              get: function () {
+                return _.DeviceMotionEvent;
+              },
+            }),
+            Object.defineProperty(n, "FileReader", {
+              enumerable: true,
+              get: function () {
+                return f.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLAudioElement", {
+              enumerable: true,
+              get: function () {
+                return h.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLCanvasElement", {
+              enumerable: true,
+              get: function () {
+                return m.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLElement", {
+              enumerable: true,
+              get: function () {
+                return d.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLImageElement", {
+              enumerable: true,
+              get: function () {
+                return p.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLMediaElement", {
+              enumerable: true,
+              get: function () {
+                return E.default;
+              },
+            }),
+            Object.defineProperty(n, "HTMLVideoElement", {
+              enumerable: true,
+              get: function () {
+                return y.default;
+              },
+            }),
+            Object.defineProperty(n, "Image", {
+              enumerable: true,
+              get: function () {
+                return c.default;
+              },
+            }),
+            Object.defineProperty(n, "ImageBitmap", {
+              enumerable: true,
+              get: function () {
+                return l.default;
+              },
+            }),
+            Object.defineProperty(n, "MouseEvent", {
+              enumerable: true,
+              get: function () {
+                return _.MouseEvent;
+              },
+            }),
+            Object.defineProperty(n, "TouchEvent", {
+              enumerable: true,
+              get: function () {
+                return _.TouchEvent;
+              },
+            }),
+            Object.defineProperty(n, "WebGLRenderingContext", {
+              enumerable: true,
+              get: function () {
+                return b.default;
+              },
+            }),
+            Object.defineProperty(n, "WebSocket", {
+              enumerable: true,
+              get: function () {
+                return u.default;
+              },
+            }),
+            Object.defineProperty(n, "XMLHttpRequest", {
+              enumerable: true,
+              get: function () {
+                return a.default;
+              },
+            }),
+            (n.clearTimeout = n.clearInterval = n.canvas = n.cancelAnimationFrame = void 0),
+            Object.defineProperty(n, "localStorage", {
+              enumerable: true,
+              get: function () {
+                return v.default;
+              },
+            }),
+            Object.defineProperty(n, "location", {
+              enumerable: true,
+              get: function () {
+                return T.default;
+              },
+            }),
+            Object.defineProperty(n, "navigator", {
+              enumerable: true,
+              get: function () {
+                return i.default;
+              },
+            }),
+            (n.setTimeout = n.setInterval = n.requestAnimationFrame = void 0),
+            w(e3("./Canvas"))),
+          i = w(e3("./navigator")),
+          a = w(e3("./XMLHttpRequest")),
+          u = w(e3("./WebSocket")),
+          c = w(e3("./Image")),
+          l = w(e3("./ImageBitmap")),
+          s = w(e3("./Audio")),
+          f = w(e3("./FileReader")),
+          d = w(e3("./HTMLElement")),
+          p = w(e3("./HTMLImageElement")),
+          m = w(e3("./HTMLCanvasElement")),
+          E = w(e3("./HTMLMediaElement")),
+          h = w(e3("./HTMLAudioElement")),
+          y = w(e3("./HTMLVideoElement")),
+          b = w(e3("./WebGLRenderingContext")),
+          _ = e3("./EventIniter/index.js"),
+          v = w(e3("./localStorage")),
+          T = w(e3("./location")),
+          g = e3("./WindowProperties");
+        function w(e4) {
+          return e4 && e4.__esModule ? e4 : { default: e4 };
+        }
+        (Object.keys(g).forEach(function (e4) {
+          "default" === e4 ||
+            "__esModule" === e4 ||
+            Object.prototype.hasOwnProperty.call(r, e4) ||
+            (e4 in n && n[e4] === g[e4]) ||
+            Object.defineProperty(n, e4, {
+              enumerable: true,
+              get: function () {
+                return g[e4];
+              },
+            });
+        }),
+          (GameGlobal.screencanvas = GameGlobal.screencanvas || new o.default()),
+          (n.canvas = GameGlobal.screencanvas),
+          (e3 = GameGlobal),
+          (n.setTimeout = e3.setTimeout),
+          (n.setInterval = e3.setInterval),
+          (n.clearTimeout = e3.clearTimeout),
+          (n.clearInterval = e3.clearInterval),
+          (n.requestAnimationFrame = e3.requestAnimationFrame),
+          (n.cancelAnimationFrame = e3.cancelAnimationFrame));
+      },
+      {
+        "./Audio": 5,
+        "./Canvas": 6,
+        "./EventIniter/index.js": 10,
+        "./FileReader": 12,
+        "./HTMLAudioElement": 13,
+        "./HTMLCanvasElement": 14,
+        "./HTMLElement": 15,
+        "./HTMLImageElement": 16,
+        "./HTMLMediaElement": 17,
+        "./HTMLVideoElement": 18,
+        "./Image": 19,
+        "./ImageBitmap": 20,
+        "./WebGLRenderingContext": 22,
+        "./WebSocket": 23,
+        "./WindowProperties": 24,
+        "./XMLHttpRequest": 25,
+        "./localStorage": 28,
+        "./location": 29,
+        "./navigator": 30,
+      },
+    ],
+    33: [
+      function (e3, t, n) {
+        var r = wx.getFileSystemManager ? wx.getFileSystemManager() : null,
+          o = /the maximum size of the file storage/,
+          i = {
+            fs: r,
+            isOutOfStorage: function (e4) {
+              return o.test(e4);
+            },
+            getUserDataPath: function () {
+              return wx.env.USER_DATA_PATH;
+            },
+            checkFsValid: function () {
+              return !!r || (console.warn("can not get the file system!"), false);
+            },
+            deleteFile: function (e4, t2) {
+              r.unlink({
+                filePath: e4,
+                success: function () {
+                  t2 && t2(null);
+                },
+                fail: function (n2) {
+                  (console.warn(
+                    "Delete file failed: path: ".concat(e4, " message: ").concat(n2.errMsg),
+                  ),
+                    t2 && t2(new Error(n2.errMsg)));
+                },
+              });
+            },
+            downloadFile: function (e4, t2, n2, r2, o2) {
+              var a = {
+                url: e4,
+                success: function (t3) {
+                  200 === t3.statusCode
+                    ? o2 && o2(null, t3.tempFilePath || t3.filePath)
+                    : (t3.filePath && i.deleteFile(t3.filePath),
+                      console.warn(
+                        "Download file failed: path: "
+                          .concat(e4, " message: ")
+                          .concat(t3.statusCode),
+                      ),
+                      o2 && o2(new Error(t3.statusCode), null));
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Download file failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    o2 && o2(new Error(t3.errMsg), null));
+                },
+              };
+              (t2 && (a.filePath = t2), n2 && (a.header = n2), (t2 = wx.downloadFile(a)));
+              r2 && t2.onProgressUpdate(r2);
+            },
+            saveFile: function (e4, t2, n2) {
+              wx.saveFile({
+                tempFilePath: e4,
+                filePath: t2,
+                success: function (e5) {
+                  n2 && n2(null);
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Save file failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    n2 && n2(new Error(t3.errMsg)));
+                },
+              });
+            },
+            copyFile: function (e4, t2, n2) {
+              r.copyFile({
+                srcPath: e4,
+                destPath: t2,
+                success: function () {
+                  n2 && n2(null);
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Copy file failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    n2 && n2(new Error(t3.errMsg)));
+                },
+              });
+            },
+            writeFile: function (e4, t2, n2, o2) {
+              r.writeFile({
+                filePath: e4,
+                encoding: n2,
+                data: t2,
+                success: function () {
+                  o2 && o2(null);
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Write file failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    o2 && o2(new Error(t3.errMsg)));
+                },
+              });
+            },
+            writeFileSync: function (e4, t2, n2) {
+              try {
+                return (r.writeFileSync(e4, t2, n2), null);
+              } catch (t3) {
+                return (
+                  console.warn(
+                    "Write file failed: path: ".concat(e4, " message: ").concat(t3.message),
+                  ),
+                  new Error(t3.message)
+                );
+              }
+            },
+            readFile: function (e4, t2, n2) {
+              r.readFile({
+                filePath: e4,
+                encoding: t2,
+                success: function (e5) {
+                  n2 && n2(null, e5.data);
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Read file failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    n2 && n2(new Error(t3.errMsg), null));
+                },
+              });
+            },
+            readDir: function (e4, t2) {
+              r.readdir({
+                dirPath: e4,
+                success: function (e5) {
+                  t2 && t2(null, e5.files);
+                },
+                fail: function (n2) {
+                  (console.warn(
+                    "Read directory failed: path: ".concat(e4, " message: ").concat(n2.errMsg),
+                  ),
+                    t2 && t2(new Error(n2.errMsg), null));
+                },
+              });
+            },
+            readText: function (e4, t2) {
+              i.readFile(e4, "utf8", t2);
+            },
+            readArrayBuffer: function (e4, t2) {
+              i.readFile(e4, "", t2);
+            },
+            readJson: function (e4, t2) {
+              i.readFile(e4, "utf8", function (n2, r2) {
+                var o2 = null;
+                if (!n2)
+                  try {
+                    o2 = JSON.parse(r2);
+                  } catch (t3) {
+                    (console.warn(
+                      "Read json failed: path: ".concat(e4, " message: ").concat(t3.message),
+                    ),
+                      (n2 = new Error(t3.message)));
+                  }
+                t2 && t2(n2, o2);
+              });
+            },
+            readJsonSync: function (e4) {
+              try {
+                var t2 = r.readFileSync(e4, "utf8");
+                return JSON.parse(t2);
+              } catch (t3) {
+                return (
+                  console.warn(
+                    "Read json failed: path: ".concat(e4, " message: ").concat(t3.message),
+                  ),
+                  new Error(t3.message)
+                );
+              }
+            },
+            makeDirSync: function (e4, t2) {
+              try {
+                return (r.mkdirSync(e4, t2), null);
+              } catch (t3) {
+                return (
+                  console.warn(
+                    "Make directory failed: path: ".concat(e4, " message: ").concat(t3.message),
+                  ),
+                  new Error(t3.message)
+                );
+              }
+            },
+            rmdirSync: function (e4, t2) {
+              try {
+                r.rmdirSync(e4, t2);
+              } catch (t3) {
+                return (
+                  console.warn(
+                    "rm directory failed: path: ".concat(e4, " message: ").concat(t3.message),
+                  ),
+                  new Error(t3.message)
+                );
+              }
+            },
+            exists: function (e4, t2) {
+              r.access({
+                path: e4,
+                success: function () {
+                  t2 && t2(true);
+                },
+                fail: function () {
+                  t2 && t2(false);
+                },
+              });
+            },
+            loadSubpackage: function (e4, t2, n2) {
+              var r2 = wx.loadSubpackage({
+                name: e4,
+                success: function () {
+                  n2 && n2();
+                },
+                fail: function (t3) {
+                  (console.warn(
+                    "Load Subpackage failed: path: ".concat(e4, " message: ").concat(t3.errMsg),
+                  ),
+                    n2 &&
+                      n2(
+                        new Error("Failed to load subpackage ".concat(e4, ": ").concat(t3.errMsg)),
+                      ));
+                },
+              });
+              return (t2 && r2.onProgressUpdate(t2), r2);
+            },
+            unzip: function (e4, t2, n2) {
+              r.unzip({
+                zipFilePath: e4,
+                targetPath: t2,
+                success: function () {
+                  n2 && n2(null);
+                },
+                fail: function (t3) {
+                  (console.warn("unzip failed: path: ".concat(e4, " message: ").concat(t3.errMsg)),
+                    n2 && n2(new Error("unzip failed: ".concat(t3.errMsg))));
+                },
+              });
+            },
+          };
+        window.fsUtils = t.exports = i;
+      },
+      {},
+    ],
+    34: [
+      function (e3, t, n) {
+        var r, o, i, a, u, c;
+        e3 = e3("./utils");
+        ((window.__globalAdapter = window.__globalAdapter || {}),
+          window.__globalAdapter &&
+            ((r = window.__globalAdapter),
+            (i = (o = wx.getSystemInfoSync()).windowWidth),
+            (a = o.windowHeight < i),
+            (r.isSubContext = void 0 === wx.getOpenDataContext),
+            (r.isDevTool = "devtools" === o.platform),
+            e3.cloneMethod(r, wx, "getSystemInfoSync"),
+            e3.cloneMethod(r, wx, "onTouchStart"),
+            e3.cloneMethod(r, wx, "onTouchMove"),
+            e3.cloneMethod(r, wx, "onTouchEnd"),
+            e3.cloneMethod(r, wx, "onTouchCancel"),
+            e3.cloneMethod(r, wx, "createInnerAudioContext"),
+            e3.cloneMethod(r, wx, "onAudioInterruptionEnd"),
+            e3.cloneMethod(r, wx, "onAudioInterruptionBegin"),
+            e3.cloneMethod(r, wx, "createVideo"),
+            e3.cloneMethod(r, wx, "setPreferredFramesPerSecond"),
+            e3.cloneMethod(r, wx, "showKeyboard"),
+            e3.cloneMethod(r, wx, "hideKeyboard"),
+            e3.cloneMethod(r, wx, "updateKeyboard"),
+            e3.cloneMethod(r, wx, "onKeyboardInput"),
+            e3.cloneMethod(r, wx, "onKeyboardConfirm"),
+            e3.cloneMethod(r, wx, "onKeyboardComplete"),
+            e3.cloneMethod(r, wx, "offKeyboardInput"),
+            e3.cloneMethod(r, wx, "offKeyboardConfirm"),
+            e3.cloneMethod(r, wx, "offKeyboardComplete"),
+            e3.cloneMethod(r, wx, "getOpenDataContext"),
+            e3.cloneMethod(r, wx, "onMessage"),
+            e3.cloneMethod(r, wx, "loadSubpackage"),
+            e3.cloneMethod(r, wx, "getSharedCanvas"),
+            e3.cloneMethod(r, wx, "loadFont"),
+            e3.cloneMethod(r, wx, "onShow"),
+            e3.cloneMethod(r, wx, "onHide"),
+            "function" == typeof getApp && ((wx.onShow = wx.onAppShow), (wx.onHide = wx.onAppHide)),
+            e3.cloneMethod(r, wx, "onError"),
+            e3.cloneMethod(r, wx, "offError"),
+            (u = false),
+            (c = 1),
+            wx.onDeviceOrientationChange &&
+              wx.onDeviceOrientationChange(function (e4) {
+                "landscape" === e4.value ? (c = 1) : "landscapeReverse" === e4.value && (c = -1);
+              }),
+            Object.assign(r, {
+              startAccelerometer: function (e4) {
+                u
+                  ? wx.startAccelerometer &&
+                    wx.startAccelerometer({
+                      fail: function (e5) {
+                        console.error("start accelerometer failed", e5);
+                      },
+                    })
+                  : ((u = true),
+                    wx.onAccelerometerChange &&
+                      wx.onAccelerometerChange(function (t2) {
+                        var n2,
+                          r2 = {},
+                          o2 = t2.x,
+                          i2 = t2.y;
+                        (a && ((n2 = o2), (o2 = -i2), (i2 = n2)),
+                          (r2.x = o2 * c),
+                          (r2.y = i2 * c),
+                          (r2.z = t2.z),
+                          e4 && e4(r2));
+                      }));
+              },
+              stopAccelerometer: function () {
+                wx.stopAccelerometer &&
+                  wx.stopAccelerometer({
+                    fail: function (e4) {
+                      console.error("stop accelerometer failed", e4);
+                    },
+                  });
+              },
+            })));
+      },
+      { "./utils": 35 },
+    ],
+    35: [
+      function (e3, t, n) {
+        t.exports = {
+          cloneMethod: function (e4, t2, n2, r) {
+            t2[n2] && (e4[(r = r || n2)] = t2[n2].bind(t2));
+          },
+        };
+      },
+      {},
+    ],
+  },
+  {},
+  [27],
+);

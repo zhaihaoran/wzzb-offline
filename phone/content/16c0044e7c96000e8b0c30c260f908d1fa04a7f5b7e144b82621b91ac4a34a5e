@@ -1,0 +1,1063 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+!(function (t) {
+  var e = t;
+  (function () {
+    var t2;
+    !(function () {
+      var r;
+      function o(t3) {
+        ((this.mode = n.MODE_8BIT_BYTE), (this.data = t3), (this.parsedData = []));
+        for (var e2 = 0, r2 = this.data.length; e2 < r2; e2++) {
+          var o2 = [],
+            i2 = this.data.charCodeAt(e2);
+          (i2 > 65536
+            ? ((o2[0] = 240 | ((1835008 & i2) >>> 18)),
+              (o2[1] = 128 | ((258048 & i2) >>> 12)),
+              (o2[2] = 128 | ((4032 & i2) >>> 6)),
+              (o2[3] = 128 | (63 & i2)))
+            : i2 > 2048
+              ? ((o2[0] = 224 | ((61440 & i2) >>> 12)),
+                (o2[1] = 128 | ((4032 & i2) >>> 6)),
+                (o2[2] = 128 | (63 & i2)))
+              : i2 > 128
+                ? ((o2[0] = 192 | ((1984 & i2) >>> 6)), (o2[1] = 128 | (63 & i2)))
+                : (o2[0] = i2),
+            this.parsedData.push(o2));
+        }
+        ((this.parsedData = Array.prototype.concat.apply([], this.parsedData)),
+          this.parsedData.length != this.data.length &&
+            (this.parsedData.unshift(191),
+            this.parsedData.unshift(187),
+            this.parsedData.unshift(239)));
+      }
+      function i(t3, e2) {
+        ((this.typeNumber = t3),
+          (this.errorCorrectLevel = e2),
+          (this.modules = null),
+          (this.moduleCount = 0),
+          (this.dataCache = null),
+          (this.dataList = []));
+      }
+      ((o.prototype = {
+        getLength: function (t3) {
+          return this.parsedData.length;
+        },
+        write: function (t3) {
+          for (var e2 = 0, r2 = this.parsedData.length; e2 < r2; e2++)
+            t3.put(this.parsedData[e2], 8);
+        },
+      }),
+        (i.prototype = {
+          addData: function (t3) {
+            var e2 = new o(t3);
+            (this.dataList.push(e2), (this.dataCache = null));
+          },
+          isDark: function (t3, e2) {
+            if (t3 < 0 || this.moduleCount <= t3 || e2 < 0 || this.moduleCount <= e2)
+              throw new Error(t3 + "," + e2);
+            return this.modules[t3][e2];
+          },
+          getModuleCount: function () {
+            return this.moduleCount;
+          },
+          make: function () {
+            this.makeImpl(false, this.getBestMaskPattern());
+          },
+          makeImpl: function (t3, e2) {
+            ((this.moduleCount = 4 * this.typeNumber + 17),
+              (this.modules = new Array(this.moduleCount)));
+            for (var r2 = 0; r2 < this.moduleCount; r2++) {
+              this.modules[r2] = new Array(this.moduleCount);
+              for (var o2 = 0; o2 < this.moduleCount; o2++) this.modules[r2][o2] = null;
+            }
+            (this.setupPositionProbePattern(0, 0),
+              this.setupPositionProbePattern(this.moduleCount - 7, 0),
+              this.setupPositionProbePattern(0, this.moduleCount - 7),
+              this.setupPositionAdjustPattern(),
+              this.setupTimingPattern(),
+              this.setupTypeInfo(t3, e2),
+              this.typeNumber >= 7 && this.setupTypeNumber(t3),
+              null == this.dataCache &&
+                (this.dataCache = i.createData(
+                  this.typeNumber,
+                  this.errorCorrectLevel,
+                  this.dataList,
+                )),
+              this.mapData(this.dataCache, e2));
+          },
+          setupPositionProbePattern: function (t3, e2) {
+            for (var r2 = -1; r2 <= 7; r2++)
+              if (!(t3 + r2 <= -1 || this.moduleCount <= t3 + r2))
+                for (var o2 = -1; o2 <= 7; o2++)
+                  e2 + o2 <= -1 ||
+                    this.moduleCount <= e2 + o2 ||
+                    (this.modules[t3 + r2][e2 + o2] =
+                      (0 <= r2 && r2 <= 6 && (0 == o2 || 6 == o2)) ||
+                      (0 <= o2 && o2 <= 6 && (0 == r2 || 6 == r2)) ||
+                      (2 <= r2 && r2 <= 4 && 2 <= o2 && o2 <= 4));
+          },
+          getBestMaskPattern: function () {
+            for (var t3 = 0, e2 = 0, r2 = 0; r2 < 8; r2++) {
+              this.makeImpl(true, r2);
+              var o2 = p.getLostPoint(this);
+              (0 == r2 || t3 > o2) && ((t3 = o2), (e2 = r2));
+            }
+            return e2;
+          },
+          createMovieClip: function (t3, e2, r2) {
+            var o2 = t3.createEmptyMovieClip(e2, r2);
+            this.make();
+            for (var i2 = 0; i2 < this.modules.length; i2++)
+              for (var n2 = 1 * i2, a2 = 0; a2 < this.modules[i2].length; a2++) {
+                var s2 = 1 * a2;
+                this.modules[i2][a2] &&
+                  (o2.beginFill(0, 100),
+                  o2.moveTo(s2, n2),
+                  o2.lineTo(s2 + 1, n2),
+                  o2.lineTo(s2 + 1, n2 + 1),
+                  o2.lineTo(s2, n2 + 1),
+                  o2.endFill());
+              }
+            return o2;
+          },
+          setupTimingPattern: function () {
+            for (var t3 = 8; t3 < this.moduleCount - 8; t3++)
+              null == this.modules[t3][6] && (this.modules[t3][6] = t3 % 2 == 0);
+            for (var e2 = 8; e2 < this.moduleCount - 8; e2++)
+              null == this.modules[6][e2] && (this.modules[6][e2] = e2 % 2 == 0);
+          },
+          setupPositionAdjustPattern: function () {
+            for (var t3 = p.getPatternPosition(this.typeNumber), e2 = 0; e2 < t3.length; e2++)
+              for (var r2 = 0; r2 < t3.length; r2++) {
+                var o2 = t3[e2],
+                  i2 = t3[r2];
+                if (null == this.modules[o2][i2])
+                  for (var n2 = -2; n2 <= 2; n2++)
+                    for (var a2 = -2; a2 <= 2; a2++)
+                      this.modules[o2 + n2][i2 + a2] =
+                        -2 == n2 || 2 == n2 || -2 == a2 || 2 == a2 || (0 == n2 && 0 == a2);
+              }
+          },
+          setupTypeNumber: function (t3) {
+            for (var e2 = p.getBCHTypeNumber(this.typeNumber), r2 = 0; r2 < 18; r2++) {
+              var o2 = !t3 && 1 == ((e2 >> r2) & 1);
+              this.modules[Math.floor(r2 / 3)][(r2 % 3) + this.moduleCount - 8 - 3] = o2;
+            }
+            for (r2 = 0; r2 < 18; r2++) {
+              o2 = !t3 && 1 == ((e2 >> r2) & 1);
+              this.modules[(r2 % 3) + this.moduleCount - 8 - 3][Math.floor(r2 / 3)] = o2;
+            }
+          },
+          setupTypeInfo: function (t3, e2) {
+            for (
+              var r2 = (this.errorCorrectLevel << 3) | e2, o2 = p.getBCHTypeInfo(r2), i2 = 0;
+              i2 < 15;
+              i2++
+            ) {
+              var n2 = !t3 && 1 == ((o2 >> i2) & 1);
+              i2 < 6
+                ? (this.modules[i2][8] = n2)
+                : i2 < 8
+                  ? (this.modules[i2 + 1][8] = n2)
+                  : (this.modules[this.moduleCount - 15 + i2][8] = n2);
+            }
+            for (i2 = 0; i2 < 15; i2++) {
+              n2 = !t3 && 1 == ((o2 >> i2) & 1);
+              i2 < 8
+                ? (this.modules[8][this.moduleCount - i2 - 1] = n2)
+                : i2 < 9
+                  ? (this.modules[8][15 - i2 - 1 + 1] = n2)
+                  : (this.modules[8][15 - i2 - 1] = n2);
+            }
+            this.modules[this.moduleCount - 8][8] = !t3;
+          },
+          mapData: function (t3, e2) {
+            for (
+              var r2 = -1, o2 = this.moduleCount - 1, i2 = 7, n2 = 0, a2 = this.moduleCount - 1;
+              a2 > 0;
+              a2 -= 2
+            )
+              for (6 == a2 && a2--; ;) {
+                for (var s2 = 0; s2 < 2; s2++)
+                  if (null == this.modules[o2][a2 - s2]) {
+                    var h2 = false;
+                    (n2 < t3.length && (h2 = 1 == ((t3[n2] >>> i2) & 1)),
+                      p.getMask(e2, o2, a2 - s2) && (h2 = !h2),
+                      (this.modules[o2][a2 - s2] = h2),
+                      -1 == --i2 && (n2++, (i2 = 7)));
+                  }
+                if ((o2 += r2) < 0 || this.moduleCount <= o2) {
+                  ((o2 -= r2), (r2 = -r2));
+                  break;
+                }
+              }
+          },
+        }),
+        (i.PAD0 = 236),
+        (i.PAD1 = 17),
+        (i.createData = function (t3, e2, r2) {
+          for (var o2 = C.getRSBlocks(t3, e2), n2 = new w(), a2 = 0; a2 < r2.length; a2++) {
+            var s2 = r2[a2];
+            (n2.put(s2.mode, 4),
+              n2.put(s2.getLength(), p.getLengthInBits(s2.mode, t3)),
+              s2.write(n2));
+          }
+          var h2 = 0;
+          for (a2 = 0; a2 < o2.length; a2++) h2 += o2[a2].dataCount;
+          if (n2.getLengthInBits() > 8 * h2)
+            throw new Error("code length overflow. (" + n2.getLengthInBits() + ">" + 8 * h2 + ")");
+          for (n2.getLengthInBits() + 4 <= 8 * h2 && n2.put(0, 4); n2.getLengthInBits() % 8 != 0;)
+            n2.putBit(false);
+          for (
+            ;
+            !(
+              n2.getLengthInBits() >= 8 * h2 || (n2.put(i.PAD0, 8), n2.getLengthInBits() >= 8 * h2)
+            );
+          )
+            n2.put(i.PAD1, 8);
+          return i.createBytes(n2, o2);
+        }),
+        (i.createBytes = function (t3, e2) {
+          for (
+            var r2 = 0,
+              o2 = 0,
+              i2 = 0,
+              n2 = new Array(e2.length),
+              a2 = new Array(e2.length),
+              s2 = 0;
+            s2 < e2.length;
+            s2++
+          ) {
+            var h2 = e2[s2].dataCount,
+              l2 = e2[s2].totalCount - h2;
+            ((o2 = Math.max(o2, h2)), (i2 = Math.max(i2, l2)), (n2[s2] = new Array(h2)));
+            for (var u2 = 0; u2 < n2[s2].length; u2++) n2[s2][u2] = 255 & t3.buffer[u2 + r2];
+            r2 += h2;
+            var f2 = p.getErrorCorrectPolynomial(l2),
+              g2 = new v(n2[s2], f2.getLength() - 1).mod(f2);
+            a2[s2] = new Array(f2.getLength() - 1);
+            for (u2 = 0; u2 < a2[s2].length; u2++) {
+              var d2 = u2 + g2.getLength() - a2[s2].length;
+              a2[s2][u2] = d2 >= 0 ? g2.get(d2) : 0;
+            }
+          }
+          var c2 = 0;
+          for (u2 = 0; u2 < e2.length; u2++) c2 += e2[u2].totalCount;
+          var m2 = new Array(c2),
+            _2 = 0;
+          for (u2 = 0; u2 < o2; u2++)
+            for (s2 = 0; s2 < e2.length; s2++) u2 < n2[s2].length && (m2[_2++] = n2[s2][u2]);
+          for (u2 = 0; u2 < i2; u2++)
+            for (s2 = 0; s2 < e2.length; s2++) u2 < a2[s2].length && (m2[_2++] = a2[s2][u2]);
+          return m2;
+        }));
+      for (
+        var n = { MODE_NUMBER: 1, MODE_ALPHA_NUM: 2, MODE_8BIT_BYTE: 4, MODE_KANJI: 8 },
+          a = { L: 1, M: 0, Q: 3, H: 2 },
+          s = 0,
+          h = 1,
+          l = 2,
+          u = 3,
+          f = 4,
+          g = 5,
+          d = 6,
+          c = 7,
+          p = {
+            PATTERN_POSITION_TABLE: [
+              [],
+              [6, 18],
+              [6, 22],
+              [6, 26],
+              [6, 30],
+              [6, 34],
+              [6, 22, 38],
+              [6, 24, 42],
+              [6, 26, 46],
+              [6, 28, 50],
+              [6, 30, 54],
+              [6, 32, 58],
+              [6, 34, 62],
+              [6, 26, 46, 66],
+              [6, 26, 48, 70],
+              [6, 26, 50, 74],
+              [6, 30, 54, 78],
+              [6, 30, 56, 82],
+              [6, 30, 58, 86],
+              [6, 34, 62, 90],
+              [6, 28, 50, 72, 94],
+              [6, 26, 50, 74, 98],
+              [6, 30, 54, 78, 102],
+              [6, 28, 54, 80, 106],
+              [6, 32, 58, 84, 110],
+              [6, 30, 58, 86, 114],
+              [6, 34, 62, 90, 118],
+              [6, 26, 50, 74, 98, 122],
+              [6, 30, 54, 78, 102, 126],
+              [6, 26, 52, 78, 104, 130],
+              [6, 30, 56, 82, 108, 134],
+              [6, 34, 60, 86, 112, 138],
+              [6, 30, 58, 86, 114, 142],
+              [6, 34, 62, 90, 118, 146],
+              [6, 30, 54, 78, 102, 126, 150],
+              [6, 24, 50, 76, 102, 128, 154],
+              [6, 28, 54, 80, 106, 132, 158],
+              [6, 32, 58, 84, 110, 136, 162],
+              [6, 26, 54, 82, 110, 138, 166],
+              [6, 30, 58, 86, 114, 142, 170],
+            ],
+            G15: 1335,
+            G18: 7973,
+            G15_MASK: 21522,
+            getBCHTypeInfo: function (t3) {
+              for (var e2 = t3 << 10; p.getBCHDigit(e2) - p.getBCHDigit(p.G15) >= 0;)
+                e2 ^= p.G15 << (p.getBCHDigit(e2) - p.getBCHDigit(p.G15));
+              return ((t3 << 10) | e2) ^ p.G15_MASK;
+            },
+            getBCHTypeNumber: function (t3) {
+              for (var e2 = t3 << 12; p.getBCHDigit(e2) - p.getBCHDigit(p.G18) >= 0;)
+                e2 ^= p.G18 << (p.getBCHDigit(e2) - p.getBCHDigit(p.G18));
+              return (t3 << 12) | e2;
+            },
+            getBCHDigit: function (t3) {
+              for (var e2 = 0; 0 != t3;) (e2++, (t3 >>>= 1));
+              return e2;
+            },
+            getPatternPosition: function (t3) {
+              return p.PATTERN_POSITION_TABLE[t3 - 1];
+            },
+            getMask: function (t3, e2, r2) {
+              switch (t3) {
+                case s:
+                  return (e2 + r2) % 2 == 0;
+                case h:
+                  return e2 % 2 == 0;
+                case l:
+                  return r2 % 3 == 0;
+                case u:
+                  return (e2 + r2) % 3 == 0;
+                case f:
+                  return (Math.floor(e2 / 2) + Math.floor(r2 / 3)) % 2 == 0;
+                case g:
+                  return ((e2 * r2) % 2) + ((e2 * r2) % 3) == 0;
+                case d:
+                  return (((e2 * r2) % 2) + ((e2 * r2) % 3)) % 2 == 0;
+                case c:
+                  return (((e2 * r2) % 3) + ((e2 + r2) % 2)) % 2 == 0;
+                default:
+                  throw new Error("bad maskPattern:" + t3);
+              }
+            },
+            getErrorCorrectPolynomial: function (t3) {
+              for (var e2 = new v([1], 0), r2 = 0; r2 < t3; r2++)
+                e2 = e2.multiply(new v([1, m.gexp(r2)], 0));
+              return e2;
+            },
+            getLengthInBits: function (t3, e2) {
+              if (1 <= e2 && e2 < 10)
+                switch (t3) {
+                  case n.MODE_NUMBER:
+                    return 10;
+                  case n.MODE_ALPHA_NUM:
+                    return 9;
+                  case n.MODE_8BIT_BYTE:
+                  case n.MODE_KANJI:
+                    return 8;
+                  default:
+                    throw new Error("mode:" + t3);
+                }
+              else if (e2 < 27)
+                switch (t3) {
+                  case n.MODE_NUMBER:
+                    return 12;
+                  case n.MODE_ALPHA_NUM:
+                    return 11;
+                  case n.MODE_8BIT_BYTE:
+                    return 16;
+                  case n.MODE_KANJI:
+                    return 10;
+                  default:
+                    throw new Error("mode:" + t3);
+                }
+              else {
+                if (!(e2 < 41)) throw new Error("type:" + e2);
+                switch (t3) {
+                  case n.MODE_NUMBER:
+                    return 14;
+                  case n.MODE_ALPHA_NUM:
+                    return 13;
+                  case n.MODE_8BIT_BYTE:
+                    return 16;
+                  case n.MODE_KANJI:
+                    return 12;
+                  default:
+                    throw new Error("mode:" + t3);
+                }
+              }
+            },
+            getLostPoint: function (t3) {
+              for (var e2 = t3.getModuleCount(), r2 = 0, o2 = 0; o2 < e2; o2++)
+                for (var i2 = 0; i2 < e2; i2++) {
+                  for (var n2 = 0, a2 = t3.isDark(o2, i2), s2 = -1; s2 <= 1; s2++)
+                    if (!(o2 + s2 < 0 || e2 <= o2 + s2))
+                      for (var h2 = -1; h2 <= 1; h2++)
+                        i2 + h2 < 0 ||
+                          e2 <= i2 + h2 ||
+                          (0 == s2 && 0 == h2) ||
+                          (a2 == t3.isDark(o2 + s2, i2 + h2) && n2++);
+                  n2 > 5 && (r2 += 3 + n2 - 5);
+                }
+              for (o2 = 0; o2 < e2 - 1; o2++)
+                for (i2 = 0; i2 < e2 - 1; i2++) {
+                  var l2 = 0;
+                  (t3.isDark(o2, i2) && l2++,
+                    t3.isDark(o2 + 1, i2) && l2++,
+                    t3.isDark(o2, i2 + 1) && l2++,
+                    t3.isDark(o2 + 1, i2 + 1) && l2++,
+                    (0 != l2 && 4 != l2) || (r2 += 3));
+                }
+              for (o2 = 0; o2 < e2; o2++)
+                for (i2 = 0; i2 < e2 - 6; i2++)
+                  t3.isDark(o2, i2) &&
+                    !t3.isDark(o2, i2 + 1) &&
+                    t3.isDark(o2, i2 + 2) &&
+                    t3.isDark(o2, i2 + 3) &&
+                    t3.isDark(o2, i2 + 4) &&
+                    !t3.isDark(o2, i2 + 5) &&
+                    t3.isDark(o2, i2 + 6) &&
+                    (r2 += 40);
+              for (i2 = 0; i2 < e2; i2++)
+                for (o2 = 0; o2 < e2 - 6; o2++)
+                  t3.isDark(o2, i2) &&
+                    !t3.isDark(o2 + 1, i2) &&
+                    t3.isDark(o2 + 2, i2) &&
+                    t3.isDark(o2 + 3, i2) &&
+                    t3.isDark(o2 + 4, i2) &&
+                    !t3.isDark(o2 + 5, i2) &&
+                    t3.isDark(o2 + 6, i2) &&
+                    (r2 += 40);
+              var u2 = 0;
+              for (i2 = 0; i2 < e2; i2++) for (o2 = 0; o2 < e2; o2++) t3.isDark(o2, i2) && u2++;
+              return (r2 += 10 * (Math.abs((100 * u2) / e2 / e2 - 50) / 5));
+            },
+          },
+          m = {
+            glog: function (t3) {
+              if (t3 < 1) throw new Error("glog(" + t3 + ")");
+              return m.LOG_TABLE[t3];
+            },
+            gexp: function (t3) {
+              for (; t3 < 0;) t3 += 255;
+              for (; t3 >= 256;) t3 -= 255;
+              return m.EXP_TABLE[t3];
+            },
+            EXP_TABLE: new Array(256),
+            LOG_TABLE: new Array(256),
+          },
+          _ = 0;
+        _ < 8;
+        _++
+      )
+        m.EXP_TABLE[_] = 1 << _;
+      for (_ = 8; _ < 256; _++)
+        m.EXP_TABLE[_] =
+          m.EXP_TABLE[_ - 4] ^ m.EXP_TABLE[_ - 5] ^ m.EXP_TABLE[_ - 6] ^ m.EXP_TABLE[_ - 8];
+      for (_ = 0; _ < 255; _++) m.LOG_TABLE[m.EXP_TABLE[_]] = _;
+      function v(t3, e2) {
+        if (null == t3.length) throw new Error(t3.length + "/" + e2);
+        for (var r2 = 0; r2 < t3.length && 0 == t3[r2];) r2++;
+        this.num = new Array(t3.length - r2 + e2);
+        for (var o2 = 0; o2 < t3.length - r2; o2++) this.num[o2] = t3[o2 + r2];
+      }
+      function C(t3, e2) {
+        ((this.totalCount = t3), (this.dataCount = e2));
+      }
+      function w() {
+        ((this.buffer = []), (this.length = 0));
+      }
+      ((v.prototype = {
+        get: function (t3) {
+          return this.num[t3];
+        },
+        getLength: function () {
+          return this.num.length;
+        },
+        multiply: function (t3) {
+          for (
+            var e2 = new Array(this.getLength() + t3.getLength() - 1), r2 = 0;
+            r2 < this.getLength();
+            r2++
+          )
+            for (var o2 = 0; o2 < t3.getLength(); o2++)
+              e2[r2 + o2] ^= m.gexp(m.glog(this.get(r2)) + m.glog(t3.get(o2)));
+          return new v(e2, 0);
+        },
+        mod: function (t3) {
+          if (this.getLength() - t3.getLength() < 0) return this;
+          for (
+            var e2 = m.glog(this.get(0)) - m.glog(t3.get(0)),
+              r2 = new Array(this.getLength()),
+              o2 = 0;
+            o2 < this.getLength();
+            o2++
+          )
+            r2[o2] = this.get(o2);
+          for (o2 = 0; o2 < t3.getLength(); o2++) r2[o2] ^= m.gexp(m.glog(t3.get(o2)) + e2);
+          return new v(r2, 0).mod(t3);
+        },
+      }),
+        (C.RS_BLOCK_TABLE = [
+          [1, 26, 19],
+          [1, 26, 16],
+          [1, 26, 13],
+          [1, 26, 9],
+          [1, 44, 34],
+          [1, 44, 28],
+          [1, 44, 22],
+          [1, 44, 16],
+          [1, 70, 55],
+          [1, 70, 44],
+          [2, 35, 17],
+          [2, 35, 13],
+          [1, 100, 80],
+          [2, 50, 32],
+          [2, 50, 24],
+          [4, 25, 9],
+          [1, 134, 108],
+          [2, 67, 43],
+          [2, 33, 15, 2, 34, 16],
+          [2, 33, 11, 2, 34, 12],
+          [2, 86, 68],
+          [4, 43, 27],
+          [4, 43, 19],
+          [4, 43, 15],
+          [2, 98, 78],
+          [4, 49, 31],
+          [2, 32, 14, 4, 33, 15],
+          [4, 39, 13, 1, 40, 14],
+          [2, 121, 97],
+          [2, 60, 38, 2, 61, 39],
+          [4, 40, 18, 2, 41, 19],
+          [4, 40, 14, 2, 41, 15],
+          [2, 146, 116],
+          [3, 58, 36, 2, 59, 37],
+          [4, 36, 16, 4, 37, 17],
+          [4, 36, 12, 4, 37, 13],
+          [2, 86, 68, 2, 87, 69],
+          [4, 69, 43, 1, 70, 44],
+          [6, 43, 19, 2, 44, 20],
+          [6, 43, 15, 2, 44, 16],
+          [4, 101, 81],
+          [1, 80, 50, 4, 81, 51],
+          [4, 50, 22, 4, 51, 23],
+          [3, 36, 12, 8, 37, 13],
+          [2, 116, 92, 2, 117, 93],
+          [6, 58, 36, 2, 59, 37],
+          [4, 46, 20, 6, 47, 21],
+          [7, 42, 14, 4, 43, 15],
+          [4, 133, 107],
+          [8, 59, 37, 1, 60, 38],
+          [8, 44, 20, 4, 45, 21],
+          [12, 33, 11, 4, 34, 12],
+          [3, 145, 115, 1, 146, 116],
+          [4, 64, 40, 5, 65, 41],
+          [11, 36, 16, 5, 37, 17],
+          [11, 36, 12, 5, 37, 13],
+          [5, 109, 87, 1, 110, 88],
+          [5, 65, 41, 5, 66, 42],
+          [5, 54, 24, 7, 55, 25],
+          [11, 36, 12],
+          [5, 122, 98, 1, 123, 99],
+          [7, 73, 45, 3, 74, 46],
+          [15, 43, 19, 2, 44, 20],
+          [3, 45, 15, 13, 46, 16],
+          [1, 135, 107, 5, 136, 108],
+          [10, 74, 46, 1, 75, 47],
+          [1, 50, 22, 15, 51, 23],
+          [2, 42, 14, 17, 43, 15],
+          [5, 150, 120, 1, 151, 121],
+          [9, 69, 43, 4, 70, 44],
+          [17, 50, 22, 1, 51, 23],
+          [2, 42, 14, 19, 43, 15],
+          [3, 141, 113, 4, 142, 114],
+          [3, 70, 44, 11, 71, 45],
+          [17, 47, 21, 4, 48, 22],
+          [9, 39, 13, 16, 40, 14],
+          [3, 135, 107, 5, 136, 108],
+          [3, 67, 41, 13, 68, 42],
+          [15, 54, 24, 5, 55, 25],
+          [15, 43, 15, 10, 44, 16],
+          [4, 144, 116, 4, 145, 117],
+          [17, 68, 42],
+          [17, 50, 22, 6, 51, 23],
+          [19, 46, 16, 6, 47, 17],
+          [2, 139, 111, 7, 140, 112],
+          [17, 74, 46],
+          [7, 54, 24, 16, 55, 25],
+          [34, 37, 13],
+          [4, 151, 121, 5, 152, 122],
+          [4, 75, 47, 14, 76, 48],
+          [11, 54, 24, 14, 55, 25],
+          [16, 45, 15, 14, 46, 16],
+          [6, 147, 117, 4, 148, 118],
+          [6, 73, 45, 14, 74, 46],
+          [11, 54, 24, 16, 55, 25],
+          [30, 46, 16, 2, 47, 17],
+          [8, 132, 106, 4, 133, 107],
+          [8, 75, 47, 13, 76, 48],
+          [7, 54, 24, 22, 55, 25],
+          [22, 45, 15, 13, 46, 16],
+          [10, 142, 114, 2, 143, 115],
+          [19, 74, 46, 4, 75, 47],
+          [28, 50, 22, 6, 51, 23],
+          [33, 46, 16, 4, 47, 17],
+          [8, 152, 122, 4, 153, 123],
+          [22, 73, 45, 3, 74, 46],
+          [8, 53, 23, 26, 54, 24],
+          [12, 45, 15, 28, 46, 16],
+          [3, 147, 117, 10, 148, 118],
+          [3, 73, 45, 23, 74, 46],
+          [4, 54, 24, 31, 55, 25],
+          [11, 45, 15, 31, 46, 16],
+          [7, 146, 116, 7, 147, 117],
+          [21, 73, 45, 7, 74, 46],
+          [1, 53, 23, 37, 54, 24],
+          [19, 45, 15, 26, 46, 16],
+          [5, 145, 115, 10, 146, 116],
+          [19, 75, 47, 10, 76, 48],
+          [15, 54, 24, 25, 55, 25],
+          [23, 45, 15, 25, 46, 16],
+          [13, 145, 115, 3, 146, 116],
+          [2, 74, 46, 29, 75, 47],
+          [42, 54, 24, 1, 55, 25],
+          [23, 45, 15, 28, 46, 16],
+          [17, 145, 115],
+          [10, 74, 46, 23, 75, 47],
+          [10, 54, 24, 35, 55, 25],
+          [19, 45, 15, 35, 46, 16],
+          [17, 145, 115, 1, 146, 116],
+          [14, 74, 46, 21, 75, 47],
+          [29, 54, 24, 19, 55, 25],
+          [11, 45, 15, 46, 46, 16],
+          [13, 145, 115, 6, 146, 116],
+          [14, 74, 46, 23, 75, 47],
+          [44, 54, 24, 7, 55, 25],
+          [59, 46, 16, 1, 47, 17],
+          [12, 151, 121, 7, 152, 122],
+          [12, 75, 47, 26, 76, 48],
+          [39, 54, 24, 14, 55, 25],
+          [22, 45, 15, 41, 46, 16],
+          [6, 151, 121, 14, 152, 122],
+          [6, 75, 47, 34, 76, 48],
+          [46, 54, 24, 10, 55, 25],
+          [2, 45, 15, 64, 46, 16],
+          [17, 152, 122, 4, 153, 123],
+          [29, 74, 46, 14, 75, 47],
+          [49, 54, 24, 10, 55, 25],
+          [24, 45, 15, 46, 46, 16],
+          [4, 152, 122, 18, 153, 123],
+          [13, 74, 46, 32, 75, 47],
+          [48, 54, 24, 14, 55, 25],
+          [42, 45, 15, 32, 46, 16],
+          [20, 147, 117, 4, 148, 118],
+          [40, 75, 47, 7, 76, 48],
+          [43, 54, 24, 22, 55, 25],
+          [10, 45, 15, 67, 46, 16],
+          [19, 148, 118, 6, 149, 119],
+          [18, 75, 47, 31, 76, 48],
+          [34, 54, 24, 34, 55, 25],
+          [20, 45, 15, 61, 46, 16],
+        ]),
+        (C.getRSBlocks = function (t3, e2) {
+          var r2 = C.getRsBlockTable(t3, e2);
+          if (null == r2)
+            throw new Error("bad rs block @ typeNumber:" + t3 + "/errorCorrectLevel:" + e2);
+          for (var o2 = r2.length / 3, i2 = [], n2 = 0; n2 < o2; n2++)
+            for (
+              var a2 = r2[3 * n2 + 0], s2 = r2[3 * n2 + 1], h2 = r2[3 * n2 + 2], l2 = 0;
+              l2 < a2;
+              l2++
+            )
+              i2.push(new C(s2, h2));
+          return i2;
+        }),
+        (C.getRsBlockTable = function (t3, e2) {
+          switch (e2) {
+            case a.L:
+              return C.RS_BLOCK_TABLE[4 * (t3 - 1) + 0];
+            case a.M:
+              return C.RS_BLOCK_TABLE[4 * (t3 - 1) + 1];
+            case a.Q:
+              return C.RS_BLOCK_TABLE[4 * (t3 - 1) + 2];
+            case a.H:
+              return C.RS_BLOCK_TABLE[4 * (t3 - 1) + 3];
+            default:
+              return;
+          }
+        }),
+        (w.prototype = {
+          get: function (t3) {
+            var e2 = Math.floor(t3 / 8);
+            return 1 == ((this.buffer[e2] >>> (7 - (t3 % 8))) & 1);
+          },
+          put: function (t3, e2) {
+            for (var r2 = 0; r2 < e2; r2++) this.putBit(1 == ((t3 >>> (e2 - r2 - 1)) & 1));
+          },
+          getLengthInBits: function () {
+            return this.length;
+          },
+          putBit: function (t3) {
+            var e2 = Math.floor(this.length / 8);
+            (this.buffer.length <= e2 && this.buffer.push(0),
+              t3 && (this.buffer[e2] |= 128 >>> (this.length % 8)),
+              this.length++);
+          },
+        }));
+      var D = [
+        [17, 14, 11, 7],
+        [32, 26, 20, 14],
+        [53, 42, 32, 24],
+        [78, 62, 46, 34],
+        [106, 84, 60, 44],
+        [134, 106, 74, 58],
+        [154, 122, 86, 64],
+        [192, 152, 108, 84],
+        [230, 180, 130, 98],
+        [271, 213, 151, 119],
+        [321, 251, 177, 137],
+        [367, 287, 203, 155],
+        [425, 331, 241, 177],
+        [458, 362, 258, 194],
+        [520, 412, 292, 220],
+        [586, 450, 322, 250],
+        [644, 504, 364, 280],
+        [718, 560, 394, 310],
+        [792, 624, 442, 338],
+        [858, 666, 482, 382],
+        [929, 711, 509, 403],
+        [1003, 779, 565, 439],
+        [1091, 857, 611, 461],
+        [1171, 911, 661, 511],
+        [1273, 997, 715, 535],
+        [1367, 1059, 751, 593],
+        [1465, 1125, 805, 625],
+        [1528, 1190, 868, 658],
+        [1628, 1264, 908, 698],
+        [1732, 1370, 982, 742],
+        [1840, 1452, 1030, 790],
+        [1952, 1538, 1112, 842],
+        [2068, 1628, 1168, 898],
+        [2188, 1722, 1228, 958],
+        [2303, 1809, 1283, 983],
+        [2431, 1911, 1351, 1051],
+        [2563, 1989, 1423, 1093],
+        [2699, 2099, 1499, 1139],
+        [2809, 2213, 1579, 1219],
+        [2953, 2331, 1663, 1273],
+      ];
+      function A() {
+        var t3 = false,
+          e2 = navigator.userAgent;
+        if (/android/i.test(e2)) {
+          t3 = true;
+          var r2 = e2.toString().match(/android ([0-9]\.[0-9])/i);
+          r2 && r2[1] && (t3 = parseFloat(r2[1]));
+        }
+        return t3;
+      }
+      var y = (function () {
+          var t3 = function (t4, e2) {
+            ((this._el = t4), (this._htOption = e2));
+          };
+          return (
+            (t3.prototype.draw = function (t4) {
+              var e2 = this._htOption,
+                r2 = this._el,
+                o2 = t4.getModuleCount();
+              (Math.floor(e2.width / o2), Math.floor(e2.height / o2));
+              function i2(t5, e3) {
+                var r3 = document.createElementNS("http://www.w3.org/2000/svg", t5);
+                for (var o3 in e3) e3.hasOwnProperty(o3) && r3.setAttribute(o3, e3[o3]);
+                return r3;
+              }
+              this.clear();
+              var n2 = i2("svg", {
+                viewBox: "0 0 " + String(o2) + " " + String(o2),
+                width: "100%",
+                height: "100%",
+                fill: e2.colorLight,
+              });
+              (n2.setAttributeNS(
+                "http://www.w3.org/2000/xmlns/",
+                "xmlns:xlink",
+                "http://www.w3.org/1999/xlink",
+              ),
+                r2.appendChild(n2),
+                n2.appendChild(i2("rect", { fill: e2.colorLight, width: "100%", height: "100%" })),
+                n2.appendChild(
+                  i2("rect", { fill: e2.colorDark, width: "1", height: "1", id: "template" }),
+                ));
+              for (var a2 = 0; a2 < o2; a2++)
+                for (var s2 = 0; s2 < o2; s2++)
+                  if (t4.isDark(a2, s2)) {
+                    var h2 = i2("use", { x: String(s2), y: String(a2) });
+                    (h2.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#template"),
+                      n2.appendChild(h2));
+                  }
+            }),
+            (t3.prototype.clear = function () {
+              for (; this._el.hasChildNodes();) this._el.removeChild(this._el.lastChild);
+            }),
+            t3
+          );
+        })(),
+        L =
+          "svg" ===
+          (null === (r = document.documentElement.tagName) || void 0 === r
+            ? void 0
+            : r.toLowerCase())
+            ? y
+            : "undefined" == typeof CanvasRenderingContext2D
+              ? (function () {
+                  var t3 = function (t4, e2) {
+                    ((this._el = t4), (this._htOption = e2));
+                  };
+                  return (
+                    (t3.prototype.draw = function (t4) {
+                      for (
+                        var e2 = this._htOption,
+                          r2 = this._el,
+                          o2 = t4.getModuleCount(),
+                          i2 = Math.floor(e2.width / o2),
+                          n2 = Math.floor(e2.height / o2),
+                          a2 = ['<table style="border:0;border-collapse:collapse;">'],
+                          s2 = 0;
+                        s2 < o2;
+                        s2++
+                      ) {
+                        a2.push("<tr>");
+                        for (var h2 = 0; h2 < o2; h2++)
+                          a2.push(
+                            '<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' +
+                              i2 +
+                              "px;height:" +
+                              n2 +
+                              "px;background-color:" +
+                              (t4.isDark(s2, h2) ? e2.colorDark : e2.colorLight) +
+                              ';"></td>',
+                          );
+                        a2.push("</tr>");
+                      }
+                      (a2.push("</table>"), (r2.innerHTML = a2.join("")));
+                      var l2 = r2.childNodes[0],
+                        u2 = (e2.width - l2.offsetWidth) / 2,
+                        f2 = (e2.height - l2.offsetHeight) / 2;
+                      u2 > 0 && f2 > 0 && (l2.style.margin = f2 + "px " + u2 + "px");
+                    }),
+                    (t3.prototype.clear = function () {
+                      this._el.innerHTML = "";
+                    }),
+                    t3
+                  );
+                })()
+              : (function () {
+                  function t3() {
+                    ((this._elImage.src = this._elCanvas.toDataURL("image/png")),
+                      (this._elImage.style.display = "block"),
+                      (this._elCanvas.style.display = "none"));
+                  }
+                  if (this._android && this._android <= 2.1) {
+                    var r2 = 1 / e.devicePixelRatio,
+                      o2 = CanvasRenderingContext2D.prototype.drawImage;
+                    CanvasRenderingContext2D.prototype.drawImage = function (
+                      t4,
+                      e2,
+                      i3,
+                      n3,
+                      a2,
+                      s2,
+                      h2,
+                      l2,
+                      u2,
+                    ) {
+                      if ("nodeName" in t4 && /img/i.test(t4.nodeName))
+                        for (var f2 = arguments.length - 1; f2 >= 1; f2--)
+                          arguments[f2] = arguments[f2] * r2;
+                      else
+                        void 0 === l2 &&
+                          ((arguments[1] *= r2),
+                          (arguments[2] *= r2),
+                          (arguments[3] *= r2),
+                          (arguments[4] *= r2));
+                      o2.apply(this, arguments);
+                    };
+                  }
+                  function i2(t4, e2) {
+                    var r3 = this;
+                    if (((r3._fFail = e2), (r3._fSuccess = t4), null === r3._bSupportDataURI)) {
+                      var o3 = document.createElement("img"),
+                        i3 = function () {
+                          ((r3._bSupportDataURI = false), r3._fFail && r3._fFail.call(r3));
+                        };
+                      return (
+                        (o3.onabort = i3),
+                        (o3.onerror = i3),
+                        (o3.onload = function () {
+                          ((r3._bSupportDataURI = true), r3._fSuccess && r3._fSuccess.call(r3));
+                        }),
+                        void (o3.src =
+                          "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+                      );
+                    }
+                    true === r3._bSupportDataURI && r3._fSuccess
+                      ? r3._fSuccess.call(r3)
+                      : false === r3._bSupportDataURI && r3._fFail && r3._fFail.call(r3);
+                  }
+                  var n2 = function (t4, e2) {
+                    ((this._bIsPainted = false),
+                      (this._android = A()),
+                      (this._htOption = e2),
+                      (this._elCanvas = document.createElement("canvas")),
+                      (this._elCanvas.width = e2.width),
+                      (this._elCanvas.height = e2.height),
+                      t4.appendChild(this._elCanvas),
+                      (this._el = t4),
+                      (this._oContext = this._elCanvas.getContext("2d")),
+                      (this._bIsPainted = false),
+                      (this._elImage = document.createElement("img")),
+                      (this._elImage.alt = "Scan me!"),
+                      (this._elImage.style.display = "none"),
+                      this._el.appendChild(this._elImage),
+                      (this._bSupportDataURI = null));
+                  };
+                  return (
+                    (n2.prototype.draw = function (t4) {
+                      var e2 = this._elImage,
+                        r3 = this._oContext,
+                        o3 = this._htOption,
+                        i3 = t4.getModuleCount(),
+                        n3 = o3.width / i3,
+                        a2 = o3.height / i3,
+                        s2 = Math.round(n3),
+                        h2 = Math.round(a2);
+                      ((e2.style.display = "none"), this.clear());
+                      for (var l2 = 0; l2 < i3; l2++)
+                        for (var u2 = 0; u2 < i3; u2++) {
+                          var f2 = t4.isDark(l2, u2),
+                            g2 = u2 * n3,
+                            d2 = l2 * a2;
+                          ((r3.strokeStyle = f2 ? o3.colorDark : o3.colorLight),
+                            (r3.lineWidth = 1),
+                            (r3.fillStyle = f2 ? o3.colorDark : o3.colorLight),
+                            r3.fillRect(g2, d2, n3, a2),
+                            r3.strokeRect(Math.floor(g2) + 0.5, Math.floor(d2) + 0.5, s2, h2),
+                            r3.strokeRect(Math.ceil(g2) - 0.5, Math.ceil(d2) - 0.5, s2, h2));
+                        }
+                      this._bIsPainted = true;
+                    }),
+                    (n2.prototype.makeImage = function () {
+                      this._bIsPainted && i2.call(this, t3);
+                    }),
+                    (n2.prototype.isPainted = function () {
+                      return this._bIsPainted;
+                    }),
+                    (n2.prototype.clear = function () {
+                      (this._oContext.clearRect(0, 0, this._elCanvas.width, this._elCanvas.height),
+                        (this._bIsPainted = false));
+                    }),
+                    (n2.prototype.round = function (t4) {
+                      return t4 ? Math.floor(1e3 * t4) / 1e3 : t4;
+                    }),
+                    n2
+                  );
+                })();
+      function E(t3, e2) {
+        for (
+          var r2 = 1,
+            o2 = (function (t4) {
+              var e3 = encodeURI(t4)
+                .toString()
+                .replace(/\%[0-9a-fA-F]{2}/g, "a");
+              return e3.length + (e3.length != t4 ? 3 : 0);
+            })(t3),
+            i2 = 0,
+            n2 = D.length;
+          i2 <= n2;
+          i2++
+        ) {
+          var s2 = 0;
+          switch (e2) {
+            case a.L:
+              s2 = D[i2][0];
+              break;
+            case a.M:
+              s2 = D[i2][1];
+              break;
+            case a.Q:
+              s2 = D[i2][2];
+              break;
+            case a.H:
+              s2 = D[i2][3];
+          }
+          if (o2 <= s2) break;
+          r2++;
+        }
+        if (r2 > D.length) throw new Error("Too long data");
+        return r2;
+      }
+      ((e.QRCode = t2 =
+        function (t3, e2) {
+          if (
+            ((this._htOption = {
+              width: 256,
+              height: 256,
+              typeNumber: 4,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: a.H,
+            }),
+            "string" == typeof e2 && (e2 = { text: e2 }),
+            e2)
+          )
+            for (var r2 in e2) this._htOption[r2] = e2[r2];
+          ("string" == typeof t3 && (t3 = document.getElementById(t3)),
+            this._htOption.useSVG && (L = y),
+            (this._android = A()),
+            (this._el = t3),
+            (this._oQRCode = null),
+            t3 && (this._oDrawing = new L(this._el, this._htOption)),
+            this._htOption.text && this.makeCode(this._htOption.text));
+        }),
+        (t2.prototype.makeCode = function (t3) {
+          ((this._oQRCode = new i(E(t3, this._htOption.correctLevel), this._htOption.correctLevel)),
+            this._oQRCode.addData(t3),
+            this._oQRCode.make(),
+            this._el &&
+              ((this._el.title = t3), this._oDrawing.draw(this._oQRCode), this.makeImage()));
+        }),
+        (t2.prototype.makeImage = function () {
+          "function" == typeof this._oDrawing.makeImage &&
+            (!this._android || this._android >= 3) &&
+            this._oDrawing.makeImage();
+        }),
+        (t2.prototype.clear = function () {
+          this._oDrawing.clear();
+        }),
+        (t2.CorrectLevel = a));
+    })();
+  }).call(t);
+})(
+  function () {
+    return "undefined" != typeof globalThis
+      ? globalThis
+      : "undefined" != typeof self
+        ? self
+        : "undefined" != typeof window
+          ? window
+          : "undefined" != typeof global
+            ? global
+            : void 0 !== this
+              ? this
+              : {};
+  }.call(void 0),
+);

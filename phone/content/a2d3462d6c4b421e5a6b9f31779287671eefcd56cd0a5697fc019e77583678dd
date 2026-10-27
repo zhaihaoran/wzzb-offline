@@ -1,0 +1,1 @@
+{"deviceOrientation":"landscapeRight","networkTimeout":{"request":5000,"connectSocket":5000,"uploadFile":5000,"downloadFile":500000},"iOSHighPerformance":true,"__warning__":"无效的 game.json [\"iOSHighPerformance\"]","subPackages":[{"name":"gameLogic","root":"/src/bundle-scripts/main/"}]}

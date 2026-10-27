@@ -1,0 +1,112 @@
+/** Browser-only seams for the shipped battle client.
+ * Offline AI invitations have no second client to send an acceptance push.
+ * Keep the original APIs, callbacks and FightCreatorEvents route, and bridge
+ * only responses explicitly identified by our local server.
+ */
+const contexts = new WeakMap();
+
+function context(local) {
+  if (!contexts.has(local)) contexts.set(local, { patched: new WeakSet(), callbackFrames: [], pendingInvites: new Map(), opened: new Set() });
+  return contexts.get(local);
+}
+
+export function patchBattleClient(exports, local) {
+  if (!local || typeof local.getExport !== 'function') throw new TypeError('Battle client repairs require the local export registry');
+  const state = context(local);
+  const report = error => {
+    local.log?.('battle-client', String(error?.message || error));
+    console.error('本地切磋启动失败', error);
+  };
+  function localBattle(response) {
+    return response?.state === 0 && response.localOriginalBattle === true &&
+      [10, 12].includes(Number(response.battleGround?.type)) &&
+      response.battleGround?.id && response.player0 && response.player1;
+  }
+  function activeBattle(id) {
+    const creator = local.getExport('FightCreator');
+    const constant = local.getExport('BattleConstant');
+    return String(creator?.activeCreateRequest?.battleData?.battleGround?.id || '') === String(id) ||
+      String(constant?.fightPanel?.getBattleId?.() || '') === String(id);
+  }
+  function openBattle(response, frame) {
+    const id = String(response.battleGround.id);
+    if (frame.created || state.opened.has(id) || activeBattle(id)) return;
+    const creator = local.getExport('FightCreatorEvents');
+    if (typeof creator?.create !== 'function') throw new Error('本地切磋缺少原版 FightCreatorEvents.create');
+    state.opened.add(id);
+    if (state.opened.size > 128) state.opened.delete(state.opened.values().next().value);
+    const data = local.getExport('QieCuoData');
+    if (data) {
+      data.onStartFightData?.(response);
+      data.reqChallengeTime = 0;
+      data.lastSendFightTargetUid = '';
+    }
+    try { creator.create(response); }
+    catch (error) { state.opened.delete(id); throw error; }
+  }
+  function deliverStart(callback, receiver, response) {
+    if (!localBattle(response)) return callback?.call(receiver, response);
+    const frame = { id: String(response.battleGround.id), created: false };
+    state.callbackFrames.push(frame);
+    let result;
+    try { result = callback?.call(receiver, response); }
+    catch (error) { report(error); }
+    // A caller can already use the original creator, as RoleCardGroupPop does.
+    // Wait for an async caller as well; never dispatch the same battle twice.
+    const finish = () => {
+      const index = state.callbackFrames.indexOf(frame);
+      if (index >= 0) state.callbackFrames.splice(index, 1);
+      try { openBattle(response, frame); } catch (error) { report(error); }
+    };
+    if (result && typeof result.then === 'function') return Promise.resolve(result).then(finish, error => { report(error); finish(); });
+    finish();
+    return result;
+  }
+  const creator = exports.FightCreatorEvents;
+  if (creator && !state.patched.has(creator)) {
+    state.patched.add(creator);
+    const original = creator.create;
+    if (typeof original === 'function') creator.create = function (response, ...rest) {
+      for (const frame of state.callbackFrames) if (frame.id === String(response?.battleGround?.id)) frame.created = true;
+      return original.call(this, response, ...rest);
+    };
+  }
+  const api = exports.QieCuoApi;
+  if (!api || state.patched.has(api)) return;
+  state.patched.add(api);
+  for (const [method, callbackIndex] of [['startFight', 3], ['startFightInRedArea', 1], ['startFightWithTargetCardGroup', 2]]) {
+    const original = api[method];
+    if (typeof original !== 'function') continue;
+    api[method] = function (...args) {
+      const callback = args[callbackIndex];
+      let delivered = false;
+      args[callbackIndex] = function (response) {
+        if (delivered) return;
+        delivered = true;
+        return deliverStart(callback, this, response);
+      };
+      return original.apply(this, args);
+    };
+  }
+  const originalSend = api.sendFight;
+  if (typeof originalSend !== 'function') return;
+  api.sendFight = function (targetUid, cardGroup, callback) {
+    let delivered = false;
+    return originalSend.call(this, targetUid, cardGroup, function (response) {
+      if (delivered) return;
+      delivered = true;
+      const result = callback?.call(this, response);
+      if (response?.state !== 0 || response.localAutoAccept !== true || targetUid !== 'local-ai-practice' || response.targetUid !== targetUid) return result;
+      const key = `${targetUid}|${cardGroup}`;
+      // Native APIs do not expose an error callback here. Failed requests are
+      // shown by BaseApi; let a later retry recover without a permanent lock.
+      if (Date.now() - (state.pendingInvites.get(key) || 0) < 30000) return result;
+      if (typeof api.startFight !== 'function') { report(new Error('本地切磋缺少原版 startFight API')); return result; }
+      state.pendingInvites.set(key, Date.now());
+      try {
+        api.startFight(targetUid, cardGroup, 'local-ai', () => { state.pendingInvites.delete(key); });
+      } catch (error) { state.pendingInvites.delete(key); report(error); }
+      return result;
+    });
+  };
+}

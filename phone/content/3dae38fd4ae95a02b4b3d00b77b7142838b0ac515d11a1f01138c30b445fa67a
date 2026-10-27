@@ -1,0 +1,71 @@
+import { LOCAL_CACHED_WORLD_MAP_IDS } from './test-access-maps.mjs';
+
+const cachedMaps = new Set(LOCAL_CACHED_WORLD_MAP_IDS);
+const installed = new WeakMap();
+export function getTestingDungeonLayers(local) {
+  const rows = local.getExport?.('CfgData')?.getCfgDungeonMap?.();
+  return Object.values(rows || {}).filter(row => Number.isSafeInteger(Number(row.id)) && Number(row.id) > 0 && cachedMaps.has(String(row.map_pool).split(',')[0].trim())).sort((a, b) => Number(a.id) - Number(b.id));
+}
+function callbackRequest(invoke) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('原版地城资料加载超时，请重试。')), 15000);
+    const finish = response => { clearTimeout(timer); response?.state && response.state !== 0 ? reject(new Error(response.message || '当前无法进入地城。')) : resolve(response); };
+    try { invoke(finish); } catch (error) { clearTimeout(timer); reject(error); }
+  });
+}
+/** Same native flow as DungeonChallengeMapUI.on_btn_dicheng_challenge.
+ * Submission, owned-hero validation and ticket spending remain in the original
+ * DungeonSubmitHeroPop -> DungeonApi.openChallenge path.
+ */
+export async function openTestingDungeon(local, layer) {
+  if (local.testHeroFeatures !== true) throw new Error('测试关卡未开放。');
+  const get = local.getExport;
+  if (!get?.('AccountData')?.getSessionToken?.()) throw new Error('请先进入本地模拟服。');
+  if (!get('PanelTween')?.rootPanel) throw new Error('请等待主城界面加载完成。');
+  if (get('BattleConstant')?.fightPanel?.isCurrentBattleContext?.(true)) throw new Error('请先结束当前对战。');
+  if (!getTestingDungeonLayers(local).some(row => Number(row.id) === Number(layer))) throw new Error('该层没有可用的原始地图。');
+  const api = get('DungeonApi'), data = get('DungeonData'), popup = get('DungeonSubmitHeroPop'), alert = get('Alert');
+  if (!api?.getInitData || !api.info || !data || !popup?.createInstance || !alert?.alert) throw new Error('原版地城模块尚未加载完成。');
+  await callbackRequest(done => api.getInitData(done));
+  await callbackRequest(done => api.info(done));
+  if (data.isOpenStatus) throw new Error('请先在原版界面结束当前地城探索，再选择新层。');
+  if (!(Number(data.tickets) > 0)) throw new Error('地城钥匙不足，请补充后再挑战。');
+  const panel = await popup.createInstance(Number(layer));
+  alert.alert(panel);
+  return { layer: Number(layer), stage: 'native-hero-selection' };
+}
+
+/** Adds one compact footer control. Call once after DOM setup; configs are read
+ * lazily when opened so initialization may precede the player's login.
+ */
+export function setupTestingSelector(local, document = globalThis.document) {
+  if (local.testHeroFeatures !== true || !document?.createElement) return null;
+  if (installed.has(document)) return installed.get(document);
+  const mount = document.querySelector('footer') || document.body;
+  if (!mount) return null;
+  const details = document.createElement('details'), summary = document.createElement('summary'), panel = document.createElement('div');
+  details.id = 'local-testing-selector'; summary.textContent = '测试关卡';
+  Object.assign(details.style, { display: 'inline-block', cursor: 'pointer' });
+  Object.assign(panel.style, { position: 'fixed', right: '12px', bottom: '50px', width: '290px', maxWidth: '85vw', padding: '12px', background: '#17212d', color: '#fff', border: '1px solid #708195', borderRadius: '8px', zIndex: '1000', cursor: 'default', display: 'grid', gap: '8px' });
+  const label = document.createElement('label'), select = document.createElement('select'), open = document.createElement('button'), message = document.createElement('span');
+  label.textContent = '地城层数'; select.setAttribute('aria-label', '测试地城层数'); open.textContent = '选择出战英雄'; message.setAttribute('role', 'status');
+  message.textContent = '按原版规则选择英雄并消耗钥匙。'; label.append(select); panel.append(label, open, message); details.append(summary, panel); mount.append(details);
+  let busy = false;
+  function refresh() {
+    if (busy) return;
+    const selected = select.value, rows = getTestingDungeonLayers(local); select.replaceChildren();
+    for (const row of rows) { const option = document.createElement('option'); option.value = String(row.id); option.textContent = `${row.name || `第${row.id}层`} · 卡牌等级${row.level_des || '原配置'}`; select.append(option); }
+    if (rows.some(row => String(row.id) === selected)) select.value = selected;
+    open.disabled = rows.length === 0;
+    message.textContent = rows.length ? '按原版规则选择英雄并消耗钥匙。' : '请先进入本地模拟服，打开此菜单后重试。';
+  }
+  async function launch() {
+    if (busy) return; busy = true; open.disabled = true; message.textContent = '正在打开原版出战窗口…';
+    try { await openTestingDungeon(local, Number(select.value)); details.open = false; message.textContent = '请在原版窗口选择英雄并确认。'; }
+    catch (error) { message.textContent = error.message; local.log?.('testing-selector-error', error.message); }
+    finally { busy = false; open.disabled = getTestingDungeonLayers(local).length === 0; }
+  }
+  details.addEventListener('toggle', () => { if (details.open) refresh(); }); open.addEventListener('click', launch);
+  const controller = { element: details, refresh, open: layer => openTestingDungeon(local, layer), destroy() { details.remove(); installed.delete(document); } };
+  installed.set(document, controller); refresh(); return controller;
+}

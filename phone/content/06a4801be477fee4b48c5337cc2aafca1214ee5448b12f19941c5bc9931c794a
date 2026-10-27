@@ -1,0 +1,4502 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("../../../../@babel/runtime/helpers/typeof");
+!(function (t) {
+  var i = t,
+    n = t;
+  (function () {
+    function t2(i2) {
+      return (t2 =
+        "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+          ? function (t3) {
+              return e(t3);
+            }
+          : function (t3) {
+              return t3 &&
+                "function" == typeof Symbol &&
+                t3.constructor === Symbol &&
+                t3 !== Symbol.prototype
+                ? "symbol"
+                : e(t3);
+            })(i2);
+    }
+    function a(e2, t3) {
+      if (!(e2 instanceof t3)) throw new TypeError("Cannot call a class as a function");
+    }
+    function r(e2, t3) {
+      for (var i2 = 0; i2 < t3.length; i2++) {
+        var n2 = t3[i2];
+        ((n2.enumerable = n2.enumerable || false),
+          (n2.configurable = true),
+          "value" in n2 && (n2.writable = true),
+          Object.defineProperty(e2, n2.key, n2));
+      }
+    }
+    function s(e2, t3, i2) {
+      return (t3 && r(e2.prototype, t3), i2 && r(e2, i2), e2);
+    }
+    var o = "3.0.0",
+      c = "MG",
+      u = {},
+      l = Array.prototype,
+      h = Object.prototype,
+      p = l.slice,
+      d = h.toString,
+      f = Object.prototype.hasOwnProperty,
+      g = l.forEach,
+      m = Array.isArray,
+      v = {},
+      y = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+    ((u.each = function (e2, t3, i2) {
+      if (null == e2) return false;
+      if (g && e2.forEach === g) e2.forEach(t3, i2);
+      else if (e2.length === +e2.length) {
+        for (var n2 = 0, a2 = e2.length; n2 < a2; n2++)
+          if (n2 in e2 && t3.call(i2, e2[n2], n2, e2) === v) return false;
+      } else
+        for (var r2 in e2) if (f.call(e2, r2) && t3.call(i2, e2[r2], r2, e2) === v) return false;
+    }),
+      (u.extend = function (e2) {
+        return (
+          u.each(p.call(arguments, 1), function (t3) {
+            for (var i2 in t3) void 0 !== t3[i2] && (e2[i2] = t3[i2]);
+          }),
+          e2
+        );
+      }),
+      (u.extend2Layers = function (e2) {
+        return (
+          u.each(p.call(arguments, 1), function (t3) {
+            for (var i2 in t3)
+              void 0 !== t3[i2] &&
+                (u.isObject(t3[i2]) && u.isObject(e2[i2])
+                  ? u.extend(e2[i2], t3[i2])
+                  : (e2[i2] = t3[i2]));
+          }),
+          e2
+        );
+      }),
+      (u.isArray =
+        m ||
+        function (e2) {
+          return "[object Array]" === d.call(e2);
+        }),
+      (u.isFunction = function (e2) {
+        try {
+          return "function" == typeof e2;
+        } catch (e3) {
+          return false;
+        }
+      }),
+      (u.isPromise = function (e2) {
+        return "[object Promise]" === d.call(e2) && null != e2;
+      }),
+      (u.isObject = function (e2) {
+        return "[object Object]" === d.call(e2) && null != e2;
+      }),
+      (u.isEmptyObject = function (e2) {
+        if (u.isObject(e2)) {
+          for (var t3 in e2) if (f.call(e2, t3)) return false;
+          return true;
+        }
+        return false;
+      }),
+      (u.isUndefined = function (e2) {
+        return void 0 === e2;
+      }),
+      (u.isString = function (e2) {
+        return "[object String]" === d.call(e2);
+      }),
+      (u.isDate = function (e2) {
+        return "[object Date]" === d.call(e2);
+      }),
+      (u.isBoolean = function (e2) {
+        return "[object Boolean]" === d.call(e2);
+      }),
+      (u.isNumber = function (e2) {
+        return "[object Number]" === d.call(e2) && /[\d\.]+/.test(String(e2));
+      }),
+      (u.isJSONString = function (e2) {
+        try {
+          JSON.parse(e2);
+        } catch (e3) {
+          return false;
+        }
+        return true;
+      }),
+      (u.decodeURIComponent = function (e2) {
+        var t3 = "";
+        try {
+          t3 = decodeURIComponent(e2);
+        } catch (i2) {
+          t3 = e2;
+        }
+        return t3;
+      }),
+      (u.encodeURIComponent = function (e2) {
+        var t3 = "";
+        try {
+          t3 = encodeURIComponent(e2);
+        } catch (i2) {
+          t3 = e2;
+        }
+        return t3;
+      }),
+      (u.utf8Encode = function (e2) {
+        for (
+          var t3,
+            i2 = "",
+            n2 = (t3 = 0),
+            a2 = (e2 = (e2 + "").replace(/\r\n/g, "\n").replace(/\r/g, "\n")).length,
+            r2 = 0;
+          r2 < a2;
+          r2++
+        ) {
+          var s2 = e2.charCodeAt(r2),
+            o2 = null;
+          (s2 < 128
+            ? t3++
+            : (o2 =
+                127 < s2 && s2 < 2048
+                  ? String.fromCharCode((s2 >> 6) | 192, (63 & s2) | 128)
+                  : String.fromCharCode((s2 >> 12) | 224, ((s2 >> 6) & 63) | 128, (63 & s2) | 128)),
+            null !== o2 &&
+              (n2 < t3 && (i2 += e2.substring(n2, t3)), (i2 += o2), (n2 = t3 = r2 + 1)));
+        }
+        return (n2 < t3 && (i2 += e2.substring(n2, e2.length)), i2);
+      }),
+      (u.base64Encode = function (e2) {
+        var t3,
+          i2,
+          n2,
+          a2,
+          r2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+          s2 = 0,
+          o2 = 0,
+          c2 = "",
+          l2 = [];
+        if (!e2) return e2;
+        for (
+          e2 = u.utf8Encode(e2);
+          (t3 =
+            ((a2 =
+              (e2.charCodeAt(s2++) << 16) | (e2.charCodeAt(s2++) << 8) | e2.charCodeAt(s2++)) >>
+              18) &
+            63),
+            (i2 = (a2 >> 12) & 63),
+            (n2 = (a2 >> 6) & 63),
+            (a2 &= 63),
+            (l2[o2++] = r2.charAt(t3) + r2.charAt(i2) + r2.charAt(n2) + r2.charAt(a2)),
+            s2 < e2.length;
+        );
+        switch (((c2 = l2.join("")), e2.length % 3)) {
+          case 1:
+            c2 = c2.slice(0, -2) + "==";
+            break;
+          case 2:
+            c2 = c2.slice(0, -1) + "=";
+        }
+        return c2;
+      }),
+      (u.encodeDates = function (e2) {
+        return (
+          u.each(e2, function (t3, i2) {
+            if (u.isDate(t3)) e2[i2] = u.formatDate(t3);
+            else if (u.isObject(t3)) e2[i2] = u.encodeDates(t3);
+            else if (u.isArray(t3))
+              for (var n2 = 0; n2 < t3.length; n2++)
+                u.isDate(t3[n2]) && (e2[i2][n2] = u.formatDate(t3[n2]));
+          }),
+          e2
+        );
+      }),
+      (u.formatDate = function (e2) {
+        function t3(e3) {
+          return e3 < 10 ? "0" + e3 : e3;
+        }
+        return (
+          e2.getFullYear() +
+          "-" +
+          t3(e2.getMonth() + 1) +
+          "-" +
+          t3(e2.getDate()) +
+          " " +
+          t3(e2.getHours()) +
+          ":" +
+          t3(e2.getMinutes()) +
+          ":" +
+          t3(e2.getSeconds()) +
+          "." +
+          ((i2 = e2.getMilliseconds()) < 100 && 9 < i2 ? "0" + i2 : i2 < 10 ? "00" + i2 : i2)
+        );
+        var i2;
+      }),
+      (u.searchObjDate = function (e2) {
+        try {
+          (u.isObject(e2) || u.isArray(e2)) &&
+            u.each(e2, function (t3, i2) {
+              u.isObject(t3) || u.isArray(t3)
+                ? u.searchObjDate(e2[i2])
+                : u.isDate(t3) && (e2[i2] = u.formatDate(t3));
+            });
+        } catch (e3) {
+          _.warn(e3);
+        }
+      }),
+      (u.UUID = function () {
+        var e2 = /* @__PURE__ */ new Date().getTime();
+        return String(Math.random()).replace(".", "").slice(1, 11) + "-" + e2;
+      }),
+      (u.UUIDv4 = function () {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (e2) {
+          var t3 = (16 * Math.random()) | 0;
+          return ("x" === e2 ? t3 : (3 & t3) | 8).toString(16);
+        });
+      }),
+      (u.setMpPlatform = function (e2) {
+        u.mpPlatform = e2;
+      }),
+      (u.getMpPlatform = function () {
+        return u.mpPlatform;
+      }),
+      (u.createExtraHeaders = function () {
+        return {
+          "TA-Integration-Type": c,
+          "TA-Integration-Version": o,
+          "TA-Integration-Count": "1",
+          "TA-Integration-Extra": u.getMpPlatform(),
+        };
+      }),
+      (u.checkAppId = function (e2) {
+        return e2.replace(/\s*/g, "");
+      }),
+      (u.checkUrl = function (e2) {
+        return ((e2 = e2.replace(/\s*/g, "")), u.url("basic", e2));
+      }),
+      (u.url = /* @__PURE__ */ (function () {
+        function e2() {
+          return new RegExp(
+            /(.*?)\.?([^.]*?)\.(com|net|org|biz|ws|in|me|co\.uk|co|org\.uk|ltd\.uk|plc\.uk|me\.uk|edu|mil|br\.com|cn\.com|eu\.com|hu\.com|no\.com|qc\.com|sa\.com|se\.com|se\.net|us\.com|uy\.com|ac|co\.ac|gv\.ac|or\.ac|ac\.ac|af|am|as|at|ac\.at|co\.at|gv\.at|or\.at|asn\.au|com\.au|edu\.au|org\.au|net\.au|id\.au|be|ac\.be|adm\.br|adv\.br|am\.br|arq\.br|art\.br|bio\.br|cng\.br|cnt\.br|com\.br|ecn\.br|eng\.br|esp\.br|etc\.br|eti\.br|fm\.br|fot\.br|fst\.br|g12\.br|gov\.br|ind\.br|inf\.br|jor\.br|lel\.br|med\.br|mil\.br|net\.br|nom\.br|ntr\.br|odo\.br|org\.br|ppg\.br|pro\.br|psc\.br|psi\.br|rec\.br|slg\.br|tmp\.br|tur\.br|tv\.br|vet\.br|zlg\.br|br|ab\.ca|bc\.ca|mb\.ca|nb\.ca|nf\.ca|ns\.ca|nt\.ca|on\.ca|pe\.ca|qc\.ca|sk\.ca|yk\.ca|ca|cc|ac\.cn|net\.cn|com\.cn|edu\.cn|gov\.cn|org\.cn|bj\.cn|sh\.cn|tj\.cn|cq\.cn|he\.cn|nm\.cn|ln\.cn|jl\.cn|hl\.cn|js\.cn|zj\.cn|ah\.cn|gd\.cn|gx\.cn|hi\.cn|sc\.cn|gz\.cn|yn\.cn|xz\.cn|sn\.cn|gs\.cn|qh\.cn|nx\.cn|xj\.cn|tw\.cn|hk\.cn|mo\.cn|cn|cx|cz|de|dk|fo|com\.ec|tm\.fr|com\.fr|asso\.fr|presse\.fr|fr|gf|gs|co\.il|net\.il|ac\.il|k12\.il|gov\.il|muni\.il|ac\.in|co\.in|org\.in|ernet\.in|gov\.in|net\.in|res\.in|is|it|ac\.jp|co\.jp|go\.jp|or\.jp|ne\.jp|ac\.kr|co\.kr|go\.kr|ne\.kr|nm\.kr|or\.kr|li|lt|lu|asso\.mc|tm\.mc|com\.mm|org\.mm|net\.mm|edu\.mm|gov\.mm|ms|nl|no|nu|pl|ro|org\.ro|store\.ro|tm\.ro|firm\.ro|www\.ro|arts\.ro|rec\.ro|info\.ro|nom\.ro|nt\.ro|se|si|com\.sg|org\.sg|net\.sg|gov\.sg|sk|st|tf|ac\.th|co\.th|go\.th|mi\.th|net\.th|or\.th|tm|to|com\.tr|edu\.tr|gov\.tr|k12\.tr|net\.tr|org\.tr|com\.tw|org\.tw|net\.tw|ac\.uk|uk\.com|uk\.net|gb\.com|gb\.net|vg|sh|kz|ch|info|ua|gov|name|pro|ie|hk|com\.hk|org\.hk|net\.hk|edu\.hk|us|tk|cd|by|ad|lv|eu\.lv|bz|es|jp|cl|ag|mobi|eu|co\.nz|org\.nz|net\.nz|maori\.nz|iwi\.nz|io|la|md|sc|sg|vc|tw|travel|my|se|tv|pt|com\.pt|edu\.pt|asia|fi|com\.ve|net\.ve|fi|org\.ve|web\.ve|info\.ve|co\.ve|tel|im|gr|ru|net\.ru|org\.ru|hr|com\.hr|ly|xyz)$/,
+          );
+        }
+        function t3(e3, t4) {
+          var i2 = e3.charAt(0);
+          t4 = t4.split(i2);
+          return i2 === e3
+            ? t4
+            : t4[(e3 = parseInt(e3.substring(1), 10)) < 0 ? t4.length + e3 : e3 - 1];
+        }
+        function n2(e3, t4) {
+          for (
+            var i2,
+              n3,
+              a2 = e3.charAt(0),
+              r2 = t4.split("&"),
+              s2 = [],
+              o2 = {},
+              c2 = e3.substring(1),
+              l2 = 0,
+              h2 = r2.length;
+            l2 < h2;
+            l2++
+          )
+            if (
+              "" !==
+              (s2 = (s2 = r2[l2].match(/(.*?)=(.*)/)) || [r2[l2], r2[l2], ""])[1].replace(/\s/g, "")
+            ) {
+              if (
+                ((s2[2] = ((n3 = s2[2] || ""), u.decodeURIComponent(n3.replace(/\+/g, " ")))),
+                c2 === s2[1])
+              )
+                return s2[2];
+              (i2 = s2[1].match(/(.*)\[([0-9]+)\]/))
+                ? ((o2[i2[1]] = o2[i2[1]] || []), (o2[i2[1]][i2[2]] = s2[2]))
+                : (o2[s2[1]] = s2[2]);
+            }
+          return a2 === e3 ? o2 : o2[c2];
+        }
+        return function (a2, r2) {
+          var s2 = {};
+          if ("tld?" === a2) return e2();
+          if (((r2 = r2 || i.location.toString()), !a2)) return r2;
+          if (((a2 = a2.toString()), r2.match(/^mailto:([^/].+)/)))
+            ((o2 = r2.match(/^mailto:([^/].+)/)), (s2.protocol = "mailto"), (s2.email = o2[1]));
+          else {
+            if (
+              (r2.match(/(.*?)\/#!(.*)/) && (r2 = (o2 = r2.match(/(.*?)\/#!(.*)/))[1] + o2[2]),
+              r2.match(/(.*?)#(.*)/) &&
+                ((o2 = r2.match(/(.*?)#(.*)/)), (s2.hash = o2[2]), (r2 = o2[1])),
+              s2.hash && a2.match(/^#/))
+            )
+              return n2(a2, s2.hash);
+            if (
+              (r2.match(/(.*?)\?(.*)/) &&
+                ((o2 = r2.match(/(.*?)\?(.*)/)), (s2.query = o2[2]), (r2 = o2[1])),
+              s2.query && a2.match(/^\?/))
+            )
+              return n2(a2, s2.query);
+            if (
+              (r2.match(/(.*?):?\/\/(.*)/) &&
+                ((o2 = r2.match(/(.*?):?\/\/(.*)/)),
+                (s2.protocol = o2[1].toLowerCase()),
+                (r2 = o2[2])),
+              r2.match(/(.*?)(\/.*)/) &&
+                ((o2 = r2.match(/(.*?)(\/.*)/)), (s2.path = o2[2]), (r2 = o2[1])),
+              (s2.path = (s2.path || "").replace(/^([^/])/, "/$1").replace(/\/$/, "")),
+              a2.match(/^[-0-9]+$/) && (a2 = a2.replace(/^([^/])/, "/$1")),
+              a2.match(/^\//))
+            )
+              return t3(a2, s2.path.substring(1));
+            if (
+              ((o2 = (o2 = t3("/-1", s2.path.substring(1))) && o2.match(/(.*?)\.(.*)/)) &&
+                ((s2.file = o2[0]), (s2.filename = o2[1]), (s2.fileext = o2[2])),
+              r2.match(/(.*):([0-9]+)$/) &&
+                ((o2 = r2.match(/(.*):([0-9]+)$/)), (s2.port = o2[2]), (r2 = o2[1])),
+              r2.match(/(.*?)@(.*)/) &&
+                ((o2 = r2.match(/(.*?)@(.*)/)), (s2.auth = o2[1]), (r2 = o2[2])),
+              s2.auth &&
+                ((o2 = s2.auth.match(/(.*):(.*)/)),
+                (s2.user = o2 ? o2[1] : s2.auth),
+                (s2.pass = o2 ? o2[2] : void 0)),
+              (s2.hostname = r2.toLowerCase()),
+              "." === a2.charAt(0))
+            )
+              return t3(a2, s2.hostname);
+            e2() &&
+              (o2 = s2.hostname.match(e2())) &&
+              ((s2.tld = o2[3]),
+              (s2.domain = o2[2] ? o2[2] + "." + o2[3] : void 0),
+              (s2.sub = o2[1] || void 0));
+            var o2 = s2.port ? ":" + s2.port : "";
+            ((s2.protocol = s2.protocol || i.location.protocol.replace(":", "")),
+              (s2.port = s2.port || ("https" === s2.protocol ? "443" : "80")),
+              (s2.protocol = s2.protocol || ("443" === s2.port ? "https" : "http")),
+              (s2.basic = s2.protocol + "://" + s2.hostname + o2));
+          }
+          return a2 in s2 ? s2[a2] : "{}" === a2 ? s2 : "";
+        };
+      })()),
+      (u.createString = function (e2) {
+        for (var t3 = e2, i2 = Math.random().toString(36).substr(2); i2.length < t3;)
+          i2 += Math.random().toString(36).substr(2);
+        return i2.substr(0, e2);
+      }),
+      (u.createAesKey = function () {
+        return u.createString(16);
+      }),
+      (u.generateEncryptyData = function (e2, t3) {
+        if (void 0 === t3) return e2;
+        var i2 = t3.publicKey,
+          n2 = t3.version;
+        if (void 0 === i2 || void 0 === n2) return e2;
+        if ("undefined" == typeof CryptoJS || "undefined" == typeof JSEncrypt) return e2;
+        var a2 = u.createAesKey();
+        try {
+          var r2 = CryptoJS.enc.Utf8.parse(a2),
+            s2 = CryptoJS.enc.Utf8.parse(JSON.stringify(e2)),
+            o2 = u.isUndefined(CryptoJS.pad.Pkcs7) ? CryptoJS.pad.PKCS7 : CryptoJS.pad.Pkcs7;
+          r2 = CryptoJS.AES.encrypt(s2, r2, { mode: CryptoJS.mode.ECB, padding: o2 }).toString();
+          return (
+            (o2 = new JSEncrypt()).setPublicKey(i2),
+            false === (o2 = o2.encrypt(a2))
+              ? (_.warn("Encryption failed, return the original data"), e2)
+              : { pkv: n2, ekey: o2, payload: r2 }
+          );
+        } catch (e3) {
+          _.warn("Encryption failed, return the original data: " + e3);
+        }
+        return e2;
+      }),
+      (u.getUtm = function () {
+        var e2 = {};
+        return (
+          u.each(y, function (t3) {
+            try {
+              var i2 = u.getQueryParam(location.href, t3);
+              i2.length && (e2[t3] = i2);
+            } catch (t4) {
+              _.warn("get utm fail: " + t4);
+            }
+          }),
+          JSON.stringify(e2)
+        );
+      }),
+      (u.getQueryParam = function (e2, t3) {
+        return (
+          (t3 = t3.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]")),
+          (e2 = u.decodeURIComponent(e2)),
+          null === (e2 = new RegExp("[\\?&]" + t3 + "=([^&#]*)").exec(e2)) ||
+          (e2 && "string" != typeof e2[1] && e2[1].length)
+            ? ""
+            : u.decodeURIComponent(e2[1])
+        );
+      }),
+      (u.getUtmFromQuery = function (e2) {
+        var t3 = {};
+        return (
+          u.each(y, function (i2) {
+            e2[i2] && (t3[i2] = e2[i2]);
+          }),
+          JSON.stringify(t3)
+        );
+      }),
+      (u.indexOf = function (e2, t3) {
+        var i2 = e2.indexOf;
+        if (i2) return i2.call(e2, t3);
+        for (var n2 = 0; n2 < e2.length; n2++) if (t3 === e2[n2]) return n2;
+        return -1;
+      }),
+      (u.checkCalibration = function (e2, t3, i2) {
+        return e2;
+      }));
+    var _ = "object" === t2(_) ? _ : {};
+    ((_.info = function () {
+      if (
+        "object" === ("undefined" == typeof console ? "undefined" : t2(console)) &&
+        console.log &&
+        _.enabled
+      )
+        try {
+          return (
+            (arguments[0] = "[ThinkingData] Info: " + arguments[0]),
+            console.log.apply(console, arguments)
+          );
+        } catch (e2) {
+          console.log("[ThinkingData] Info: " + arguments[0]);
+        }
+    }),
+      (_.warn = function () {
+        if (
+          "object" === ("undefined" == typeof console ? "undefined" : t2(console)) &&
+          console.log &&
+          _.enabled
+        )
+          try {
+            return (
+              (arguments[0] = "[ThinkingData] Warning: " + arguments[0]),
+              console.warn.apply(console, arguments)
+            );
+          } catch (e2) {
+            console.warn("[ThinkingData] Warning: " + arguments[0]);
+          }
+      }));
+    var k = (function () {
+        function e2() {
+          (a(this, e2),
+            (this.config = {
+              persistenceName: "thinkingdata",
+              persistenceNameOld: "thinkingdata_mg",
+            }));
+        }
+        return (
+          s(
+            e2,
+            [
+              {
+                key: "getConfig",
+                value: function () {
+                  return this.config;
+                },
+              },
+              {
+                key: "getStorage",
+                value: function (e3, t3, i2) {
+                  if (((e3 = localStorage.getItem(e3)), !t3))
+                    return u.isJSONString(e3) ? JSON.parse(e3) : {};
+                  u.isJSONString(e3) ? i2(JSON.parse(e3)) : i2({});
+                },
+              },
+              {
+                key: "setStorage",
+                value: function (e3, t3) {
+                  localStorage.setItem(e3, t3);
+                },
+              },
+              {
+                key: "removeStorage",
+                value: function (e3) {
+                  localStorage.removeItem(e3);
+                },
+              },
+              {
+                key: "_setSystemProxy",
+                value: function (e3) {
+                  this._sysCallback = e3;
+                },
+              },
+              {
+                key: "getSystemInfo",
+                value: function (e3) {
+                  var t3 = {
+                    mp_platform: "web",
+                    system: this._getOs(),
+                    screenWidth: i.screen.width,
+                    screenHeight: i.screen.height,
+                    systemLanguage: navigator.language,
+                  };
+                  (this._sysCallback && (t3 = u.extend(t3, this._sysCallback(e3))),
+                    e3.success(t3),
+                    e3.complete());
+                },
+              },
+              {
+                key: "_getOs",
+                value: function () {
+                  var e3 = navigator.userAgent;
+                  return /Windows/i.test(e3)
+                    ? /Phone/.test(e3) || /WPDesktop/.test(e3)
+                      ? "Windows Phone"
+                      : "Windows"
+                    : /(iPhone|iPad|iPod)/.test(e3)
+                      ? "iOS"
+                      : /Android/.test(e3)
+                        ? "Android"
+                        : /(BlackBerry|PlayBook|BB10)/i.test(e3)
+                          ? "BlackBerry"
+                          : /Mac/i.test(e3)
+                            ? "MacOS"
+                            : /Linux/.test(e3)
+                              ? "Linux"
+                              : /CrOS/.test(e3)
+                                ? "ChromeOS"
+                                : "";
+                },
+              },
+              {
+                key: "getNetworkType",
+                value: function (e3) {
+                  e3.complete();
+                },
+              },
+              { key: "onNetworkStatusChange", value: function () {} },
+              {
+                key: "request",
+                value: function (e3) {
+                  var t3 = {},
+                    i2 = new XMLHttpRequest();
+                  if ((i2.open(e3.method, e3.url), e3.header))
+                    for (var n2 in e3.header) i2.setRequestHeader(n2, e3.header[n2]);
+                  return (
+                    (i2.onreadystatechange = function () {
+                      4 === i2.readyState && 200 === i2.status
+                        ? ((t3.statusCode = 200),
+                          u.isJSONString(i2.responseText) &&
+                            (t3.data = JSON.parse(i2.responseText)),
+                          e3.success(t3))
+                        : 200 !== i2.status && ((t3.errMsg = "network error"), e3.fail(t3));
+                    }),
+                    (i2.ontimeout = function () {
+                      ((t3.errMsg = "timeout"), e3.fail(t3));
+                    }),
+                    i2.send(e3.data),
+                    i2
+                  );
+                },
+              },
+              {
+                key: "initAutoTrackInstance",
+                value: function (e3, t3) {
+                  ((this.instance = e3), (this.autoTrack = t3.autoTrack));
+                  var i2 = this;
+                  (i2.onPageShow(),
+                    i2.autoTrack.appHide && i2.instance.timeEvent("ta_page_hide"),
+                    "onvisibilitychange" in document &&
+                      (document.onvisibilitychange = function () {
+                        document.hidden
+                          ? i2.onPageHide(true)
+                          : (i2.onPageShow(),
+                            i2.autoTrack.appHide && i2.instance.timeEvent("ta_page_hide"));
+                      }));
+                },
+              },
+              {
+                key: "setGlobal",
+                value: function (e3, t3) {
+                  i[t3] = e3;
+                },
+              },
+              { key: "getAppOptions", value: function () {} },
+              { key: "showToast", value: function () {} },
+              {
+                key: "onPageShow",
+                value: function () {
+                  var e3;
+                  this.autoTrack.appShow &&
+                    ((e3 = {}),
+                    u.extend(e3, this.autoTrack.properties),
+                    u.isFunction(this.autoTrack.callback) &&
+                      u.extend(e3, this.autoTrack.callback("appShow")),
+                    this.instance._internalTrack("ta_page_show", e3));
+                },
+              },
+              {
+                key: "onPageHide",
+                value: function (e3) {
+                  var t3;
+                  this.autoTrack.appHide &&
+                    ((t3 = {}),
+                    u.extend(t3, this.autoTrack.properties),
+                    u.isFunction(this.autoTrack.callback) &&
+                      u.extend(t3, this.autoTrack.callback("appHide")),
+                    this.instance._internalTrack(
+                      "ta_page_hide",
+                      t3,
+                      /* @__PURE__ */ new Date(),
+                      null,
+                      e3,
+                    ));
+                },
+              },
+            ],
+            [
+              {
+                key: "createInstance",
+                value: function () {
+                  return new e2();
+                },
+              },
+            ],
+          ),
+          e2
+        );
+      })(),
+      S = (function () {
+        function e2(t3, i2) {
+          (a(this, e2),
+            (this.taInstance = t3),
+            (this.config = i2 || {}),
+            (this.referrer = "Directly open"),
+            this.config.isPlugin
+              ? ((t3.App = function () {
+                  App.apply(this, arguments);
+                }),
+                inension(t3.Page))
+              : ((t3 = App),
+                (App = this._initAppExtention(t3)),
+                (t3 = Page),
+                (Page = this._initPageExtension(t3))));
+        }
+        return (
+          s(e2, [
+            {
+              key: "_initPageExtension",
+              value: function (e3) {
+                var t3 = this;
+                return function (i2) {
+                  var n2 = i2.onShow,
+                    a2 = i2.onShareAppMessage;
+                  return (
+                    (i2.onShow = function (e4) {
+                      (t3.onPageShow(), "function" == typeof n2 && n2.call(this, e4));
+                    }),
+                    "function" == typeof a2 &&
+                      (i2.onShareAppMessage = function (e4) {
+                        return ((e4 = a2.call(this, e4)), t3.onPageShare(e4));
+                      }),
+                    e3(i2)
+                  );
+                };
+              },
+            },
+            {
+              key: "_initAppExtention",
+              value: function (e3) {
+                var t3 = this;
+                return function (i2) {
+                  var n2 = i2.onLaunch,
+                    a2 = i2.onShow,
+                    r2 = i2.onHide;
+                  return (
+                    (i2.onLaunch = function (e4) {
+                      (t3.onAppLaunch(e4, this), "function" == typeof n2 && n2.call(this, e4));
+                    }),
+                    (i2.onShow = function (e4) {
+                      (t3.onAppShow(e4), "function" == typeof a2 && a2.call(this, e4));
+                    }),
+                    (i2.onHide = function () {
+                      (t3.onAppHide(), "function" == typeof r2 && r2.call(this));
+                    }),
+                    e3(i2)
+                  );
+                };
+              },
+            },
+            {
+              key: "onAppLaunch",
+              value: function (e3, t3) {
+                (this._setAutoTrackProperties(e3),
+                  u.isUndefined(t3) || (t3[this.taInstance.name] = this.taInstance),
+                  this.config.appLaunch &&
+                    ((t3 = {}),
+                    e3 && e3.path && (t3["#url_path"] = this._getPath(e3.path)),
+                    e3 && e3.query && (t3["#utm"] = u.getUtmFromQuery(e3.query)),
+                    this.taInstance._internalTrack("ta_mp_launch", t3)));
+              },
+            },
+            {
+              key: "onAppShow",
+              value: function (e3) {
+                var t3;
+                (this.config.appHide && this.taInstance.timeEvent("ta_mp_hide"),
+                  this._setAutoTrackProperties(e3),
+                  this.config.appShow &&
+                    ((t3 = {}),
+                    e3 && e3.path && (t3["#url_path"] = this._getPath(e3.path)),
+                    e3 && e3.query && (t3["#utm"] = u.getUtmFromQuery(e3.query)),
+                    u.extend(t3, this.config.properties),
+                    u.isFunction(this.config.callback) &&
+                      u.extend(t3, this.config.callback("appShow")),
+                    this.taInstance._internalTrack("ta_mp_show", t3)));
+              },
+            },
+            {
+              key: "onAppHide",
+              value: function () {
+                var e3;
+                this.config.appHide &&
+                  ((e3 = { "#url_path": this._getCurrentPath() }),
+                  u.extend(e3, this.config.properties),
+                  u.isFunction(this.config.callback) &&
+                    u.extend(e3, this.config.callback("appHide")),
+                  this.taInstance._internalTrack("ta_mp_hide", e3));
+              },
+            },
+            {
+              key: "_getCurrentPath",
+              value: function () {
+                var e3 = "Not to get";
+                try {
+                  var t3 = getCurrentPages();
+                  e3 = t3[t3.length - 1].route;
+                } catch (e4) {
+                  _.info(e4);
+                }
+                return e3;
+              },
+            },
+            {
+              key: "_setAutoTrackProperties",
+              value: function (e3) {
+                ((e3 = { "#scene": e3.scene }), this.taInstance._setAutoTrackProperties(e3));
+              },
+            },
+            {
+              key: "_getPath",
+              value: function (e3) {
+                return "string" == typeof e3 ? e3.replace(/^\//, "") : "Abnormal values";
+              },
+            },
+            {
+              key: "onPageShare",
+              value: function (e3) {
+                return (
+                  this.config.pageShare &&
+                    this.taInstance._internalTrack("ta_mp_share", {
+                      "#url_path": this._getCurrentPath(),
+                    }),
+                  u.isObject(e3) ? e3 : {}
+                );
+              },
+            },
+            {
+              key: "onPageShow",
+              value: function () {
+                var e3, t3;
+                this.config.pageShow &&
+                  ((t3 = {
+                    "#url_path": (e3 = this._getCurrentPath()) || "The system did not get a value",
+                    "#referrer": this.referrer,
+                  }),
+                  (this.referrer = e3),
+                  this.taInstance._internalTrack("ta_mp_view", t3));
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      b = (function () {
+        function e2(t3, i2, n2) {
+          var r2 = this;
+          (a(this, e2),
+            (this.taInstance = t3),
+            (this.config = i2 || {}),
+            (i2 = n2.getLaunchOptionsSync()),
+            this._onShow(i2),
+            (this.startTracked = true),
+            n2.onShow(function (e3) {
+              r2._onShow(e3);
+            }),
+            n2.onHide(function () {
+              var e3;
+              ((r2.startTracked = false),
+                r2.config.appHide &&
+                  ((e3 = {}),
+                  u.extend(e3, r2.config.properties),
+                  u.isFunction(r2.config.callback) && u.extend(e3, r2.config.callback("appHide")),
+                  r2.taInstance._internalTrack("ta_mg_hide", e3)));
+            }));
+        }
+        return (
+          s(e2, [
+            {
+              key: "_onShow",
+              value: function (e3) {
+                this.startTracked ||
+                  (this.config.appHide && this.taInstance.timeEvent("ta_mg_hide"),
+                  e3 && e3.scene && this.taInstance._setAutoTrackProperties({ "#scene": e3.scene }),
+                  this.config.appShow &&
+                    ((e3 = {}),
+                    u.extend(e3, this.config.properties),
+                    u.isFunction(this.config.callback) &&
+                      u.extend(e3, this.config.callback("appShow")),
+                    this.taInstance._internalTrack("ta_mg_show", e3)));
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      I = (function () {
+        function e2(t3, i2, n2) {
+          (a(this, e2), (this.api = t3), (this.config = i2), (this._config = n2));
+        }
+        return (
+          s(
+            e2,
+            [
+              {
+                key: "getConfig",
+                value: function () {
+                  return this.config;
+                },
+              },
+              {
+                key: "getStorage",
+                value: function (e3, t3, i2) {
+                  if (!t3) {
+                    if ("dd_mp" === this._config.platform) {
+                      var n2 = this.api.getStorageSync({ key: e3 });
+                      return u.isJSONString(n2.data) ? JSON.parse(n2.data) : {};
+                    }
+                    return (
+                      (n2 = this.api.getStorageSync(e3)),
+                      u.isJSONString(n2) ? JSON.parse(n2) : {}
+                    );
+                  }
+                  this.api.getStorage({
+                    key: e3,
+                    success: function (e4) {
+                      ((e4 = u.isJSONString(e4.data) ? JSON.parse(e4.data) : {}), i2(e4));
+                    },
+                    fail: function () {
+                      (_.warn("getStorage faild"), i2({}));
+                    },
+                  });
+                },
+              },
+              {
+                key: "setStorage",
+                value: function (e3, t3) {
+                  "ali_mp" === this._config.platform ||
+                  "tb_mp" === this._config.platform ||
+                  "dd_mp" === this._config.platform
+                    ? this.api.setStorageSync({ key: e3, data: t3 })
+                    : this.api.setStorageSync(e3, t3);
+                },
+              },
+              {
+                key: "removeStorage",
+                value: function (e3) {
+                  u.isFunction(this.api.removeStorage)
+                    ? this.api.removeStorage({ key: e3 })
+                    : u.isFunction(this.api.deleteStorage) && this.api.deleteStorage({ key: e3 });
+                },
+              },
+              {
+                key: "_getPlatform",
+                value: function () {
+                  return "";
+                },
+              },
+              {
+                key: "getSystemInfo",
+                value: function (e3) {
+                  var t3 = this._config.mpPlatform;
+                  this.api.getSystemInfo({
+                    success: function (i2) {
+                      (u.isFunction(t3) ? (i2.mp_platform = t3(i2)) : (i2.mp_platform = t3),
+                        e3.success(i2),
+                        "wechat" === t3 && e3.complete());
+                    },
+                    complete: function () {
+                      e3.complete();
+                    },
+                  });
+                },
+              },
+              {
+                key: "getNetworkType",
+                value: function (e3) {
+                  u.isFunction(this.api.getNetworkType)
+                    ? this.api.getNetworkType({
+                        success: function (t3) {
+                          e3.success(t3);
+                        },
+                        complete: function () {
+                          e3.complete();
+                        },
+                      })
+                    : (e3.success({}), e3.complete());
+                },
+              },
+              {
+                key: "onNetworkStatusChange",
+                value: function (e3) {
+                  u.isFunction(this.api.onNetworkStatusChange)
+                    ? this.api.onNetworkStatusChange(e3)
+                    : e3({});
+                },
+              },
+              {
+                key: "request",
+                value: function (e3) {
+                  if ("ali_mp" !== this._config.platform && "dd_mp" !== this._config.platform)
+                    return this.api.request(e3);
+                  var t3 = u.extend({}, e3);
+                  return (
+                    (t3.headers = e3.header),
+                    (t3.success = function (t4) {
+                      ((t4.statusCode = t4.status), e3.success(t4));
+                    }),
+                    (t3.fail = function (t4) {
+                      ((t4.errMsg = t4.errorMessage), e3.fail(t4));
+                    }),
+                    "dd_mp" === this._config.platform
+                      ? this.api.httpRequest(t3)
+                      : this.api.request(t3)
+                  );
+                },
+              },
+              {
+                key: "initAutoTrackInstance",
+                value: function (e3, t3) {
+                  return (
+                    u.isObject(t3.autoTrack) && (t3.autoTrack.isPlugin = t3.is_plugin),
+                    new (this._config.mp ? S : b)(e3, t3.autoTrack, this.api)
+                  );
+                },
+              },
+              {
+                key: "setGlobal",
+                value: function (e3, t3) {
+                  this._config.mp
+                    ? _.warn(
+                        "ThinkingAnalytics: we do not set global name for TA instance when you do not enable auto track.",
+                      )
+                    : (GameGlobal[t3] = e3);
+                },
+              },
+              {
+                key: "getAppOptions",
+                value: function (e3) {
+                  var t3 = {};
+                  try {
+                    t3 = this.api.getLaunchOptionsSync();
+                  } catch (e4) {
+                    _.warn("Cannot get launch options.");
+                  }
+                  if (u.isFunction(e3))
+                    try {
+                      this._config.mp ? this.api.onAppShow(e3) : this.api.onShow(e3);
+                    } catch (e4) {
+                      _.warn("Cannot register onShow callback.");
+                    }
+                  return t3;
+                },
+              },
+              {
+                key: "showToast",
+                value: function (e3) {
+                  var t3;
+                  u.isFunction(this.api.showToast) &&
+                    ((t3 = { title: e3 }),
+                    ("dd_mp" !== this._config.platform && "ali_mp" !== this._config.platform) ||
+                      (t3.content = e3),
+                    this.api.showToast(t3));
+                },
+              },
+            ],
+            [
+              {
+                key: "createInstance",
+                value: function () {
+                  return this._createInstance("R_CURRENT_PLATFORM");
+                },
+              },
+              {
+                key: "_createInstance",
+                value: function (t3) {
+                  switch (t3) {
+                    case "wechat_mp":
+                      return new e2(
+                        wx,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_wechat",
+                        },
+                        { mpPlatform: "wechat", mp: true, platform: t3 },
+                      );
+                    case "wechat_mg":
+                      return new e2(
+                        wx,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_wechat_game",
+                        },
+                        { mpPlatform: "wechat", platform: t3 },
+                      );
+                    case "qq_mp":
+                      return new e2(
+                        qq,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_qq" },
+                        { mpPlatform: "qq", mp: true, platform: t3 },
+                      );
+                    case "qq_mg":
+                      return new e2(
+                        qq,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qq_game",
+                        },
+                        { mpPlatform: "qq", platform: t3 },
+                      );
+                    case "baidu_mp":
+                      return new e2(
+                        swan,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_swan",
+                        },
+                        {
+                          mpPlatform: function (e3) {
+                            return e3.host;
+                          },
+                          mp: true,
+                          platform: t3,
+                        },
+                      );
+                    case "baidu_mg":
+                      return new e2(
+                        swan,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_swan_game",
+                        },
+                        {
+                          mpPlatform: function (e3) {
+                            return e3.host;
+                          },
+                          platform: t3,
+                        },
+                      );
+                    case "tt_mg":
+                      return new e2(
+                        tt,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_tt_game",
+                        },
+                        {
+                          mpPlatform: function (e3) {
+                            return e3.appName;
+                          },
+                          platform: t3,
+                        },
+                      );
+                    case "tt_mp":
+                      return new e2(
+                        tt,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_tt" },
+                        {
+                          mpPlatform: function (e3) {
+                            return e3.appName;
+                          },
+                          mp: true,
+                          platform: t3,
+                        },
+                      );
+                    case "ali_mp":
+                      return new e2(
+                        my,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_ali" },
+                        {
+                          mpPlatform: function (e3) {
+                            return e3.app;
+                          },
+                          mp: true,
+                          platform: t3,
+                        },
+                      );
+                    case "dd_mp":
+                      return new e2(
+                        dd,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_dd" },
+                        { mpPlatform: "dingding", mp: true, platform: t3 },
+                      );
+                    case "bl_mg":
+                      return new e2(
+                        bl,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_mg" },
+                        { mpPlatform: "bilibili", platform: t3 },
+                      );
+                    case "kuaishou_mp":
+                      return new e2(
+                        ks,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_kuaishou",
+                        },
+                        { mpPlatform: "kuaishou", mp: true, platform: t3 },
+                      );
+                    case "qh360_mg":
+                      return new e2(
+                        qh,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qh360",
+                        },
+                        { mpPlatform: "qh360", platform: t3 },
+                      );
+                    case "tb_mp":
+                      return new e2(
+                        my,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_tb" },
+                        { mpPlatform: "tb", mp: true, platform: t3 },
+                      );
+                    case "jd_mp":
+                      return new e2(
+                        jd,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_jd" },
+                        { mpPlatform: "jd", mp: true, platform: t3 },
+                      );
+                    case "qh360_mp":
+                      return new e2(
+                        qh,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qh360",
+                        },
+                        { mpPlatform: "qh360", mp: true, platform: t3 },
+                      );
+                    case "WEB":
+                      return new k.createInstance();
+                  }
+                },
+              },
+            ],
+          ),
+          e2
+        );
+      })(),
+      C = function e2(t3, i2) {
+        var n2 = this;
+        (a(this, e2),
+          (this.taInstance = t3),
+          (this.config = i2 || {}),
+          this.config.appShow && this.taInstance._internalTrack("ta_mg_show"),
+          this.config.appHide && this.taInstance.timeEvent("ta_mg_hide"),
+          qg.onShow(function () {
+            var e3;
+            (n2.config.appHide && n2.taInstance.timeEvent("ta_mg_hide"),
+              n2.config.appShow &&
+                ((e3 = {}),
+                u.extend(e3, n2.config.properties),
+                u.isFunction(n2.config.callback) && u.extend(e3, n2.config.callback("appShow")),
+                n2.taInstance._internalTrack("ta_mg_show")));
+          }),
+          qg.onHide(function () {
+            var e3;
+            n2.config.appHide &&
+              ((e3 = {}),
+              u.extend(e3, n2.config.properties),
+              u.isFunction(n2.config.callback) && u.extend(e3, n2.config.callback("appHide")),
+              n2.taInstance._internalTrack("ta_mg_hide"));
+          }));
+      },
+      P = (function () {
+        function e2() {
+          (a(this, e2),
+            (this.config = {
+              persistenceName: "thinkingdata",
+              persistenceNameOld: "thinkingdata_qg_vivo_game",
+              asyncPersistence: true,
+            }));
+        }
+        return (
+          s(
+            e2,
+            [
+              {
+                key: "getConfig",
+                value: function () {
+                  return this.config || {};
+                },
+              },
+              {
+                key: "getStorage",
+                value: function (e3, t3, i2) {
+                  if (!t3)
+                    return (
+                      (t3 = qg.getStorageSync({ key: e3 })),
+                      u.isJSONString(t3) ? JSON.parse(t3) : {}
+                    );
+                  qg.getStorage({
+                    key: e3,
+                    success: function (e4) {
+                      ((e4 = u.isJSONString(e4) ? JSON.parse(e4) : {}), i2(e4));
+                    },
+                    fail: function () {
+                      i2({});
+                    },
+                  });
+                },
+              },
+              {
+                key: "setStorage",
+                value: function (e3, t3) {
+                  qg.setStorage({ key: e3, value: t3 });
+                },
+              },
+              {
+                key: "removeStorage",
+                value: function (e3) {
+                  qg.deleteStorage({ key: e3 });
+                },
+              },
+              {
+                key: "getSystemInfo",
+                value: function (e3) {
+                  qg.getSystemInfo({
+                    success: function (t3) {
+                      var i2 = t3,
+                        n2 = [t3.osType, t3.osVersionName].join(" ");
+                      ((i2.brand = t3.manufacturer),
+                        (i2.system = n2),
+                        (i2.mp_platform = "vivo_qg"),
+                        e3.success(i2));
+                    },
+                    complete: function () {
+                      e3.complete();
+                    },
+                  });
+                },
+              },
+              {
+                key: "getNetworkType",
+                value: function (e3) {
+                  qg.getNetworkType({
+                    success: function (t3) {
+                      var i2 = t3;
+                      ((i2.networkType = t3.type), e3.success(i2));
+                    },
+                    complete: function () {
+                      e3.complete();
+                    },
+                  });
+                },
+              },
+              {
+                key: "onNetworkStatusChange",
+                value: function (e3) {
+                  qg.subscribeNetworkStatus({
+                    callback: function (t3) {
+                      var i2 = t3;
+                      ((i2.networkType = t3.type), e3(i2));
+                    },
+                  });
+                },
+              },
+              {
+                key: "request",
+                value: function (e3) {
+                  return qg.request({
+                    url: e3.url,
+                    data: e3.data,
+                    method: e3.method,
+                    header: e3.header,
+                    success: function (t3) {
+                      e3.success(t3);
+                    },
+                    fail: function (t3) {
+                      e3.fail(t3);
+                    },
+                  });
+                },
+              },
+              {
+                key: "initAutoTrackInstance",
+                value: function (e3, t3) {
+                  return new C(e3, t3.autoTrack);
+                },
+              },
+              {
+                key: "setGlobal",
+                value: function (e3, t3) {
+                  n[t3] = e3;
+                },
+              },
+              {
+                key: "getAppOptions",
+                value: function () {
+                  return {};
+                },
+              },
+              {
+                key: "showToast",
+                value: function (e3) {
+                  qg.showToast({ message: e3, duration: 0 });
+                },
+              },
+            ],
+            [
+              {
+                key: "createInstance",
+                value: function () {
+                  return new e2();
+                },
+              },
+            ],
+          ),
+          e2
+        );
+      })(),
+      A = function e2(t3, i2, n2) {
+        var r2 = this;
+        (a(this, e2),
+          (this.taInstance = t3),
+          (this.config = i2 || {}),
+          this.config.appShow &&
+            ((i2 = {}),
+            u.extend(i2, this.config.properties),
+            u.isFunction(this.config.callback) && u.extend(i2, this.config.callback("appShow")),
+            this.taInstance._internalTrack("ta_mg_show", i2)),
+          this.config.appHide && this.taInstance.timeEvent("ta_mg_hide"),
+          n2.onShow(function () {
+            var e3;
+            (r2.config.appHide && r2.taInstance.timeEvent("ta_mg_hide"),
+              r2.config.appShow &&
+                ((e3 = {}),
+                u.extend(e3, r2.config.properties),
+                u.isFunction(r2.config.callback) && u.extend(e3, r2.config.callback("appShow")),
+                r2.taInstance._internalTrack("ta_mg_show", e3)));
+          }),
+          n2.onHide(function () {
+            var e3;
+            r2.config.appHide &&
+              ((e3 = {}),
+              u.extend(e3, r2.config.properties),
+              u.isFunction(r2.config.callback) && u.extend(e3, r2.config.callback("appHide")),
+              r2.taInstance._internalTrack("ta_mg_hide", e3));
+          }));
+      },
+      N = (function () {
+        function e2(t3, i2, n2) {
+          (a(this, e2), (this.api = t3), (this.config = i2), (this._config = n2));
+        }
+        return (
+          s(
+            e2,
+            [
+              {
+                key: "getConfig",
+                value: function () {
+                  return this.config || {};
+                },
+              },
+              {
+                key: "getStorage",
+                value: function (e3, t3, i2) {
+                  if (((e3 = localStorage.getItem(e3)), !t3))
+                    return u.isJSONString(e3) ? JSON.parse(e3) : {};
+                  u.isJSONString(e3) ? i2(JSON.parse(e3)) : i2({});
+                },
+              },
+              {
+                key: "setStorage",
+                value: function (e3, t3) {
+                  localStorage.setItem(e3, t3);
+                },
+              },
+              {
+                key: "removeStorage",
+                value: function (e3) {
+                  localStorage.removeItem(e3);
+                },
+              },
+              {
+                key: "getSystemInfo",
+                value: function (e3) {
+                  var t3 = this._config.mpPlatform;
+                  this.api.getSystemInfo({
+                    success: function (i2) {
+                      ((i2.mp_platform = t3), e3.success(i2));
+                    },
+                    complete: function () {
+                      e3.complete();
+                    },
+                  });
+                },
+              },
+              {
+                key: "getNetworkType",
+                value: function (e3) {
+                  this.api.getNetworkType({
+                    success: function (t3) {
+                      e3.success(t3);
+                    },
+                    complete: function () {
+                      e3.complete();
+                    },
+                  });
+                },
+              },
+              {
+                key: "onNetworkStatusChange",
+                value: function (e3) {
+                  this.api.onNetworkStatusChange({
+                    callback: function (t3) {
+                      e3(t3);
+                    },
+                  });
+                },
+              },
+              {
+                key: "request",
+                value: function (e3) {
+                  var t3 = {},
+                    i2 = new XMLHttpRequest();
+                  if ((i2.open(e3.method, e3.url), e3.header))
+                    for (var n2 in e3.header) i2.setRequestHeader(n2, e3.header[n2]);
+                  return (
+                    (i2.onreadystatechange = function () {
+                      4 === i2.readyState && 200 === i2.status
+                        ? ((t3.statusCode = 200),
+                          u.isJSONString(i2.responseText) &&
+                            (t3.data = JSON.parse(i2.responseText)),
+                          e3.success(t3))
+                        : 200 !== i2.status && ((t3.errMsg = "network error"), e3.fail(t3));
+                    }),
+                    (i2.ontimeout = function () {
+                      ((t3.errMsg = "timeout"), e3.fail(t3));
+                    }),
+                    i2.send(e3.data),
+                    i2
+                  );
+                },
+              },
+              {
+                key: "initAutoTrackInstance",
+                value: function (e3, t3) {
+                  return new A(e3, t3.autoTrack, this.api);
+                },
+              },
+              {
+                key: "setGlobal",
+                value: function (e3, t3) {
+                  n[t3] = e3;
+                },
+              },
+              {
+                key: "getAppOptions",
+                value: function () {
+                  return this.api.getLaunchOptionsSync();
+                },
+              },
+              {
+                key: "showToast",
+                value: function (e3) {
+                  this.api.showToast({ title: e3, icon: "none", duration: 2e3 });
+                },
+              },
+            ],
+            [
+              {
+                key: "createInstance",
+                value: function () {
+                  return this._createInstance("R_CURRENT_PLATFORM");
+                },
+              },
+              {
+                key: "_createInstance",
+                value: function (t3) {
+                  switch (t3) {
+                    case "oppo":
+                      return new e2(
+                        qg,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qg_oppo_game",
+                        },
+                        { mpPlatform: "oppo_qg" },
+                      );
+                    case "huawei":
+                      return new e2(
+                        hbs,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qg_huawei_game",
+                        },
+                        { mpPlatform: "huawei_qg" },
+                      );
+                    case "mz":
+                      return new e2(
+                        qg,
+                        {
+                          persistenceName: "thinkingdata",
+                          persistenceNameOld: "thinkingdata_qg_mz_game",
+                        },
+                        { mpPlatform: "mz" },
+                      );
+                    case "xiaomi":
+                      return new e2(
+                        qg,
+                        { persistenceName: "thinkingdata", persistenceNameOld: "thinkingdata_qg" },
+                        { mpPlatform: "xiaomi" },
+                      );
+                  }
+                },
+              },
+            ],
+          ),
+          e2
+        );
+      })(),
+      O = (function () {
+        function e2() {
+          a(this, e2);
+        }
+        return (
+          s(e2, null, [
+            {
+              key: "createInstance",
+              value: function () {
+                var e3 = Object.freeze({
+                  WECHAT_GAME: 104,
+                  QQ_PLAY: 105,
+                  BAIDU_GAME: 107,
+                  VIVO_GAME: 108,
+                  OPPO_GAME: 109,
+                  HUAWEI_GAME: 110,
+                  XIAOMI_GAME: 111,
+                  BYTEDANCE_GAME: 117,
+                  QTT_GAME: 116,
+                  LINKSURE: 119,
+                  WECHAT_MINI_GAME: "WECHAT_GAME",
+                  BAIDU_MINI_GAME: "BAIDU_MINI_GAME",
+                  XIAOMI_QUICK_GAME: "XIAOMI_QUICK_GAME",
+                  OPPO_MINI_GAME: "OPPO_MINI_GAME",
+                  VIVO_MINI_GAME: "VIVO_MINI_GAME",
+                  HUAWEI_QUICK_GAME: "HUAWEI_QUICK_GAME",
+                  BYTEDANCE_MINI_GAME: "BYTEDANCE_MINI_GAME",
+                  QTT_MINI_GAME: "QTT_MINI_GAME",
+                  LINKSURE_MINI_GAME: "LINKSURE_MINI_GAME",
+                });
+                if (cc.sys.platform === e3.WECHAT_GAME || cc.sys.platform === e3.WECHAT_MINI_GAME)
+                  return I._createInstance("wechat_mg");
+                if (cc.sys.platform === e3.BAIDU_GAME || cc.sys.platform === e3.BAIDU_MIN_GAME)
+                  return I._createInstance("baidu_mg");
+                if (cc.sys.platform === e3.VIVO_GAME || cc.sys.platform === e3.VIVO_MINI_GAME)
+                  return P.createInstance();
+                if (cc.sys.platform === e3.QQ_PLAY) return I._createInstance("qq_mg");
+                if (cc.sys.platform === e3.OPPO_GAME || cc.sys.platform === e3.OPPO_MINI_GAME)
+                  return N._createInstance("oppo");
+                if (cc.sys.platform === e3.HUAWEI_GAME || cc.sys.platform === e3.HUAWEI_QUICK_GAME)
+                  return N._createInstance("huawei");
+                if (cc.sys.platform === e3.XIAOMI_GAME || cc.sys.platform === e3.XIAOMI_QUICK_GAME)
+                  return N._createInstance("xiaomi");
+                if (
+                  cc.sys.platform === e3.BYTEDANCE_GAME ||
+                  cc.sys.platform === e3.BYTEDANCE_MINI_GAME
+                )
+                  return I._createInstance("tt_mg");
+                var t3 = k.createInstance();
+                return (
+                  (t3._sysCallback = function () {
+                    return { system: cc.sys.os.replace(" ", "") + " " + cc.sys.osVersion };
+                  }),
+                  (t3.getNetworkType = function (e4) {
+                    var t4 = {};
+                    switch (cc.sys.getNetworkType()) {
+                      case cc.sys.NetworkType.LAN:
+                        t4.networkType = "WIFI";
+                        break;
+                      case cc.sys.NetworkType.WWAN:
+                        t4.networkType = "WWAN";
+                        break;
+                      default:
+                        t4.networkType = "NONE";
+                    }
+                    (e4.success(t4), e4.complete());
+                  }),
+                  (t3.getSystemInfo = function (e4) {
+                    var n2 = {
+                      mp_platform: cc.sys.platform.toString(),
+                      system: t3._getOs(),
+                      screenWidth: i.screen.width,
+                      screenHeight: i.screen.height,
+                    };
+                    (t3._sysCallback && (n2 = u.extend(n2, t3._sysCallback(e4))),
+                      e4.success(n2),
+                      e4.complete());
+                  }),
+                  t3
+                );
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      w = (function () {
+        function e2() {
+          a(this, e2);
+        }
+        return (
+          s(e2, null, [
+            {
+              key: "_getCurrentPlatform",
+              value: function () {
+                return this.currentPlatform || (this.currentPlatform = O.createInstance());
+              },
+            },
+            {
+              key: "getConfig",
+              value: function () {
+                return this._getCurrentPlatform().getConfig();
+              },
+            },
+            {
+              key: "getStorage",
+              value: function (e3, t3, i2) {
+                return this._getCurrentPlatform().getStorage(e3, t3, i2);
+              },
+            },
+            {
+              key: "setStorage",
+              value: function (e3, t3) {
+                return this._getCurrentPlatform().setStorage(e3, t3);
+              },
+            },
+            {
+              key: "removeStorage",
+              value: function (e3) {
+                return this._getCurrentPlatform().removeStorage(e3);
+              },
+            },
+            {
+              key: "getSystemInfo",
+              value: function (e3) {
+                return this._getCurrentPlatform().getSystemInfo(e3);
+              },
+            },
+            {
+              key: "getNetworkType",
+              value: function (e3) {
+                return this._getCurrentPlatform().getNetworkType(e3);
+              },
+            },
+            {
+              key: "onNetworkStatusChange",
+              value: function (e3) {
+                this._getCurrentPlatform().onNetworkStatusChange(e3);
+              },
+            },
+            {
+              key: "request",
+              value: function (e3) {
+                return this._getCurrentPlatform().request(e3);
+              },
+            },
+            {
+              key: "initAutoTrackInstance",
+              value: function (e3, t3) {
+                return this._getCurrentPlatform().initAutoTrackInstance(e3, t3);
+              },
+            },
+            {
+              key: "setGlobal",
+              value: function (e3, t3) {
+                e3 && t3 && this._getCurrentPlatform().setGlobal(e3, t3);
+              },
+            },
+            {
+              key: "getAppOptions",
+              value: function (e3) {
+                return this._getCurrentPlatform().getAppOptions(e3);
+              },
+            },
+            {
+              key: "showDebugToast",
+              value: function (e3) {
+                this._getCurrentPlatform().showToast(e3);
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      T = /^[a-zA-Z][a-zA-Z0-9_]{0,49}$/,
+      j = (function () {
+        function e2() {
+          a(this, e2);
+        }
+        return (
+          s(e2, null, [
+            {
+              key: "stripProperties",
+              value: function (e3) {
+                return (
+                  u.isObject(e3) &&
+                    u.each(e3, function (e4, t3) {
+                      u.isString(e4) ||
+                        u.isNumber(e4) ||
+                        u.isDate(e4) ||
+                        u.isBoolean(e4) ||
+                        u.isArray(e4) ||
+                        u.isObject(e4) ||
+                        _.warn(
+                          "Your data -",
+                          t3,
+                          e4,
+                          "- format does not meet requirements and may not be stored correctly. Attribute values only support String, Number, Date, Boolean, Array, Object",
+                        );
+                    }),
+                  e3
+                );
+              },
+            },
+            {
+              key: "_checkPropertiesKey",
+              value: function (e3) {
+                var t3 = true;
+                return (
+                  u.each(e3, function (e4, i2) {
+                    T.test(i2) || (_.warn("Invalid KEY: " + i2), (t3 = false));
+                  }),
+                  t3
+                );
+              },
+            },
+            {
+              key: "event",
+              value: function (e3) {
+                return (
+                  !(!u.isString(e3) || !T.test(e3)) ||
+                  (_.warn(
+                    "Check the parameter format. The eventName must start with an English letter and contain no more than 50 characters including letters, digits, and underscores: " +
+                      e3,
+                  ),
+                  false)
+                );
+              },
+            },
+            {
+              key: "propertyName",
+              value: function (e3) {
+                return (
+                  !(!u.isString(e3) || !T.test(e3)) ||
+                  (_.warn(
+                    "Check the parameter format. PropertyName must start with a letter and contain letters, digits, and underscores (_). The value is a string of no more than 50 characters: " +
+                      e3,
+                  ),
+                  false)
+                );
+              },
+            },
+            {
+              key: "properties",
+              value: function (e3) {
+                return (
+                  this.stripProperties(e3),
+                  !(
+                    e3 &&
+                    (u.isObject(e3)
+                      ? !this._checkPropertiesKey(e3) &&
+                        (_.warn(
+                          "Check the parameter format. The properties key must start with a letter, contain digits, letters, and underscores (_), and contain a maximum of 50 characters",
+                        ),
+                        1)
+                      : (_.warn("properties can be none, but it must be an object"), 1))
+                  )
+                );
+              },
+            },
+            {
+              key: "propertiesMust",
+              value: function (e3) {
+                return (
+                  this.stripProperties(e3),
+                  void 0 === e3 || !u.isObject(e3) || u.isEmptyObject(e3)
+                    ? (_.warn("properties must be an object with a value"), false)
+                    : !!this._checkPropertiesKey(e3) ||
+                      (_.warn(
+                        "Check the parameter format. The properties key must start with a letter, contain digits, letters, and underscores (_), and contain a maximum of 50 characters",
+                      ),
+                      false)
+                );
+              },
+            },
+            {
+              key: "userId",
+              value: function (e3) {
+                return (
+                  !(!u.isString(e3) || !/^.{1,64}$/.test(e3)) ||
+                  (_.warn(
+                    "The user ID must be a string of less than 64 characters and cannot be null",
+                  ),
+                  false)
+                );
+              },
+            },
+            {
+              key: "userAddProperties",
+              value: function (e3) {
+                if (!this.propertiesMust(e3)) return false;
+                for (var t3 in e3)
+                  if (!u.isNumber(e3[t3]))
+                    return (_.warn("The attributes of userAdd need to be Number"), false);
+                return true;
+              },
+            },
+            {
+              key: "userAppendProperties",
+              value: function (e3) {
+                if (!this.propertiesMust(e3)) return false;
+                for (var t3 in e3)
+                  if (!u.isArray(e3[t3]))
+                    return (_.warn("The attribute of userAppend must be Array"), false);
+                return true;
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      D = (function () {
+        function e2(t3, i2, n2, r2, s2) {
+          (a(this, e2),
+            (this.data = t3),
+            (this.serverUrl = i2),
+            (this.callback = s2),
+            (this.tryCount = u.isNumber(n2) ? n2 : 1),
+            (this.timeout = u.isNumber(r2) ? r2 : 3e3),
+            (this.taClassName = "HttpTask"));
+        }
+        return (
+          s(e2, [
+            {
+              key: "run",
+              value: function () {
+                var e3 = this,
+                  t3 = u.createExtraHeaders();
+                t3["content-type"] = "application/json";
+                var i2 = w.request({
+                    url: this.serverUrl,
+                    method: "POST",
+                    data: this.data,
+                    header: t3,
+                    success: function (t4) {
+                      (e3.onSuccess(t4), clearTimeout(n2));
+                    },
+                    fail: function (t4) {
+                      (e3.onFailed(t4), clearTimeout(n2));
+                    },
+                  }),
+                  n2 = setTimeout(function () {
+                    (u.isObject(i2) || u.isPromise(i2)) && u.isFunction(i2.abort) && i2.abort();
+                  }, this.timeout);
+              },
+            },
+            {
+              key: "onSuccess",
+              value: function (e3) {
+                if (200 === e3.statusCode) {
+                  var t3;
+                  switch (e3.data.code) {
+                    case 0:
+                      t3 = "success";
+                      break;
+                    case -1:
+                      t3 = "invalid data";
+                      break;
+                    case -2:
+                      t3 = "invalid APP ID";
+                      break;
+                    default:
+                      t3 = "Unknown return code";
+                  }
+                  this.callback({ code: e3.data.code, msg: t3 });
+                } else this.callback({ code: -3, msg: e3.statusCode });
+              },
+            },
+            {
+              key: "onFailed",
+              value: function (e3) {
+                0 < --this.tryCount ? this.run() : this.callback({ code: -3, msg: e3.errMsg });
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      x = (function () {
+        function e2(t3, i2, n2, r2, s2, o2, c2) {
+          (a(this, e2),
+            (this.data = t3),
+            (this.serverDebugUrl = i2),
+            (this.callback = c2),
+            (this.tryCount = u.isNumber(n2) ? n2 : 1),
+            (this.timeout = u.isNumber(r2) ? r2 : 3e3),
+            (this.dryrun = s2),
+            (this.deviceId = o2),
+            (this.taClassName = "HttpTaskDebug"));
+        }
+        return (
+          s(e2, [
+            {
+              key: "run",
+              value: function () {
+                var e3 = this,
+                  t3 =
+                    "appid=" +
+                    this.data["#app_id"] +
+                    "&source=client&dryRun=" +
+                    this.dryrun +
+                    "&deviceId=" +
+                    this.deviceId +
+                    "&data=" +
+                    encodeURIComponent(JSON.stringify(this.data.data[0])),
+                  i2 = u.createExtraHeaders();
+                i2["content-type"] = "application/x-www-form-urlencoded";
+                var n2 = w.request({
+                    url: this.serverDebugUrl,
+                    method: "POST",
+                    data: t3,
+                    header: i2,
+                    success: function (t4) {
+                      (e3.onSuccess(t4), clearTimeout(a2));
+                    },
+                    fail: function (t4) {
+                      (e3.onFailed(t4), clearTimeout(a2));
+                    },
+                  }),
+                  a2 = setTimeout(function () {
+                    (u.isObject(n2) || u.isPromise(n2)) && u.isFunction(n2.abort) && n2.abort();
+                  }, this.timeout);
+              },
+            },
+            {
+              key: "onSuccess",
+              value: function (e3) {
+                if (200 === e3.statusCode) {
+                  var t3;
+                  if (0 === e3.data.errorLevel) t3 = "Verify data success.";
+                  else if (1 === e3.data.errorLevel) {
+                    for (var i2 = e3.data.errorProperties, n2 = "", a2 = 0; a2 < i2.length; a2++) {
+                      var r2 = i2[a2].errorReason;
+                      n2 =
+                        n2 + " propertyName:" + i2[a2].propertyName + " errorReasons:" + r2 + "\n";
+                    }
+                    t3 = "Debug data error. errorLevel:" + e3.data.errorLevel + " reason:" + n2;
+                  } else
+                    (2 !== e3.data.errorLevel && -1 !== e3.data.errorLevel) ||
+                      (t3 =
+                        "Debug data error. errorLevel:" +
+                        e3.data.errorLevel +
+                        " reason:" +
+                        e3.data.errorReasons);
+                  (_.info(t3), this.callback({ code: e3.data.errorLevel, msg: t3 }));
+                } else this.callback({ code: -3, msg: e3.statusCode });
+              },
+            },
+            {
+              key: "onFailed",
+              value: function (e3) {
+                0 < --this.tryCount ? this.run() : this.callback({ code: -3, msg: e3.errMsg });
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      M = new ((function () {
+        function e2() {
+          (a(this, e2), (this.items = []), (this.isRunning = false), (this.showDebug = false));
+        }
+        return (
+          s(e2, [
+            {
+              key: "enqueue",
+              value: function (e3, t3, i2, n2) {
+                n2 = !(3 < arguments.length && void 0 !== n2) || n2;
+                var a2 = this;
+                t3 =
+                  "debug" === i2.debugMode
+                    ? new x(e3, t3, i2.maxRetries, i2.sendTimeout, 0, i2.deviceId, function (e4) {
+                        ((a2.isRunning = false),
+                          u.isFunction(i2.callback) && i2.callback(e4),
+                          a2._runNext(),
+                          false === a2.showDebug &&
+                            ((0 !== e4.code && 1 !== e4.code && 2 !== e4.code) ||
+                              ((a2.showDebug = true),
+                              u.isFunction(w.showDebugToast) &&
+                                w.showDebugToast("The current mode is Debug"))));
+                      })
+                    : "debugOnly" === i2.debugMode
+                      ? new x(e3, t3, i2.maxRetries, i2.sendTimeout, 1, i2.deviceId, function (e4) {
+                          ((a2.isRunning = false),
+                            u.isFunction(i2.callback) && i2.callback(e4),
+                            a2._runNext(),
+                            false === a2.showDebug &&
+                              ((0 !== e4.code && 1 !== e4.code && 2 !== e4.code) ||
+                                ((a2.showDebug = true),
+                                u.isFunction(w.showDebugToast) &&
+                                  w.showDebugToast("The current mode is debugOnly"))));
+                        })
+                      : new D(JSON.stringify(e3), t3, i2.maxRetries, i2.sendTimeout, function (e4) {
+                          ((a2.isRunning = false),
+                            u.isFunction(i2.callback) && i2.callback(e4),
+                            a2._runNext());
+                        });
+                true === n2 ? (this.items.push(t3), this._runNext()) : t3.run();
+              },
+            },
+            {
+              key: "_dequeue",
+              value: function () {
+                return this.items.shift();
+              },
+            },
+            {
+              key: "_runNext",
+              value: function () {
+                if (0 < this.items.length && !this.isRunning)
+                  if (((this.isRunning = true), "HttpTask" !== this.items[0].taClassName))
+                    this._dequeue().run();
+                  else {
+                    var e3 = this.items.splice(0, this.items.length),
+                      t3 = e3[0],
+                      i2 = JSON.parse(t3.data),
+                      n2 = i2["#app_id"],
+                      a2 = [];
+                    a2.push(t3.callback);
+                    for (var r2 = 1; r2 < e3.length; r2++) {
+                      var s2 = e3[r2],
+                        o2 = JSON.parse(s2.data);
+                      o2["#app_id"] === n2 && t3.serverUrl === s2.serverUrl
+                        ? ((i2.data = i2.data.concat(o2.data)), a2.push(s2.callback))
+                        : this.items.push(s2);
+                    }
+                    var c2 = /* @__PURE__ */ new Date().getTime();
+                    ((i2["#flush_time"] = c2),
+                      new D(JSON.stringify(i2), t3.serverUrl, t3.tryCount, t3.timeout, function (
+                        e4,
+                      ) {
+                        for (var t4 in a2) Object.hasOwnProperty.call(a2, t4) && (0, a2[t4])(e4);
+                      }).run());
+                  }
+              },
+            },
+          ]),
+          e2
+        );
+      })())(),
+      U = {
+        name: "thinkingdata",
+        is_plugin: false,
+        maxRetries: 3,
+        sendTimeout: 3e3,
+        enablePersistence: true,
+        asyncPersistence: false,
+        enableLog: true,
+        strict: false,
+        debugMode: "none",
+        enableCalibrationTime: false,
+      },
+      E = {
+        properties: { "#lib": c, "#lib_version": o },
+        initDeviceId: function (e2) {
+          u.isString(e2) && (this.properties["#device_id"] = e2);
+        },
+        getSystemInfo: function (e2) {
+          var t3 = this;
+          (w.onNetworkStatusChange(function (e3) {
+            t3.properties["#network_type"] = e3.networkType;
+          }),
+            w.getNetworkType({
+              success: function (e3) {
+                t3.properties["#network_type"] = e3.networkType;
+              },
+              complete: function () {
+                w.getSystemInfo({
+                  success: function (e3) {
+                    var i2 = e3.system ? e3.system.replace(/\s+/g, " ").split(" ") : [];
+                    i2 = {
+                      "#manufacturer": e3.brand,
+                      "#device_model": e3.model,
+                      "#screen_width": Number(e3.screenWidth),
+                      "#screen_height": Number(e3.screenHeight),
+                      "#os": i2[0],
+                      "#os_version": i2[1],
+                      "#mp_platform": e3.mp_platform,
+                      "#system_language": e3.systemLanguage,
+                    };
+                    (u.extend(t3.properties, i2), u.setMpPlatform(e3.mp_platform));
+                  },
+                  complete: function () {
+                    e2();
+                  },
+                });
+              },
+            }));
+        },
+      },
+      F = (function () {
+        function e2(t3, i2) {
+          var n2 = this;
+          (a(this, e2),
+            (this.enabled = t3.enablePersistence),
+            this.enabled
+              ? (t3.isChildInstance
+                  ? ((this.name = t3.persistenceName + "_" + t3.name),
+                    (this.nameOld = t3.persistenceNameOld + "_" + t3.name))
+                  : ((this.name = t3.persistenceName), (this.nameOld = t3.persistenceNameOld)),
+                t3.asyncPersistence
+                  ? ((this._state = {}),
+                    w.getStorage(this.name, true, function (e3) {
+                      u.isEmptyObject(e3)
+                        ? w.getStorage(n2.nameOld, true, function (e4) {
+                            ((n2._state = u.extend2Layers({}, e4, n2._state)),
+                              n2._init(t3, i2),
+                              n2._save());
+                          })
+                        : ((n2._state = u.extend2Layers({}, e3, n2._state)),
+                          n2._init(t3, i2),
+                          n2._save());
+                    }))
+                  : ((this._state = w.getStorage(this.name) || {}),
+                    u.isEmptyObject(this._state) &&
+                      (this._state = w.getStorage(this.nameOld) || {}),
+                    this._init(t3, i2)))
+              : ((this._state = {}), this._init(t3, i2)));
+        }
+        return (
+          s(e2, [
+            {
+              key: "_init",
+              value: function (e3, t3) {
+                (this.getDistinctId() || this.setDistinctId(u.UUID()),
+                  e3.isChildInstance ||
+                    (this.getDeviceId() || this._setDeviceId(u.UUID()),
+                    E.initDeviceId(this.getDeviceId())),
+                  (this.initComplete = true),
+                  "function" == typeof t3 && t3(),
+                  this._save());
+              },
+            },
+            {
+              key: "_save",
+              value: function () {
+                this.enabled &&
+                  this.initComplete &&
+                  w.setStorage(this.name, JSON.stringify(this._state));
+              },
+            },
+            {
+              key: "_set",
+              value: function (e3, i2) {
+                var n2,
+                  a2 = this;
+                ("string" == typeof e3 ? ((n2 = {})[e3] = i2) : "object" === t2(e3) && (n2 = e3),
+                  u.each(n2, function (e4, t3) {
+                    a2._state[t3] = e4;
+                  }),
+                  this._save());
+              },
+            },
+            {
+              key: "_get",
+              value: function (e3) {
+                return this._state[e3];
+              },
+            },
+            {
+              key: "setEventTimer",
+              value: function (e3, t3) {
+                var i2 = this._state.event_timers || {};
+                ((i2[e3] = t3), this._set("event_timers", i2));
+              },
+            },
+            {
+              key: "removeEventTimer",
+              value: function (e3) {
+                var t3 = (this._state.event_timers || {})[e3];
+                return (
+                  u.isUndefined(t3) || (delete this._state.event_timers[e3], this._save()),
+                  t3
+                );
+              },
+            },
+            {
+              key: "getDeviceId",
+              value: function () {
+                return this._state.device_id;
+              },
+            },
+            {
+              key: "_setDeviceId",
+              value: function (e3) {
+                this.getDeviceId()
+                  ? _.warn("cannot modify the device id.")
+                  : this._set("device_id", e3);
+              },
+            },
+            {
+              key: "getDistinctId",
+              value: function () {
+                return this._state.distinct_id;
+              },
+            },
+            {
+              key: "setDistinctId",
+              value: function (e3) {
+                this._set("distinct_id", e3);
+              },
+            },
+            {
+              key: "getAccountId",
+              value: function () {
+                return this._state.account_id;
+              },
+            },
+            {
+              key: "setAccountId",
+              value: function (e3) {
+                this._set("account_id", e3);
+              },
+            },
+            {
+              key: "getSuperProperties",
+              value: function () {
+                return this._state.props || {};
+              },
+            },
+            {
+              key: "setSuperProperties",
+              value: function (e3, t3) {
+                ((e3 = t3 ? e3 : u.extend(this.getSuperProperties(), e3)), this._set("props", e3));
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      q = (function () {
+        function e2(t3, i2) {
+          (a(this, e2),
+            (this.config = t3),
+            (this.ta = i2),
+            (this.timer = null),
+            (this.batchConfig = u.extend(
+              { size: 5, interval: 5e3, storageLimit: 200 },
+              this.config.batchConfig,
+            )),
+            this.batchConfig.size < 1 && (this.batchConfig.size = 1),
+            30 < this.batchConfig.size && (this.batchConfig.size = 30),
+            (this.tabKey = "tab_tampsdk_" + this.config.appId),
+            (this.storageLimit = this.batchConfig.storageLimit),
+            (this.isRequest = false),
+            (this.trackList = []),
+            (this.needFlush = false));
+        }
+        return (
+          s(e2, [
+            {
+              key: "batchInterval",
+              value: function () {
+                var e3 = this;
+                e3.timer = setTimeout(function () {
+                  (e3.recycle(), e3.send(), clearTimeout(e3.timer), e3.batchInterval());
+                }, this.batchConfig.interval);
+              },
+            },
+            {
+              key: "add",
+              value: function (e3) {
+                if (this.isRequest) this.trackList.push(e3);
+                else {
+                  var t3 = e3,
+                    i2 = "tampsdk_" + this.config.appId + "_" + String(u.UUID());
+                  e3 = w.getStorage(this.tabKey);
+                  if ((u.isArray(e3) || (e3 = []), e3.length <= this.storageLimit))
+                    (e3.push(i2),
+                      w.setStorage(this.tabKey, JSON.stringify(e3)),
+                      w.setStorage(i2, JSON.stringify(t3)));
+                  else {
+                    var n2 = e3.splice(0, 20);
+                    (console.log("deleted events data:" + n2),
+                      e3.push(i2),
+                      w.setStorage(this.tabKey, JSON.stringify(e3)),
+                      w.setStorage(i2, JSON.stringify(t3)));
+                    t3 = {};
+                    for (var a2 = [], r2 = 0; r2 < n2.length; r2++) {
+                      var s2 = w.getStorage(n2[r2]);
+                      a2.push(s2);
+                    }
+                    ((t3.data = a2), (t3["#app_id"] = this.config.appId), this.request(t3, n2));
+                  }
+                }
+              },
+            },
+            {
+              key: "flush",
+              value: function () {
+                (clearTimeout(this.timer), this.send(), this.batchInterval());
+              },
+            },
+            {
+              key: "send",
+              value: function () {
+                if (this.isRequest) this.needFlush = true;
+                else {
+                  var e3 = w.getStorage(this.tabKey);
+                  if (e3 && e3.length) {
+                    for (
+                      var t3 = {},
+                        i2 = [],
+                        n2 = [],
+                        a2 = e3.length < this.batchConfig.size ? e3.length : this.batchConfig.size,
+                        r2 = 0;
+                      r2 < a2;
+                      r2++
+                    ) {
+                      var s2 = w.getStorage(e3[r2]);
+                      (i2.push(s2), n2.push(e3[r2]));
+                    }
+                    ((t3.data = i2), (t3["#app_id"] = this.config.appId), this.request(t3, n2));
+                  }
+                }
+              },
+            },
+            {
+              key: "request",
+              value: function (e3, t3) {
+                var i2 = this;
+                (_.info("Flush data: " + JSON.stringify(e3)),
+                  (i2.isRequest = true),
+                  M.enqueue(e3, this.ta.serverUrl, {
+                    maxRetries: this.config.maxRetries,
+                    sendTimeout: this.config.sendTimeout,
+                    callback: function (e4) {
+                      (0 === e4.code && i2.remove(t3), (i2.isRequest = false));
+                      for (var n2 = 0; n2 < i2.trackList.length; n2++) i2.add(i2.trackList[n2]);
+                      ((i2.trackList = []), i2.needFlush && ((i2.needFlush = false), i2.flush()));
+                    },
+                    debugMode: this.config.debugMode,
+                    deviceId: this.ta.getDeviceId(),
+                  }));
+              },
+            },
+            {
+              key: "remove",
+              value: function (e3) {
+                var t3 = w.getStorage(this.tabKey);
+                if (t3) {
+                  for (var i2 = 0; i2 < e3.length; i2++) {
+                    var n2 = u.indexOf(t3, e3[i2]);
+                    (-1 < n2 && t3.splice(n2, 1), w.removeStorage(e3[i2]));
+                  }
+                  w.setStorage(this.tabKey, JSON.stringify(t3));
+                }
+              },
+            },
+            { key: "recycle", value: function () {} },
+          ]),
+          e2
+        );
+      })(),
+      L = (function () {
+        function e2(t3) {
+          (a(this, e2),
+            (t3.appId = t3.appId ? u.checkAppId(t3.appId) : u.checkAppId(t3.appid)),
+            (t3.serverUrl = t3.serverUrl ? u.checkUrl(t3.serverUrl) : u.checkUrl(t3.server_url)));
+          var i2 = u.extend({}, U, w.getConfig());
+          (u.isObject(t3) ? (this.config = u.extend(i2, t3)) : (this.config = i2),
+            this._init(this.config));
+        }
+        return (
+          s(e2, [
+            {
+              key: "_init",
+              value: function (e3) {
+                var t3 = this;
+                ((this.name = e3.name), (this.appId = e3.appId || e3.appid));
+                var i2 = e3.serverUrl || e3.server_url;
+                ((this.serverUrl = i2 + "/sync_xcx"),
+                  (this.serverDebugUrl = i2 + "/data_debug"),
+                  (this.configUrl = i2 + "/config"),
+                  (this.autoTrackProperties = {}),
+                  (this._queue = []),
+                  this.updateConfig(this.configUrl, this.appId),
+                  e3.isChildInstance
+                    ? (this._state = {})
+                    : ((_.enabled = e3.enableLog),
+                      (this.instances = []),
+                      (this._state = { getSystemInfo: false, initComplete: false }),
+                      w.setGlobal(this, this.name)),
+                  (this.store = new F(e3, function () {
+                    (t3.config.asyncPersistence &&
+                      u.isFunction(t3.config.persistenceComplete) &&
+                      t3.config.persistenceComplete(t3),
+                      t3._updateState());
+                  })),
+                  (this.enabled =
+                    !u.isBoolean(this.store._get("ta_enabled")) || this.store._get("ta_enabled")),
+                  (this.isOptOut =
+                    !!u.isBoolean(this.store._get("ta_isOptOut")) &&
+                    this.store._get("ta_isOptOut")),
+                  !e3.isChildInstance &&
+                    e3.autoTrack &&
+                    (this.autoTrack = w.initAutoTrackInstance(this, e3)),
+                  void 0 !== this.config.enableBatch &&
+                    false !== this.config.enableBatch &&
+                    ((this.batchConsumer = new q(this.config, this)),
+                    this.batchConsumer.batchInterval()));
+              },
+            },
+            {
+              key: "initSystemInfo",
+              value: function () {
+                var e3 = this;
+                this.config.isChildInstance ||
+                  E.getSystemInfo(function () {
+                    e3._updateState({ getSystemInfo: true });
+                  });
+              },
+            },
+            {
+              key: "updateConfig",
+              value: function (e3, t3) {
+                var i2 = this,
+                  n2 = u.createExtraHeaders();
+                n2["content-type"] = "application/json";
+                var a2 = w.request({
+                  url: e3 + "?appid=" + t3,
+                  method: "GET",
+                  header: n2,
+                  success: function (e4) {
+                    u.isUndefined(e4) ||
+                      u.isUndefined(e4.data) ||
+                      (_.info("Get remote config success(" + t3 + ") :" + JSON.stringify(e4.data)),
+                      u.isUndefined(e4.data.data) ||
+                        ((i2.config.syncBatchSize = e4.data.data.sync_batch_size),
+                        (i2.config.syncInterval = e4.data.data.sync_interval),
+                        (i2.config.disableEventList = e4.data.data.disable_event_list),
+                        u.isUndefined(e4.data.data.secret_key) ||
+                          ((e4 = e4.data.data.secret_key),
+                          (i2.config.secretKey = { publicKey: e4.key, version: e4.version }))));
+                  },
+                  fail: function (e4) {
+                    _.info("Get remote config fail(" + t3 + ") :" + e4.errMsg);
+                  },
+                });
+                setTimeout(function () {
+                  (u.isObject(a2) || u.isPromise(a2)) && u.isFunction(a2.abort) && a2.abort();
+                }, 3e3);
+              },
+            },
+            {
+              key: "initInstance",
+              value: function (t3, i2) {
+                if (this.config.isChildInstance)
+                  _.warn("initInstance() cannot be called on child instance");
+                else {
+                  if (u.isString(t3) && t3 !== this.name && u.isUndefined(this[t3]))
+                    return (
+                      (i2 = new e2(
+                        u.extend(
+                          {},
+                          this.config,
+                          { enablePersistence: false, isChildInstance: true, name: t3 },
+                          i2,
+                        ),
+                      )),
+                      (this[t3] = i2),
+                      this.instances.push(t3),
+                      (this[t3]._state = this._state),
+                      i2
+                    );
+                  _.warn("initInstance() failed due to the name is invalid: " + t3);
+                }
+              },
+            },
+            {
+              key: "lightInstance",
+              value: function (e3) {
+                return this[e3];
+              },
+            },
+            {
+              key: "_setAutoTrackProperties",
+              value: function (e3) {
+                u.extend(this.autoTrackProperties, e3);
+              },
+            },
+            {
+              key: "init",
+              value: function () {
+                if ((this.initSystemInfo(), this._state.initComplete)) return false;
+                (this._updateState({ initComplete: true }),
+                  _.info(
+                    "TDAnalytics SDK initialize success, AppId = " +
+                      this.config.appId +
+                      ", ServerUrl = " +
+                      this.config.serverUrl +
+                      ", Mode = " +
+                      this.config.model +
+                      ", DeviceId = " +
+                      this.getDeviceId() +
+                      ", Lib = " +
+                      c +
+                      ", LibVersion = " +
+                      o,
+                  ));
+              },
+            },
+            {
+              key: "_isReady",
+              value: function () {
+                return (
+                  this._state.getSystemInfo &&
+                  this._state.initComplete &&
+                  this.store.initComplete &&
+                  this.getDeviceId()
+                );
+              },
+            },
+            {
+              key: "_updateState",
+              value: function (e3) {
+                var t3 = this;
+                (u.isObject(e3) && u.extend(this._state, e3),
+                  this._onStateChange(),
+                  u.each(this.instances, function (e4) {
+                    t3[e4]._onStateChange();
+                  }));
+              },
+            },
+            {
+              key: "_onStateChange",
+              value: function () {
+                var e3 = this;
+                this._isReady() &&
+                  this._queue &&
+                  0 < this._queue.length &&
+                  (u.each(this._queue, function (t3) {
+                    e3[t3[0]].apply(e3, p.call(t3[1]));
+                  }),
+                  (this._queue = []));
+              },
+            },
+            {
+              key: "_hasDisabled",
+              value: function () {
+                var e3 = !this.enabled || this.isOptOut;
+                return (e3 && _.info("SDK is Pause or Stop!"), e3);
+              },
+            },
+            {
+              key: "_sendRequest",
+              value: function (e3, t3, i2) {
+                if (!this._hasDisabled())
+                  if (
+                    u.isUndefined(this.config.disableEventList) ||
+                    !this.config.disableEventList.includes(e3.eventName)
+                  ) {
+                    t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date();
+                    var n2 = {
+                      data: [
+                        {
+                          "#type": e3.type,
+                          "#time": u.formatDate(t3),
+                          "#distinct_id": this.store.getDistinctId(),
+                        },
+                      ],
+                    };
+                    (this.store.getAccountId() &&
+                      (n2.data[0]["#account_id"] = this.store.getAccountId()),
+                      "track" === e3.type ||
+                      "track_update" === e3.type ||
+                      "track_overwrite" === e3.type
+                        ? ((n2.data[0]["#event_name"] = e3.eventName),
+                          "track_update" === e3.type || "track_overwrite" === e3.type
+                            ? (n2.data[0]["#event_id"] = e3.extraId)
+                            : e3.firstCheckId && (n2.data[0]["#first_check_id"] = e3.firstCheckId),
+                          (n2.data[0].properties = u.extend(
+                            { "#zone_offset": 0 - t3.getTimezoneOffset() / 60 },
+                            E.properties,
+                            this.autoTrackProperties,
+                            this.store.getSuperProperties(),
+                            this.dynamicProperties ? this.dynamicProperties() : {},
+                          )),
+                          (t3 = this.store.removeEventTimer(e3.eventName)),
+                          u.isUndefined(t3) ||
+                            ((a2 = /* @__PURE__ */ new Date().getTime() - t3),
+                            86400 < (a2 = parseFloat((a2 / 1e3).toFixed(3)))
+                              ? (a2 = 86400)
+                              : a2 < 0 && (a2 = 0),
+                            (n2.data[0].properties["#duration"] = a2)))
+                        : (n2.data[0].properties = {}),
+                      u.isObject(e3.properties) &&
+                        !u.isEmptyObject(e3.properties) &&
+                        u.extend(n2.data[0].properties, e3.properties),
+                      u.searchObjDate(n2.data[0]),
+                      1 < this.config.maxRetries && (n2.data[0]["#uuid"] = u.UUIDv4()),
+                      (n2["#app_id"] = this.appId),
+                      _.info("Tracking data, " + JSON.stringify(n2, null, 4)));
+                    var a2 =
+                      "debug" === this.config.debugMode || "debugOnly" === this.config.debugMode
+                        ? this.serverDebugUrl
+                        : this.serverUrl;
+                    if (
+                      (u.isBoolean(this.config.enableEncrypt) &&
+                        true === this.config.enableEncrypt &&
+                        (n2.data[0] = u.generateEncryptyData(n2.data[0], this.config.secretKey)),
+                      this.batchConsumer && "none" === this.config.debugMode && !i2)
+                    )
+                      return (
+                        this.batchConsumer.add(n2.data[0]),
+                        void (
+                          u.isFunction(e3.onComplete) && e3.onComplete({ code: 0, msg: "success" })
+                        )
+                      );
+                    i2
+                      ? ((i2 = new FormData()),
+                        "debug" === this.config.debugMode || "debugOnly" === this.config.debugMode
+                          ? (i2.append("source", "client"),
+                            i2.append("appid", this.appId),
+                            i2.append("dryRun", "debugOnly" === this.config.debugMode ? 1 : 0),
+                            i2.append("deviceId", this.getDeviceId()),
+                            i2.append("data", JSON.stringify(n2.data[0])),
+                            navigator.sendBeacon(a2, i2))
+                          : ((i2 = /* @__PURE__ */ new Date().getTime()),
+                            (n2["#flush_time"] = i2),
+                            navigator.sendBeacon(a2, JSON.stringify(n2))),
+                        u.isFunction(e3.onComplete) && e3.onComplete({ statusCode: 200 }))
+                      : M.enqueue(n2, a2, {
+                          maxRetries: this.config.maxRetries,
+                          sendTimeout: this.config.sendTimeout,
+                          callback: e3.onComplete,
+                          debugMode: this.config.debugMode,
+                          deviceId: this.getDeviceId(),
+                        });
+                  } else _.info("Disabled Event : " + e3.eventName);
+              },
+            },
+            {
+              key: "_isObjectParams",
+              value: function (e3) {
+                return u.isObject(e3) && u.isFunction(e3.onComplete);
+              },
+            },
+            {
+              key: "track",
+              value: function (e3, t3, i2, n2) {
+                var a2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (a2 = e3).eventName),
+                    (t3 = a2.properties),
+                    (i2 = a2.time),
+                    (n2 = a2.onComplete)),
+                  (j.event(e3) && j.properties(t3)) || !this.config.strict
+                    ? this._internalTrack(e3, t3, i2, n2)
+                    : u.isFunction(n2) && n2({ code: -1, msg: "invalid parameters" }));
+              },
+            },
+            {
+              key: "trackUpdate",
+              value: function (e3) {
+                var t3, i2;
+                this._hasDisabled() ||
+                  (e3 &&
+                  e3.eventId &&
+                  ((j.event(e3.eventName) && j.properties(e3.properties)) || !this.config.strict)
+                    ? this._isReady()
+                      ? ((t3 = u.checkCalibration(
+                          e3.properties,
+                          e3.time,
+                          this.config.enableCalibrationTime,
+                        )),
+                        (i2 = u.isDate(e3.time) ? e3.time : /* @__PURE__ */ new Date()),
+                        this._sendRequest(
+                          {
+                            type: "track_update",
+                            eventName: e3.eventName,
+                            properties: t3,
+                            onComplete: e3.onComplete,
+                            extraId: e3.eventId,
+                          },
+                          i2,
+                        ))
+                      : this._queue.push(["trackUpdate", [e3]])
+                    : (_.warn(
+                        "Invalide parameter for trackUpdate: you should pass an object contains eventId to trackUpdate()",
+                      ),
+                      u.isFunction(e3.onComplete) &&
+                        e3.onComplete({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "trackOverwrite",
+              value: function (e3) {
+                var t3, i2;
+                this._hasDisabled() ||
+                  (e3 &&
+                  e3.eventId &&
+                  ((j.event(e3.eventName) && j.properties(e3.properties)) || !this.config.strict)
+                    ? this._isReady()
+                      ? ((t3 = u.checkCalibration(
+                          e3.properties,
+                          e3.time,
+                          this.config.enableCalibrationTime,
+                        )),
+                        (i2 = u.isDate(e3.time) ? e3.time : /* @__PURE__ */ new Date()),
+                        this._sendRequest(
+                          {
+                            type: "track_overwrite",
+                            eventName: e3.eventName,
+                            properties: t3,
+                            onComplete: e3.onComplete,
+                            extraId: e3.eventId,
+                          },
+                          i2,
+                        ))
+                      : this._queue.push(["trackOverwrite", [e3]])
+                    : (_.warn(
+                        "Invalide parameter for trackOverwrite: you should pass an object contains eventId to trackOverwrite()",
+                      ),
+                      u.isFunction(e3.onComplete) &&
+                        e3.onComplete({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "trackFirstEvent",
+              value: function (e3) {
+                var t3, i2;
+                this._hasDisabled() ||
+                  (e3 &&
+                  e3.eventName &&
+                  ((j.event(e3.eventName) && j.properties(e3.properties)) || !this.config.strict)
+                    ? this._isReady()
+                      ? ((t3 = u.checkCalibration(
+                          e3.properties,
+                          e3.time,
+                          this.config.enableCalibrationTime,
+                        )),
+                        (i2 = u.isDate(e3.time) ? e3.time : /* @__PURE__ */ new Date()),
+                        this._sendRequest(
+                          {
+                            type: "track",
+                            eventName: e3.eventName,
+                            properties: t3,
+                            onComplete: e3.onComplete,
+                            firstCheckId: e3.firstCheckId || this.getDeviceId(),
+                          },
+                          i2,
+                        ))
+                      : this._queue.push(["trackFirstEvent", [e3]])
+                    : (_.warn(
+                        "Invalide parameter for trackFirstEvent: you should pass an object contains eventName to trackFirstEvent()",
+                      ),
+                      u.isFunction(e3.onComplete) &&
+                        e3.onComplete({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "_internalTrack",
+              value: function (e3, t3, i2, n2, a2) {
+                var r2;
+                this._hasDisabled() ||
+                  ((r2 = u.checkCalibration(t3, i2, this.config.enableCalibrationTime)),
+                  (i2 = u.isDate(i2) ? i2 : /* @__PURE__ */ new Date()),
+                  this._isReady()
+                    ? this._sendRequest(
+                        { type: "track", eventName: e3, properties: r2, onComplete: n2 },
+                        i2,
+                        a2,
+                      )
+                    : this._queue.push(["_internalTrack", [e3, t3, i2, n2]]));
+              },
+            },
+            {
+              key: "userSet",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (n2 = e3).properties), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.propertiesMust(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? this._sendRequest(
+                            { type: "user_set", properties: e3, onComplete: i2 },
+                            t3,
+                          )
+                        : this._queue.push(["userSet", [e3, t3, i2]]))
+                    : (_.warn("calling userSet failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "userSetOnce",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (n2 = e3).properties), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.propertiesMust(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? this._sendRequest(
+                            { type: "user_setOnce", properties: e3, onComplete: i2 },
+                            t3,
+                          )
+                        : this._queue.push(["userSetOnce", [e3, t3, i2]]))
+                    : (_.warn("calling userSetOnce failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "userUnset",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(n2) &&
+                    ((e3 = n2.property), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.propertyName(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? (((n2 = {})[e3] = 0),
+                          this._sendRequest(
+                            { type: "user_unset", properties: n2, onComplete: i2 },
+                            t3,
+                          ))
+                        : this._queue.push(["userUnset", [e3, i2, t3]]))
+                    : (_.warn("calling userUnset failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "userDel",
+              value: function (e3, t3) {
+                var i2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) && ((e3 = (i2 = e3).time), (t3 = i2.onComplete)),
+                  (e3 = u.isDate(e3) ? e3 : /* @__PURE__ */ new Date()),
+                  this._isReady()
+                    ? this._sendRequest({ type: "user_del", onComplete: t3 }, e3)
+                    : this._queue.push(["userDel", [e3, t3]]));
+              },
+            },
+            {
+              key: "userAdd",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (n2 = e3).properties), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.userAddProperties(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? this._sendRequest(
+                            { type: "user_add", properties: e3, onComplete: i2 },
+                            t3,
+                          )
+                        : this._queue.push(["userAdd", [e3, t3, i2]]))
+                    : (_.warn("calling userAdd failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "userAppend",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (n2 = e3).properties), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.userAppendProperties(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? this._sendRequest(
+                            { type: "user_append", properties: e3, onComplete: i2 },
+                            t3,
+                          )
+                        : this._queue.push(["userAppend", [e3, t3, i2]]))
+                    : (_.warn("calling userAppend failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "userUniqAppend",
+              value: function (e3, t3, i2) {
+                var n2;
+                this._hasDisabled() ||
+                  (this._isObjectParams(e3) &&
+                    ((e3 = (n2 = e3).properties), (t3 = n2.time), (i2 = n2.onComplete)),
+                  j.userAppendProperties(e3) || !this.config.strict
+                    ? ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                      this._isReady()
+                        ? this._sendRequest(
+                            { type: "user_uniq_append", properties: e3, onComplete: i2 },
+                            t3,
+                          )
+                        : this._queue.push(["userUniqAppend", [e3, t3, i2]]))
+                    : (_.warn("calling userAppend failed due to invalid arguments"),
+                      u.isFunction(i2) && i2({ code: -1, msg: "invalid parameters" })));
+              },
+            },
+            {
+              key: "flush",
+              value: function () {
+                this.batchConsumer &&
+                  "none" === this.config.debugMode &&
+                  this.batchConsumer.flush();
+              },
+            },
+            {
+              key: "authorizeOpenID",
+              value: function (e3) {
+                this.identify(e3);
+              },
+            },
+            {
+              key: "identify",
+              value: function (e3) {
+                if (!this._hasDisabled()) {
+                  if ("number" == typeof e3) e3 = String(e3);
+                  else if ("string" != typeof e3) return false;
+                  (this.store.setDistinctId(e3), _.info("Setting distinct ID, DistinctId = " + e3));
+                }
+              },
+            },
+            {
+              key: "getDistinctId",
+              value: function () {
+                return this.store.getDistinctId();
+              },
+            },
+            {
+              key: "login",
+              value: function (e3) {
+                if (!this._hasDisabled()) {
+                  if ("number" == typeof e3) e3 = String(e3);
+                  else if ("string" != typeof e3) return false;
+                  (this.store.setAccountId(e3), _.info("Login SDK, AccountId = " + e3));
+                }
+              },
+            },
+            {
+              key: "getAccountId",
+              value: function () {
+                return this.store.getAccountId();
+              },
+            },
+            {
+              key: "logout",
+              value: function () {
+                this._hasDisabled() || (this.store.setAccountId(null), _.info("Logout SDK"));
+              },
+            },
+            {
+              key: "setSuperProperties",
+              value: function (e3) {
+                this._hasDisabled() ||
+                  (j.propertiesMust(e3) || !this.config.strict
+                    ? this.store.setSuperProperties(e3)
+                    : _.warn("setSuperProperties parameter must be a valid property value"));
+              },
+            },
+            {
+              key: "clearSuperProperties",
+              value: function () {
+                this._hasDisabled() || this.store.setSuperProperties({}, true);
+              },
+            },
+            {
+              key: "unsetSuperProperty",
+              value: function (e3) {
+                var t3;
+                this._hasDisabled() ||
+                  (u.isString(e3) &&
+                    (delete (t3 = this.getSuperProperties())[e3],
+                    this.store.setSuperProperties(t3, true)));
+              },
+            },
+            {
+              key: "getSuperProperties",
+              value: function () {
+                return this.store.getSuperProperties();
+              },
+            },
+            {
+              key: "getPresetProperties",
+              value: function () {
+                var e3 = E.properties,
+                  t3 = {},
+                  i2 = e3["#os"];
+                ((t3.os = u.isUndefined(i2) ? "" : i2),
+                  (i2 = e3["#screen_width"]),
+                  (t3.screenWidth = u.isUndefined(i2) ? 0 : i2),
+                  (i2 = e3["#screen_height"]),
+                  (t3.screenHeight = u.isUndefined(i2) ? 0 : i2),
+                  (i2 = e3["#network_type"]),
+                  (t3.networkType = u.isUndefined(i2) ? "" : i2),
+                  (i2 = e3["#device_model"]),
+                  (t3.deviceModel = u.isUndefined(i2) ? "" : i2),
+                  (i2 = e3["#os_version"]),
+                  (t3.osVersion = u.isUndefined(i2) ? "" : i2),
+                  (t3.deviceId = this.getDeviceId()));
+                var n2 = 0 - /* @__PURE__ */ new Date().getTimezoneOffset() / 60;
+                return (
+                  (t3.zoneOffset = n2),
+                  (e3 = e3["#manufacturer"]),
+                  (t3.manufacturer = u.isUndefined(e3) ? "" : e3),
+                  (t3.toEventPresetProperties = function () {
+                    return {
+                      "#device_model": t3.deviceModel,
+                      "#device_id": t3.deviceId,
+                      "#screen_width": t3.screenWidth,
+                      "#screen_height": t3.screenHeight,
+                      "#os": t3.os,
+                      "#os_version": t3.osVersion,
+                      "#network_type": t3.networkType,
+                      "#zone_offset": n2,
+                      "#manufacturer": t3.manufacturer,
+                    };
+                  }),
+                  t3
+                );
+              },
+            },
+            {
+              key: "setDynamicSuperProperties",
+              value: function (e3) {
+                this._hasDisabled() ||
+                  ("function" == typeof e3
+                    ? j.properties(e3()) || !this.config.strict
+                      ? (this.dynamicProperties = e3)
+                      : _.warn("A dynamic public property must return a valid property value")
+                    : _.warn("setDynamicSuperProperties parameter must be a function type"));
+              },
+            },
+            {
+              key: "timeEvent",
+              value: function (e3, t3) {
+                this._hasDisabled() ||
+                  ((t3 = u.isDate(t3) ? t3 : /* @__PURE__ */ new Date()),
+                  this._isReady()
+                    ? j.event(e3) || !this.config.strict
+                      ? this.store.setEventTimer(e3, t3.getTime())
+                      : _.warn("calling timeEvent failed due to invalid eventName: " + e3)
+                    : this._queue.push(["timeEvent", [e3, t3]]));
+              },
+            },
+            {
+              key: "getDeviceId",
+              value: function () {
+                return E.properties["#device_id"];
+              },
+            },
+            {
+              key: "enableTracking",
+              value: function (e3) {
+                ((this.enabled = e3), this.store._set("ta_enabled", e3));
+              },
+            },
+            {
+              key: "optOutTracking",
+              value: function () {
+                (this.store.setSuperProperties({}, true),
+                  this.store.setDistinctId(u.UUID()),
+                  this.store.setAccountId(null),
+                  this._queue.splice(0, this._queue.length),
+                  (this.isOptOut = true),
+                  this.store._set("ta_isOptOut", true));
+              },
+            },
+            {
+              key: "optOutTrackingAndDeleteUser",
+              value: function () {
+                var e3 = /* @__PURE__ */ new Date();
+                (this._sendRequest({ type: "user_del" }, e3), this.optOutTracking());
+              },
+            },
+            {
+              key: "optInTracking",
+              value: function () {
+                ((this.isOptOut = false), this.store._set("ta_isOptOut", false));
+              },
+            },
+            {
+              key: "setTrackStatus",
+              value: function (e3) {
+                switch (e3) {
+                  case "PAUSE":
+                    ((this.eventSaveOnly = false),
+                      this.optInTracking(),
+                      this.enableTracking(false));
+                    break;
+                  case "STOP":
+                    ((this.eventSaveOnly = false), this.optOutTracking(true));
+                    break;
+                  case "SAVE_ONLY":
+                    break;
+                  case "NORMAL":
+                  default:
+                    ((this.eventSaveOnly = false), this.optInTracking(), this.enableTracking(true));
+                }
+                _.info("Change Status to " + e3);
+              },
+            },
+          ]),
+          e2
+        );
+      })(),
+      J = { name: "thinkingdata", enableLog: true, enableNative: false },
+      R = (function () {
+        function e2(t3) {
+          (a(this, e2),
+            (t3.appId = t3.appId ? u.checkAppId(t3.appId) : u.checkAppId(t3.appid)),
+            (t3.serverUrl = t3.serverUrl ? u.checkUrl(t3.serverUrl) : u.checkUrl(t3.server_url)));
+          var i2 = u.extend({}, J, w.getConfig());
+          (u.isObject(t3) ? (this.config = u.extend(i2, t3)) : (this.config = i2),
+            this._init(this.config));
+        }
+        return (
+          s(e2, [
+            {
+              key: "_isNativePlatform",
+              value: function () {
+                return !((!this._isIOS() && !this._isAndroid()) || !this.config.enableNative);
+              },
+            },
+            {
+              key: "_isIOS",
+              value: function () {
+                return !(!cc.sys.isNative || "iOS" !== cc.sys.os);
+              },
+            },
+            {
+              key: "_isAndroid",
+              value: function () {
+                return !(!cc.sys.isNative || "Android" !== cc.sys.os);
+              },
+            },
+            {
+              key: "_init",
+              value: function (e3) {
+                ((this.name = e3.name),
+                  (this.appId = e3.appId || e3.appid),
+                  this._isNativePlatform()
+                    ? (this.initInstanceForNative(this.name, e3, this.appId), this._readStorage(e3))
+                    : (this.taJs = new ThinkingAnalyticsAPIForJS(e3)));
+              },
+            },
+            {
+              key: "_readStorage",
+              value: function (e3) {
+                var t3 = this,
+                  i2 = e3.persistenceName,
+                  n2 = e3.persistenceNameOld;
+                (e3.isChildInstance &&
+                  ((i2 = e3.persistenceName + "_" + e3.name),
+                  (n2 = e3.persistenceNameOld + "_" + e3.name)),
+                  (this._state = w.getStorage(i2) || {}),
+                  u.isEmptyObject(this._state) && (this._state = w.getStorage(n2) || {}),
+                  u.isEmptyObject(this._state)
+                    ? w.getStorage(i2, true, function (e4) {
+                        (u.isEmptyObject(e4)
+                          ? w.getStorage(n2, true, function (e5) {
+                              t3._state = u.extend2Layers({}, e5, t3._state);
+                            })
+                          : (t3._state = u.extend2Layers({}, e4, t3._state)),
+                          t3._state.distinct_id && t3.identifyForNative(t3._state.distinct_id),
+                          t3._state.account_id && t3.loginForNative(t3._state.account_id));
+                      })
+                    : (this._state.distinct_id && this.identifyForNative(this._state.distinct_id),
+                      this._state.account_id && this.loginForNative(this._state.account_id)));
+              },
+            },
+            {
+              key: "initInstance",
+              value: function (e3, t3) {
+                return (
+                  this._isNativePlatform()
+                    ? u.isUndefined(t3)
+                      ? (this[e3] = new ThinkingAnalyticsAPI(this.config))
+                      : (this[e3] = new ThinkingAnalyticsAPI(t3))
+                    : (this[e3] = this.taJs.initInstance(e3, t3)),
+                  this[e3]
+                );
+              },
+            },
+            {
+              key: "lightInstance",
+              value: function (e3) {
+                return this[e3];
+              },
+            },
+            {
+              key: "init",
+              value: function () {
+                if (this._isNativePlatform()) {
+                  var e3 = this;
+                  return (
+                    (i.__autoTrackCallback = function (t3) {
+                      return u.isFunction(e3.config.autoTrack.callback)
+                        ? ((t3 = e3.config.autoTrack.callback(t3)), JSON.stringify(t3))
+                        : "{}";
+                    }),
+                    void this.startThinkingAnalyticsForNative()
+                  );
+                }
+                this.taJs.init();
+              },
+            },
+            {
+              key: "track",
+              value: function (e3, t3, i2, n2) {
+                this._isNativePlatform()
+                  ? this.trackForNative(e3, t3, i2, this.appId)
+                  : this.taJs.track(e3, t3, i2, n2);
+              },
+            },
+            {
+              key: "trackUpdate",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.trackUpdateForNative(e3, this.appId)
+                  : this.taJs.trackUpdate(e3);
+              },
+            },
+            {
+              key: "trackOverwrite",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.trackOverwriteForNative(e3, this.appId)
+                  : this.taJs.trackOverwrite(e3);
+              },
+            },
+            {
+              key: "trackFirstEvent",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.trackFirstEventForNative(e3, this.appId)
+                  : this.taJs.trackFirstEvent(e3);
+              },
+            },
+            {
+              key: "userSet",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userSetForNative(e3, this.appId)
+                  : this.taJs.userSet(e3, t3, i2);
+              },
+            },
+            {
+              key: "userSetOnce",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userSetOnceForNative(e3, this.appId)
+                  : this.taJs.userSetOnce(e3, t3, i2);
+              },
+            },
+            {
+              key: "userUnset",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userUnsetForNative(e3, this.appId)
+                  : this.taJs.userUnset(e3, t3, i2);
+              },
+            },
+            {
+              key: "userDel",
+              value: function (e3, t3) {
+                this._isNativePlatform()
+                  ? this.userDelForNative(this.appId)
+                  : this.taJs.userDel(e3, t3);
+              },
+            },
+            {
+              key: "userAdd",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userAddForNative(e3, this.appId)
+                  : this.taJs.userAdd(e3, t3, i2);
+              },
+            },
+            {
+              key: "userAppend",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userAppendForNative(e3, this.appId)
+                  : this.taJs.userAppend(e3, t3, i2);
+              },
+            },
+            {
+              key: "userUniqAppend",
+              value: function (e3, t3, i2) {
+                this._isNativePlatform()
+                  ? this.userUniqAppendForNative(e3, this.appId)
+                  : this.taJs.userUniqAppend(e3, t3, i2);
+              },
+            },
+            {
+              key: "flush",
+              value: function () {
+                this._isNativePlatform() ? this.flushForNative(this.appId) : this.taJs.flush();
+              },
+            },
+            {
+              key: "authorizeOpenID",
+              value: function (e3) {
+                this.identify(e3);
+              },
+            },
+            {
+              key: "identify",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.identifyForNative(e3, this.appId)
+                  : this.taJs.identify(e3);
+              },
+            },
+            {
+              key: "getDistinctId",
+              value: function () {
+                return this._isNativePlatform()
+                  ? this.getDistinctIdForNative(this.appId)
+                  : this.taJs.getDistinctId();
+              },
+            },
+            {
+              key: "login",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.loginForNative(e3, this.appId)
+                  : this.taJs.login(e3);
+              },
+            },
+            {
+              key: "getAccountId",
+              value: function () {
+                return this._isNativePlatform()
+                  ? this.getAccountIdForNative(this.appId)
+                  : this.taJs.getAccountId();
+              },
+            },
+            {
+              key: "logout",
+              value: function () {
+                this._isNativePlatform() ? this.logoutForNative(this.appId) : this.taJs.logout();
+              },
+            },
+            {
+              key: "setSuperProperties",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.setSuperPropertiesForNative(e3, this.appId)
+                  : this.taJs.setSuperProperties(e3);
+              },
+            },
+            {
+              key: "clearSuperProperties",
+              value: function () {
+                this._isNativePlatform()
+                  ? this.clearSuperPropertiesForNative(this.appId)
+                  : this.taJs.clearSuperProperties();
+              },
+            },
+            {
+              key: "unsetSuperProperty",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.unsetSuperPropertyForNative(e3, this.appId)
+                  : this.taJs.unsetSuperProperty(e3);
+              },
+            },
+            {
+              key: "getSuperProperties",
+              value: function () {
+                return this._isNativePlatform()
+                  ? this.getSuperPropertiesForNative(this.appId)
+                  : this.taJs.getSuperProperties();
+              },
+            },
+            {
+              key: "getPresetProperties",
+              value: function () {
+                if (this._isNativePlatform()) {
+                  var e3 = this.getPresetPropertiesForNative(this.appId),
+                    t3 = {},
+                    i2 = e3["#os"];
+                  ((t3.os = u.isUndefined(i2) ? "" : i2),
+                    (i2 = e3["#screen_width"]),
+                    (t3.screenWidth = u.isUndefined(i2) ? 0 : i2),
+                    (i2 = e3["#screen_height"]),
+                    (t3.screenHeight = u.isUndefined(i2) ? 0 : i2),
+                    (i2 = e3["#network_type"]),
+                    (t3.networkType = u.isUndefined(i2) ? "" : i2),
+                    (i2 = e3["#device_model"]),
+                    (t3.deviceModel = u.isUndefined(i2) ? "" : i2),
+                    (i2 = e3["#os_version"]),
+                    (t3.osVersion = u.isUndefined(i2) ? "" : i2),
+                    (t3.deviceId = this.getDeviceId()));
+                  var n2 = 0 - /* @__PURE__ */ new Date().getTimezoneOffset() / 60;
+                  return (
+                    (t3.zoneOffset = n2),
+                    (e3 = e3["#manufacturer"]),
+                    (t3.manufacturer = u.isUndefined(e3) ? "" : e3),
+                    (t3.toEventPresetProperties = function () {
+                      return {
+                        "#device_model": t3.deviceModel,
+                        "#device_id": t3.deviceId,
+                        "#screen_width": t3.screenWidth,
+                        "#screen_height": t3.screenHeight,
+                        "#os": t3.os,
+                        "#os_version": t3.osVersion,
+                        "#network_type": t3.networkType,
+                        "#zone_offset": n2,
+                        "#manufacturer": t3.manufacturer,
+                      };
+                    }),
+                    t3
+                  );
+                }
+                return this.taJs.getPresetProperties();
+              },
+            },
+            {
+              key: "setDynamicSuperProperties",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? "function" == typeof e3
+                    ? ((this.dynamicProperties = e3),
+                      (i.__dynamicPropertiesForNative = function (t3) {
+                        return (
+                          console.log("__dynamicPropertiesForNative: native msg: ", t3),
+                          (t3 = e3()),
+                          (t3 = u.encodeDates(t3)),
+                          JSON.stringify(t3)
+                        );
+                      }),
+                      this.setDynamicSuperPropertiesForNative("__dynamicPropertiesForNative"))
+                    : logger.warn("setDynamicSuperProperties parameter must be a function type")
+                  : this.taJs.setDynamicSuperProperties(e3);
+              },
+            },
+            {
+              key: "timeEvent",
+              value: function (e3, t3) {
+                return this._isNativePlatform()
+                  ? this.timeEventForNative(e3, this.appId)
+                  : this.taJs.timeEvent(e3, t3);
+              },
+            },
+            {
+              key: "getDeviceId",
+              value: function () {
+                return this._isNativePlatform()
+                  ? this.getDeviceIdForNative(this.appId)
+                  : this.taJs.getDeviceId();
+              },
+            },
+            {
+              key: "enableTracking",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.enableTrackingForNative(e3, this.appId)
+                  : this.taJs.enableTracking(e3);
+              },
+            },
+            {
+              key: "optOutTracking",
+              value: function () {
+                this._isNativePlatform()
+                  ? this.optOutTrackingForNative(this.appId)
+                  : this.taJs.optOutTracking();
+              },
+            },
+            {
+              key: "optOutTrackingAndDeleteUser",
+              value: function () {
+                this._isNativePlatform()
+                  ? this.optOutTrackingAndDeleteUserForNative(this.appId)
+                  : this.taJs.optOutTrackingAndDeleteUser();
+              },
+            },
+            {
+              key: "optInTracking",
+              value: function () {
+                this._isNativePlatform()
+                  ? this.optInTrackingForNative(this.appId)
+                  : this.taJs.optInTracking();
+              },
+            },
+            {
+              key: "setTrackStatus",
+              value: function (e3) {
+                this._isNativePlatform()
+                  ? this.setTrackStatusForNative(e3, this.appId)
+                  : this.taJs.setTrackStatus(e3);
+              },
+            },
+            {
+              key: "trackForNative",
+              value: function (e3, t3, i2, n2) {
+                ((i2 = u.isDate(i2) ? u.formatDate(i2) : ""),
+                  u.isUndefined(t3) && (t3 = {}),
+                  (t3 = u.extend(t3, this.dynamicProperties ? this.dynamicProperties() : {})),
+                  (t3 = u.encodeDates(t3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "track",
+                        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                        e3,
+                        JSON.stringify(t3),
+                        i2,
+                        n2,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "track:properties:time:appId:",
+                        e3,
+                        JSON.stringify(t3),
+                        i2,
+                        n2,
+                      ));
+              },
+            },
+            {
+              key: "trackUpdateForNative",
+              value: function (e3, t3) {
+                ((e3.properties = u.extend(
+                  u.isUndefined(e3.properties) ? {} : e3.properties,
+                  this.dynamicProperties ? this.dynamicProperties() : {},
+                )),
+                  (e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "trackUpdate",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "trackUpdate:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "trackFirstEventForNative",
+              value: function (e3, t3) {
+                ((e3.properties = u.extend(
+                  u.isUndefined(e3.properties) ? {} : e3.properties,
+                  this.dynamicProperties ? this.dynamicProperties() : {},
+                )),
+                  (e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "trackFirstEvent",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "trackFirstEvent:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "trackOverwriteForNative",
+              value: function (e3, t3) {
+                ((e3.properties = u.extend(
+                  u.isUndefined(e3.properties) ? {} : e3.properties,
+                  this.dynamicProperties ? this.dynamicProperties() : {},
+                )),
+                  (e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "trackOverwrite",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "trackOverwrite:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "timeEventForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "timeEvent",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "timeEvent:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "loginForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "login",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "login:appId:", e3, t3);
+              },
+            },
+            {
+              key: "logoutForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "logout",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "logout:", e3);
+              },
+            },
+            {
+              key: "setSuperPropertiesForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "setSuperProperties",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "setSuperProperties:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "getSuperPropertiesForNative",
+              value: function (e3) {
+                var t3 = "{}";
+                return (
+                  this._isAndroid()
+                    ? (t3 = jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "getSuperProperties",
+                        "(Ljava/lang/String;)Ljava/lang/String;",
+                        e3,
+                      ))
+                    : this._isIOS() &&
+                      (t3 = jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "getSuperProperties:",
+                        e3,
+                      )),
+                  JSON.parse(t3)
+                );
+              },
+            },
+            {
+              key: "unsetSuperPropertyForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "unsetSuperProperty",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "unsetSuperProperty:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "clearSuperPropertiesForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "clearSuperProperties",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "clearSuperProperties:",
+                      e3,
+                    );
+              },
+            },
+            {
+              key: "userSetForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "userSet",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "userSet:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "userSetOnceForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "userSetOnce",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "userSetOnce:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "userAppendForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "userAppend",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "userAppend:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "userUniqAppendForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "userUniqAppend",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "userUniqAppend:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "userAddForNative",
+              value: function (e3, t3) {
+                ((e3 = u.encodeDates(e3)),
+                  this._isAndroid()
+                    ? jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "userAdd",
+                        "(Ljava/lang/String;Ljava/lang/String;)V",
+                        JSON.stringify(e3),
+                        t3,
+                      )
+                    : this._isIOS() &&
+                      jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "userAdd:appId:",
+                        JSON.stringify(e3),
+                        t3,
+                      ));
+              },
+            },
+            {
+              key: "userUnsetForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "userUnset",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "userUnset:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "userDelForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "userDel",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "userDel:", e3);
+              },
+            },
+            {
+              key: "flushForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "flush",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "flush:", e3);
+              },
+            },
+            {
+              key: "authorizeOpenIDForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "authorizeOpenID",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "authorizeOpenID:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "identifyForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "identify",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "identify:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "initInstanceForNative",
+              value: function (e3, t3, i2) {
+                this._isAndroid()
+                  ? (jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "setCustomerLibInfo",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      c,
+                      o,
+                    ),
+                    u.isUndefined(t3)
+                      ? jsb.reflection.callStaticMethod(
+                          "com/cocos/game/CocosCreatorProxyApi",
+                          "initInstanceAppId",
+                          "(Ljava/lang/String;Ljava/lang/String;)V",
+                          e3,
+                          i2,
+                        )
+                      : jsb.reflection.callStaticMethod(
+                          "com/cocos/game/CocosCreatorProxyApi",
+                          "initInstanceConfig",
+                          "(Ljava/lang/String;Ljava/lang/String;)V",
+                          e3,
+                          JSON.stringify(t3),
+                        ))
+                  : this._isIOS() &&
+                    (jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "setCustomerLibInfoWithLibName:libVersion:",
+                      c,
+                      o,
+                    ),
+                    u.isUndefined(t3)
+                      ? jsb.reflection.callStaticMethod(
+                          "CocosCreatorProxyApi",
+                          "initInstance:appId:",
+                          e3,
+                          i2,
+                        )
+                      : jsb.reflection.callStaticMethod(
+                          "CocosCreatorProxyApi",
+                          "initInstance:config:",
+                          e3,
+                          JSON.stringify(t3),
+                        ));
+              },
+            },
+            {
+              key: "lightInstanceForNative",
+              value: function (e3, t3) {
+                return this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "lightInstance",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS()
+                    ? jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "lightInstance:appId:",
+                        e3,
+                        t3,
+                      )
+                    : void 0;
+              },
+            },
+            {
+              key: "startThinkingAnalyticsForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "startThinkingAnalytics",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "startThinkingAnalytics:",
+                      e3,
+                    );
+              },
+            },
+            {
+              key: "setDynamicSuperPropertiesForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "setDynamicSuperProperties",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "setDynamicSuperProperties:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "getDeviceIdForNative",
+              value: function (e3) {
+                return this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "getDeviceId",
+                      "(Ljava/lang/String;)Ljava/lang/String;",
+                      e3,
+                    )
+                  : this._isIOS()
+                    ? jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "getDeviceId:", e3)
+                    : void 0;
+              },
+            },
+            {
+              key: "getDistinctIdForNative",
+              value: function (e3) {
+                return this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "getDistinctId",
+                      "(Ljava/lang/String;)Ljava/lang/String;",
+                      e3,
+                    )
+                  : this._isIOS()
+                    ? jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "getDistinctId:", e3)
+                    : void 0;
+              },
+            },
+            {
+              key: "getAccountIdForNative",
+              value: function (e3) {
+                return this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "getAccountId",
+                      "(Ljava/lang/String;)Ljava/lang/String;",
+                      e3,
+                    )
+                  : this._isIOS()
+                    ? jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "getAccountId:", e3)
+                    : void 0;
+              },
+            },
+            {
+              key: "getPresetPropertiesForNative",
+              value: function (e3) {
+                var t3 = "{}";
+                return (
+                  this._isAndroid()
+                    ? (t3 = jsb.reflection.callStaticMethod(
+                        "com/cocos/game/CocosCreatorProxyApi",
+                        "getPresetProperties",
+                        "(Ljava/lang/String;)Ljava/lang/String;",
+                        e3,
+                      ))
+                    : this._isIOS() &&
+                      (t3 = jsb.reflection.callStaticMethod(
+                        "CocosCreatorProxyApi",
+                        "getPresetProperties:",
+                        e3,
+                      )),
+                  JSON.parse(t3)
+                );
+              },
+            },
+            {
+              key: "enableTrackingForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "enableTracking",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3.toString(),
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "enableTracking:appId:",
+                      e3.toString(),
+                      t3,
+                    );
+              },
+            },
+            {
+              key: "optOutTrackingForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "optOutTracking",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "optOutTracking:", e3);
+              },
+            },
+            {
+              key: "optOutTrackingAndDeleteUserForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "optOutTrackingAndDeleteUser",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "optOutTrackingAndDeleteUser:",
+                      e3,
+                    );
+              },
+            },
+            {
+              key: "optInTrackingForNative",
+              value: function (e3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "optInTracking",
+                      "(Ljava/lang/String;)V",
+                      e3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod("CocosCreatorProxyApi", "optInTracking:", e3);
+              },
+            },
+            {
+              key: "setTrackStatusForNative",
+              value: function (e3, t3) {
+                this._isAndroid()
+                  ? jsb.reflection.callStaticMethod(
+                      "com/cocos/game/CocosCreatorProxyApi",
+                      "setTrackStatus",
+                      "(Ljava/lang/String;Ljava/lang/String;)V",
+                      e3,
+                      t3,
+                    )
+                  : this._isIOS() &&
+                    jsb.reflection.callStaticMethod(
+                      "CocosCreatorProxyApi",
+                      "setTrackStatus:appId:",
+                      e3,
+                      t3,
+                    );
+              },
+            },
+          ]),
+          e2
+        );
+      })();
+    ((i.ThinkingAnalyticsAPI = R), (i.ThinkingAnalyticsAPIForJS = L));
+    var H = (function () {
+      function e2() {
+        a(this, e2);
+      }
+      return (
+        s(e2, null, [
+          {
+            key: "_shareInstance",
+            value: function (e3) {
+              return void 0 !== this._instanceMaps[e3]
+                ? this._instanceMaps[e3]
+                : void 0 !== this._defaultInstance
+                  ? this._defaultInstance
+                  : void 0;
+            },
+          },
+          {
+            key: "init",
+            value: function (e3) {
+              var t3 = new R(e3);
+              (t3.init(),
+                void 0 !== t3 &&
+                  (void 0 === this._defaultInstance &&
+                    ((this._defaultInstance = t3), (this._instanceMaps = {})),
+                  (this._instanceMaps[e3.appId] = t3)));
+            },
+          },
+          {
+            key: "lightInstance",
+            value: function (e3) {
+              return this._shareInstance(e3).lightInstance();
+            },
+          },
+          {
+            key: "track",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).track(e3.eventName, e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "trackFirst",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).trackFirstEvent(e3));
+            },
+          },
+          {
+            key: "trackUpdate",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).trackUpdate(e3));
+            },
+          },
+          {
+            key: "trackOverwrite",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).trackOverwrite(e3));
+            },
+          },
+          {
+            key: "timeEvent",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).timeEvent(e3.eventName, e3.time));
+            },
+          },
+          {
+            key: "userSet",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userSet(e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userSetOnce",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userSetOnce(e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userUnset",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userUnset(e3.property, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userAdd",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userAdd(e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userAppend",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userAppend(e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userUniqAppend",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userUniqAppend(e3.properties, e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "userDelete",
+            value: function (e3, t3) {
+              ((e3 = 0 < arguments.length && void 0 !== e3 ? e3 : {}),
+                (t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).userDel(e3.time, e3.onComplete));
+            },
+          },
+          {
+            key: "setSuperProperties",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).setSuperProperties(e3));
+            },
+          },
+          {
+            key: "unsetSuperProperty",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).unsetSuperProperty(e3));
+            },
+          },
+          {
+            key: "clearSuperProperties",
+            value: function (e3) {
+              this._shareInstance(e3).clearSuperProperties();
+            },
+          },
+          {
+            key: "getSuperProperties",
+            value: function (e3) {
+              return this._shareInstance(e3).getSuperProperties();
+            },
+          },
+          {
+            key: "setDynamicSuperProperties",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).setDynamicSuperProperties(e3));
+            },
+          },
+          {
+            key: "getPresetProperties",
+            value: function (e3) {
+              return this._shareInstance(e3).getPresetProperties();
+            },
+          },
+          {
+            key: "login",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).login(e3));
+            },
+          },
+          {
+            key: "logout",
+            value: function (e3) {
+              this._shareInstance(e3).logout();
+            },
+          },
+          {
+            key: "setDistinctId",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).identify(e3));
+            },
+          },
+          {
+            key: "getDistinctId",
+            value: function (e3) {
+              return this._shareInstance(e3).getDistinctId();
+            },
+          },
+          {
+            key: "getSDKVersion",
+            value: function () {
+              return "1.0.0";
+            },
+          },
+          {
+            key: "getDeviceId",
+            value: function (e3) {
+              return this._shareInstance(e3).getDeviceId();
+            },
+          },
+          {
+            key: "flush",
+            value: function (e3) {
+              this._shareInstance(e3).flush();
+            },
+          },
+          {
+            key: "setTrackStatus",
+            value: function (e3, t3) {
+              ((t3 = 1 < arguments.length && void 0 !== t3 ? t3 : ""),
+                this._shareInstance(t3).setTrackStatus(e3));
+            },
+          },
+          {
+            key: "ThinkingDataAPI",
+            value: function () {
+              return R;
+            },
+          },
+        ]),
+        e2
+      );
+    })();
+    i.TDAnalytics = H;
+  }).call(t);
+})(
+  function () {
+    return "undefined" != typeof globalThis
+      ? globalThis
+      : "undefined" != typeof self
+        ? self
+        : "undefined" != typeof window
+          ? window
+          : "undefined" != typeof global
+            ? global
+            : void 0 !== this
+              ? this
+              : {};
+  }.call(void 0),
+);

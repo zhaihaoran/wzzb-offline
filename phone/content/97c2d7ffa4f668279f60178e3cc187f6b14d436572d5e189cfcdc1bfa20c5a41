@@ -1,0 +1,547 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("../@babel/runtime/helpers/createForOfIteratorHelper");
+!(function () {
+  function t(e2, t2) {
+    return (t2 || "") + " (SystemJS https://git.io/JvFET#" + e2 + ")";
+  }
+  var n,
+    r = "undefined" != typeof Symbol,
+    i = "undefined" != typeof self,
+    o = "undefined" != typeof document,
+    u = i ? self : global;
+  if (o) {
+    var c = document.querySelector("base[href]");
+    c && (n = c.href);
+  }
+  if (!n && "undefined" != typeof location) {
+    var l = (n = location.href.split("#")[0].split("?")[0]).lastIndexOf("/");
+    -1 !== l && (n = n.slice(0, l + 1));
+  }
+  if (!n && "undefined" != typeof process) {
+    var s = process.cwd();
+    n = "file://" + ("/" === s[0] ? "" : "/") + s.replace(/\\/g, "/") + "/";
+  }
+  var f = /\\/g;
+  function a(e2, t2) {
+    if ((-1 !== e2.indexOf("\\") && (e2 = e2.replace(f, "/")), "/" === e2[0] && "/" === e2[1]))
+      return t2.slice(0, t2.indexOf(":") + 1) + e2;
+    if (
+      ("." === e2[0] &&
+        ("/" === e2[1] ||
+          ("." === e2[1] && ("/" === e2[2] || (2 === e2.length && (e2 += "/")))) ||
+          (1 === e2.length && (e2 += "/")))) ||
+      "/" === e2[0]
+    ) {
+      var n2,
+        r2 = t2.slice(0, t2.indexOf(":") + 1);
+      if (
+        ((n2 =
+          "/" === t2[r2.length + 1]
+            ? "file:" !== r2
+              ? (n2 = t2.slice(r2.length + 2)).slice(n2.indexOf("/") + 1)
+              : t2.slice(8)
+            : t2.slice(r2.length + ("/" === t2[r2.length]))),
+        "/" === e2[0])
+      )
+        return t2.slice(0, t2.length - n2.length - 1) + e2;
+      for (
+        var i2 = n2.slice(0, n2.lastIndexOf("/") + 1) + e2, o2 = [], u2 = -1, c2 = 0;
+        c2 < i2.length;
+        c2++
+      )
+        -1 !== u2
+          ? "/" === i2[c2] && (o2.push(i2.slice(u2, c2 + 1)), (u2 = -1))
+          : "." === i2[c2]
+            ? "." !== i2[c2 + 1] || ("/" !== i2[c2 + 2] && c2 + 2 !== i2.length)
+              ? "/" === i2[c2 + 1] || c2 + 1 === i2.length
+                ? (c2 += 1)
+                : (u2 = c2)
+              : (o2.pop(), (c2 += 2))
+            : (u2 = c2);
+      return (-1 !== u2 && o2.push(i2.slice(u2)), t2.slice(0, t2.length - n2.length) + o2.join(""));
+    }
+  }
+  function v(e2, t2) {
+    return a(e2, t2) || (-1 !== e2.indexOf(":") ? e2 : a("./" + e2, t2));
+  }
+  function h(e2, t2, n2, r2, i2) {
+    for (var o2 in e2) {
+      var u2 = a(o2, n2) || o2,
+        c2 = e2[o2];
+      if ("string" == typeof c2) {
+        var l2 = m(r2, a(c2, n2) || c2, i2);
+        l2 ? (t2[u2] = l2) : y("W1", o2, c2);
+      }
+    }
+  }
+  function p(e2, t2, n2) {
+    var r2;
+    for (r2 in (e2.imports && h(e2.imports, n2.imports, t2, n2, null), e2.scopes || {})) {
+      var i2 = v(r2, t2);
+      h(e2.scopes[r2], n2.scopes[i2] || (n2.scopes[i2] = {}), t2, n2, i2);
+    }
+    for (r2 in e2.depcache || {}) n2.depcache[v(r2, t2)] = e2.depcache[r2];
+    for (r2 in e2.integrity || {}) n2.integrity[v(r2, t2)] = e2.integrity[r2];
+  }
+  function d(e2, t2) {
+    if (t2[e2]) return e2;
+    var n2 = e2.length;
+    do {
+      var r2 = e2.slice(0, n2 + 1);
+      if (r2 in t2) return r2;
+    } while (-1 !== (n2 = e2.lastIndexOf("/", n2 - 1)));
+  }
+  function g(e2, t2) {
+    var n2 = d(e2, t2);
+    if (n2) {
+      var r2 = t2[n2];
+      if (null === r2) return;
+      if (!(e2.length > n2.length && "/" !== r2[r2.length - 1])) return r2 + e2.slice(n2.length);
+      y("W2", n2, r2);
+    }
+  }
+  function y(e2, n2, r2, i2) {
+    console.warn(t(e2, [r2, n2].join(", ")));
+  }
+  function m(e2, t2, n2) {
+    for (var r2 = e2.scopes, i2 = n2 && d(n2, r2); i2;) {
+      var o2 = g(t2, r2[i2]);
+      if (o2) return o2;
+      i2 = d(i2.slice(0, i2.lastIndexOf("/")), r2);
+    }
+    return g(t2, e2.imports) || (-1 !== t2.indexOf(":") && t2);
+  }
+  var b = r && Symbol.toStringTag,
+    O = r ? /* @__PURE__ */ Symbol() : "@";
+  function w() {
+    this[O] = {};
+  }
+  var E,
+    P = w.prototype;
+  function S(e2, n2, r2) {
+    var i2 = e2[O][n2];
+    if (i2) return i2;
+    var o2 = [],
+      u2 = /* @__PURE__ */ Object.create(null);
+    b && Object.defineProperty(u2, b, { value: "Module" });
+    var c2 = Promise.resolve()
+        .then(function () {
+          return e2.instantiate(n2, r2);
+        })
+        .then(
+          function (r3) {
+            if (!r3) throw Error(t(2, n2));
+            var c3 = r3[1](
+              function (e3, t2) {
+                i2.h = true;
+                var n3 = false;
+                if ("string" == typeof e3)
+                  (e3 in u2 && u2[e3] === t2) || ((u2[e3] = t2), (n3 = true));
+                else {
+                  for (var r4 in e3)
+                    ((t2 = e3[r4]), (r4 in u2 && u2[r4] === t2) || ((u2[r4] = t2), (n3 = true)));
+                  e3.__esModule && (u2.__esModule = e3.__esModule);
+                }
+                if (n3)
+                  for (var c4 = 0; c4 < o2.length; c4++) {
+                    var l3 = o2[c4];
+                    l3 && l3(u2);
+                  }
+                return t2;
+              },
+              2 === r3[1].length
+                ? {
+                    import: function (t2) {
+                      return e2.import(t2, n2);
+                    },
+                    meta: e2.createContext(n2),
+                  }
+                : void 0,
+            );
+            return ((i2.e = c3.execute || function () {}), [r3[0], c3.setters || []]);
+          },
+          function (e3) {
+            throw ((i2.e = null), (i2.er = e3), e3);
+          },
+        ),
+      l2 = c2.then(function (t2) {
+        return Promise.all(
+          t2[0].map(function (r3, i3) {
+            var o3 = t2[1][i3];
+            return Promise.resolve(e2.resolve(r3, n2)).then(function (t3) {
+              var r4 = S(e2, t3, n2);
+              return Promise.resolve(r4.I).then(function () {
+                return (o3 && (r4.i.push(o3), (!r4.h && r4.I) || o3(r4.n)), r4);
+              });
+            });
+          }),
+        ).then(function (e3) {
+          i2.d = e3;
+        });
+      });
+    return (
+      l2.catch(function () {}),
+      (i2 = e2[O][n2] =
+        {
+          id: n2,
+          i: o2,
+          n: u2,
+          I: c2,
+          L: l2,
+          h: false,
+          d: void 0,
+          e: void 0,
+          er: void 0,
+          E: void 0,
+          C: void 0,
+          p: void 0,
+        })
+    );
+  }
+  ((P.import = function (e2, t2) {
+    var n2 = this;
+    return Promise.resolve(n2.prepareImport())
+      .then(function () {
+        return n2.resolve(e2, t2);
+      })
+      .then(function (e3) {
+        var t3 = S(n2, e3);
+        return (
+          t3.C ||
+          (function (e4, t4) {
+            return (t4.C = (function e5(t5, n3, r2, i2) {
+              if (!i2[n3.id])
+                return (
+                  (i2[n3.id] = true),
+                  Promise.resolve(n3.L)
+                    .then(function () {
+                      return (
+                        (n3.p && null !== n3.p.e) || (n3.p = r2),
+                        Promise.all(
+                          n3.d.map(function (n4) {
+                            return e5(t5, n4, r2, i2);
+                          }),
+                        )
+                      );
+                    })
+                    .catch(function (e6) {
+                      if (n3.er) throw e6;
+                      throw ((n3.e = null), e6);
+                    })
+                );
+            })(e4, t4, t4, {})
+              .then(function () {
+                return (function e5(t5, n3, r2) {
+                  if (r2[n3.id]) return n3.E;
+                  if (((r2[n3.id] = true), !n3.e)) {
+                    if (n3.er) throw n3.er;
+                    return n3.E ? n3.E : void 0;
+                  }
+                  var i2,
+                    o2 = n3.e;
+                  if (
+                    ((n3.e = null),
+                    n3.d.forEach(function (o3) {
+                      try {
+                        var u3 = e5(t5, o3, r2);
+                        u3 && (i2 = i2 || []).push(u3);
+                      } catch (e6) {
+                        throw ((n3.er = e6), e6);
+                      }
+                    }),
+                    i2)
+                  )
+                    return (n3.E = j.call(Promise.all(i2).then(c2), function () {
+                      n3.E = null;
+                    }));
+                  var u2 = c2();
+                  if (u2)
+                    return (n3.E = j.call(u2, function () {
+                      n3.E = null;
+                    }));
+                  function c2() {
+                    try {
+                      var e6 = o2.call(x);
+                      if (e6)
+                        return e6.then(
+                          function () {
+                            n3.C = n3.n;
+                          },
+                          function (e7) {
+                            throw ((n3.er = e7), e7);
+                          },
+                        );
+                      ((n3.C = n3.n), (n3.L = n3.I = void 0));
+                    } catch (e7) {
+                      throw ((n3.er = e7), e7);
+                    }
+                  }
+                })(e4, t4, {});
+              })
+              .then(function () {
+                return t4.n;
+              }));
+          })(n2, t3)
+        );
+      });
+  }),
+    (P.createContext = function (e2) {
+      var t2 = this;
+      return {
+        url: e2,
+        resolve: function (n2, r2) {
+          return Promise.resolve(t2.resolve(n2, r2 || e2));
+        },
+      };
+    }),
+    (P.register = function (e2, t2) {
+      E = [e2, t2];
+    }),
+    (P.getRegister = function () {
+      var e2 = E;
+      return ((E = void 0), e2);
+    }));
+  var x = Object.freeze(/* @__PURE__ */ Object.create(null)),
+    j =
+      Promise.prototype.finally ||
+      function (e2) {
+        if ("function" != typeof e2) return this.then(e2, e2);
+        var t2 = this.constructor || Promise;
+        return this.then(
+          function (n2) {
+            return t2.resolve(e2()).then(function () {
+              return n2;
+            });
+          },
+          function (n2) {
+            return t2.resolve(e2()).then(function () {
+              throw n2;
+            });
+          },
+        );
+      };
+  u.System = new w();
+  var R =
+      "undefined" != typeof $global
+        ? $global
+        : "function" == typeof getApp
+          ? getApp().GameGlobal
+          : void 0,
+    I = (void 0 !== R ? R.System : System).constructor.prototype;
+  I.instantiate = function (e2, t2) {
+    throw new Error("Unable to instantiate ".concat(e2, " from ").concat(t2));
+  };
+  var M = "undefined" != typeof Symbol && Symbol.toStringTag;
+  ((P.get = function (e2) {
+    var t2 = this[O][e2];
+    if (t2 && null === t2.e && !t2.E) return t2.er ? null : t2.n;
+  }),
+    (P.set = function (e2, t2) {
+      var n2;
+      M && "Module" === t2[M]
+        ? (n2 = t2)
+        : ((n2 = Object.assign(/* @__PURE__ */ Object.create(null), t2)),
+          M && Object.defineProperty(n2, M, { value: "Module" }));
+      var r2 = Promise.resolve(n2),
+        i2 =
+          this[O][e2] ||
+          (this[O][e2] = { id: e2, i: [], h: false, d: [], e: null, er: void 0, E: void 0 });
+      return !i2.e && !i2.E && (Object.assign(i2, { n: n2, I: void 0, L: void 0, C: r2 }), n2);
+    }),
+    (P.has = function (e2) {
+      return !!this[O][e2];
+    }),
+    (P.delete = function (e2) {
+      var t2 = this[O],
+        n2 = t2[e2];
+      if (!n2 || (n2.p && null !== n2.p.e) || n2.E) return false;
+      var r2 = n2.i;
+      return (
+        n2.d &&
+          n2.d.forEach(function (e3) {
+            var t3 = e3.i.indexOf(n2);
+            -1 !== t3 && e3.i.splice(t3, 1);
+          }),
+        delete t2[e2],
+        function () {
+          var n3 = t2[e2];
+          if (!n3 || !r2 || null !== n3.e || n3.E) return false;
+          (r2.forEach(function (e3) {
+            (n3.i.push(e3), e3(n3.n));
+          }),
+            (r2 = null));
+        }
+      );
+    }));
+  var C = "undefined" != typeof Symbol && Symbol.iterator;
+  P.entries = function () {
+    var e2,
+      t2,
+      n2 = this,
+      r2 = Object.keys(n2[O]),
+      i2 = 0,
+      o2 = {
+        next: function () {
+          for (; void 0 !== (t2 = r2[i2++]) && void 0 === (e2 = n2.get(t2)););
+          return { done: void 0 === t2, value: void 0 !== t2 && [t2, e2] };
+        },
+      };
+    return (
+      (o2[C] = function () {
+        return this;
+      }),
+      o2
+    );
+  };
+  var _ = n,
+    L = { imports: {}, scopes: {} };
+  function A(e2, t2) {
+    p(e2, a(t2, _) || t2, L);
+  }
+  function U(e2) {
+    return function (t2) {
+      var n2,
+        r2,
+        i2 = this,
+        o2 = (function (e3, t3) {
+          var n3,
+            r3 = t3;
+          r3.startsWith("/") && (r3 = r3.slice(1));
+          var i3 = (function (e4) {
+            var t4 = L.imports;
+            for (var n4 in t4) {
+              var r4 = t4[n4];
+              if (r4 && (e4 === r4 || "no-schema:/".concat(e4) === r4)) return n4;
+            }
+            return null;
+          })(r3);
+          return (
+            i3 && (r3 = i3),
+            e3.registerRegistry &&
+              (n3 = e3.registerRegistry[r3]) &&
+              (e3.registerRegistry[r3] = null),
+            n3
+          );
+        })(i2, t2);
+      if (o2) return o2;
+      try {
+        n2 = e2(t2);
+      } catch (e3) {
+        return Promise.reject(e3);
+      }
+      return (
+        (r2 = n2),
+        Boolean(r2 && "function" == typeof r2.then)
+          ? new Promise(function (e3) {
+              return n2.then(function () {
+                e3(i2.getRegister());
+              });
+            })
+          : i2.getRegister()
+      );
+    };
+  }
+  function T(e2, t2) {
+    var n2 = I.instantiate;
+    I.instantiate = function (r2, i2) {
+      var o2 = r2.substr(0, e2.length) === e2 ? r2.substr(e2.length) : null;
+      return null === o2 ? n2.call(this, r2, i2) : t2.call(this, o2, i2);
+    };
+  }
+  ((I.resolve = function (e2, t2) {
+    return (
+      m(L, a(e2, (t2 = t2 || _)) || e2, t2) ||
+      (function (e3, t3) {
+        throw new Error("Unresolved id: ".concat(e3, " from parentUrl: ").concat(t3));
+      })(e2, t2)
+    );
+  }),
+    (I.prepareImport = function () {
+      return Promise.resolve();
+    }),
+    (I.warmup = function (t2) {
+      var n2 = t2.pathname,
+        r2 = void 0 === n2 ? "/" : n2,
+        i2 = t2.importMap,
+        o2 = t2.importMapUrl,
+        u2 = t2.importMapList,
+        c2 = t2.defaultHandler,
+        l2 = t2.handlers;
+      if (
+        ((_ = "no-schema:".concat(r2)),
+        o2 &&
+          i2 &&
+          (function (e2, t3) {
+            p(e2, t3 || _, L);
+          })(i2, "no-schema:/".concat(o2)),
+        Array.isArray(u2))
+      ) {
+        var s2,
+          f2 = e(u2);
+        try {
+          for (f2.s(); !(s2 = f2.n()).done;) {
+            var a2 = s2.value;
+            A(a2.map, a2.location);
+          }
+        } catch (e2) {
+          f2.e(e2);
+        } finally {
+          f2.f();
+        }
+      }
+      if ((c2 && T("no-schema:", U(c2)), l2))
+        for (var v2 = 0, h2 = Object.keys(l2); v2 < h2.length; v2++) {
+          var d2 = h2[v2];
+          T(d2, U(l2[d2]));
+        }
+    }),
+    (function (e2) {
+      var t2 = ("undefined" != typeof self ? self : global).System;
+      u2(t2);
+      var n2,
+        r2 = t2.constructor.prototype,
+        i2 = t2.constructor,
+        o2 = function () {
+          (i2.call(this), u2(this));
+        };
+      function u2(e3) {
+        e3.registerRegistry = /* @__PURE__ */ Object.create(null);
+      }
+      ((o2.prototype = r2), (t2.constructor = o2));
+      var c2 = r2.register;
+      r2.register = function (e3, t3, r3) {
+        if ("string" != typeof e3) return c2.apply(this, arguments);
+        var i3 = [t3, r3];
+        return (
+          (this.registerRegistry[e3] = i3),
+          n2 ||
+            ((n2 = i3),
+            Promise.resolve().then(function () {
+              n2 = null;
+            })),
+          c2.apply(this, arguments)
+        );
+      };
+      var l2 = r2.resolve;
+      r2.resolve = function (e3, t3) {
+        try {
+          return l2.call(this, e3, t3);
+        } catch (t4) {
+          if (e3 in this.registerRegistry) return e3;
+          throw t4;
+        }
+      };
+      var s2 = r2.instantiate;
+      r2.instantiate = function (e3, t3) {
+        var n3 = this.registerRegistry[e3];
+        return n3 ? ((this.registerRegistry[e3] = null), n3) : s2.call(this, e3, t3);
+      };
+      var f2 = r2.getRegister;
+      r2.getRegister = function () {
+        var e3 = f2.call(this),
+          t3 = n2 || e3;
+        return ((n2 = null), t3);
+      };
+    })());
+})();

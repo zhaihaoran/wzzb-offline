@@ -1,0 +1,9 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+System.register([], function (t) {
+  return {
+    execute: function () {
+      t("default", function () {});
+    },
+  };
+});

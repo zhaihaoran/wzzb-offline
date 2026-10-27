@@ -1,0 +1,96 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var t = require("@babel/runtime/helpers/typeof");
+System.register([], function (e, n) {
+  var i;
+  function o(t2) {
+    return (o =
+      "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+        ? function (t3) {
+            return typeof t3;
+          }
+        : function (t3) {
+            return t3 &&
+              "function" == typeof Symbol &&
+              t3.constructor === Symbol &&
+              t3 !== Symbol.prototype
+              ? "symbol"
+              : typeof t3;
+          })(t2);
+  }
+  function r(e2, n2) {
+    for (var i2 = 0; i2 < n2.length; i2++) {
+      var r2 = n2[i2];
+      ((r2.enumerable = r2.enumerable || false),
+        (r2.configurable = true),
+        "value" in r2 && (r2.writable = true),
+        Object.defineProperty(
+          e2,
+          ((s = r2.key),
+          (u = void 0),
+          (u = (function (t2, e3) {
+            if ("object" !== o(t2) || null === t2) return t2;
+            var n3 = t2[Symbol.toPrimitive];
+            if (void 0 !== n3) {
+              var i3 = n3.call(t2, e3 || "default");
+              if ("object" !== o(i3)) return i3;
+              throw new TypeError("@@toPrimitive must return a primitive value.");
+            }
+            return ("string" === e3 ? String : Number)(t2);
+          })(s, "string")),
+          "symbol" === t(u) ? u : String(u)),
+          r2,
+        ));
+    }
+    var s, u;
+  }
+  return {
+    setters: [],
+    execute: function () {
+      e(
+        "Application",
+        (function () {
+          function t2() {
+            (!(function (t3, e3) {
+              if (!(t3 instanceof e3)) throw new TypeError("Cannot call a class as a function");
+            })(this, t2),
+              (this.settingsPath = "src/settings.365db.json"),
+              (this.showFPS = false));
+          }
+          var e2, n2, o2;
+          return (
+            (e2 = t2),
+            (n2 = [
+              {
+                key: "init",
+                value: function (t3) {
+                  ((i = t3).game.onPostBaseInitDelegate.add(this.onPostInitBase.bind(this)),
+                    i.game.onPostSubsystemInitDelegate.add(this.onPostSystemInit.bind(this)));
+                },
+              },
+              { key: "onPostInitBase", value: function () {} },
+              { key: "onPostSystemInit", value: function () {} },
+              {
+                key: "start",
+                value: function () {
+                  return i.game
+                    .init({
+                      debugMode: i.DebugMode.ERROR,
+                      settingsPath: this.settingsPath,
+                      overrideSettings: { profiling: { showFPS: this.showFPS } },
+                    })
+                    .then(function () {
+                      return i.game.run();
+                    });
+                },
+              },
+            ]) && r(e2.prototype, n2),
+            o2 && r(e2, o2),
+            Object.defineProperty(e2, "prototype", { writable: false }),
+            t2
+          );
+        })(),
+      );
+    },
+  };
+});

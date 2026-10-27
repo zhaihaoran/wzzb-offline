@@ -1,0 +1,1137 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e = require("@babel/runtime/helpers/typeof");
+!(function e2(t, n, i) {
+  function o(r2, c) {
+    if (!n[r2]) {
+      if (!t[r2]) {
+        var s = "function" == typeof require && require;
+        if (!c && s) return s(r2, true);
+        if (a) return a(r2, true);
+        throw (((c = new Error("Cannot find module '" + r2 + "'")).code = "MODULE_NOT_FOUND"), c);
+      }
+      ((s = n[r2] = { exports: {} }),
+        t[r2][0].call(
+          s.exports,
+          function (e3) {
+            return o(t[r2][1][e3] || e3);
+          },
+          s,
+          s.exports,
+          e2,
+          t,
+          n,
+          i,
+        ));
+    }
+    return n[r2].exports;
+  }
+  for (var a = "function" == typeof require && require, r = 0; r < i.length; r++) o(i[r]);
+  return o;
+})(
+  {
+    1: [
+      function (e3, t, n) {
+        var i = e3("./cache-manager"),
+          o = (p = window.fsUtils).fs,
+          a = p.downloadFile,
+          r = p.readText,
+          c = p.readArrayBuffer,
+          s = p.readJson,
+          l = p.loadSubpackage,
+          u = p.getUserDataPath,
+          d = p.exists,
+          h = /^https?:\/\/.*/,
+          f = cc.assetManager.downloader,
+          p = cc.assetManager.parser,
+          m = cc.assetManager.presets,
+          _ =
+            ((f.maxConcurrency = 12),
+            (f.maxRequestsPerFrame = 64),
+            (m.scene.maxConcurrency = 12),
+            (m.scene.maxRequestsPerFrame = 64),
+            {}),
+          v = cc.sys;
+        function y(t2, n2, i2) {
+          h.test(t2)
+            ? i2 && i2(new Error("Can not load remote scripts"))
+            : (v.platform !== v.Platform.TAOBAO_CREATIVE_APP && e3("../../../".concat(t2)),
+              i2 && i2(null));
+        }
+        function g(e4, t2, n2) {
+          cc.AudioPlayer.load(e4)
+            .then(function (t3) {
+              ((t3 = { player: t3, url: e4, duration: t3.duration, type: t3.type }), n2(null, t3));
+            })
+            .catch(function (e5) {
+              n2(e5);
+            });
+        }
+        function b(e4, t2, n2, o2, r2) {
+          var c2,
+            s2,
+            l2,
+            d2,
+            f2 =
+              ((s2 = n2),
+              (l2 = false),
+              (d2 = false),
+              !(c2 = e4).startsWith(u()) && h.test(c2)
+                ? s2.reload ||
+                  ((s2 = i.cachedFiles.get(c2))
+                    ? ((d2 = true), (c2 = s2.url))
+                    : (s2 = i.tempFiles.get(c2)) && ((l2 = true), (c2 = s2)))
+                : (l2 = true),
+              { url: c2, inLocal: l2, inCache: d2 });
+          f2.inLocal
+            ? t2(f2.url, n2, r2)
+            : f2.inCache
+              ? (i.updateLastTime(e4),
+                t2(f2.url, n2, function (t3, n3) {
+                  (t3 && i.removeCache(e4), r2(t3, n3));
+                }))
+              : a(e4, null, n2.header, o2, function (o3, a2) {
+                  o3
+                    ? r2(o3, null)
+                    : t2(a2, n2, function (t3, o4) {
+                        (t3 ||
+                          (i.tempFiles.add(e4, a2),
+                          i.cacheFile(e4, a2, n2.cacheEnabled, n2.__cacheBundleRoot__, true)),
+                          r2(t3, o4));
+                      });
+                });
+        }
+        function w(e4, t2, n2) {
+          c(e4, n2);
+        }
+        function E(e4, t2, n2) {
+          r(e4, n2);
+        }
+        function T(e4, t2, n2) {
+          s(e4, n2);
+        }
+        function x(e4, t2, n2) {
+          b(e4, T, t2, t2.onFileProgress, n2);
+        }
+        function P(e4, t2, n2) {
+          n2(null, __globalAdapter.loadFont(e4) || "Arial");
+        }
+        function F(e4, t2, n2) {
+          d(e4, function (t3) {
+            t3 ? n2(null, e4) : n2(new Error("file ".concat(e4, " does not exist!")));
+          });
+        }
+        function C(e4, t2, n2) {
+          b(e4, F, t2, t2.onFileProgress, n2);
+        }
+        function A(e4, t2, n2) {
+          c(e4, function (e5, i2) {
+            if (e5) return n2(e5);
+            M(i2, t2, n2);
+          });
+        }
+        function k(e4, t2, n2) {
+          c(e4, function (e5, i2) {
+            if (e5) return n2(e5);
+            S(i2, t2, n2);
+          });
+        }
+        function O(e4, t2, n2) {
+          c(e4, function (e5, i2) {
+            if (e5) return n2(e5);
+            D(i2, t2, n2);
+          });
+        }
+        function I(e4, t2, n2) {
+          r(e4, function (e5, i2) {
+            if (e5) return n2(e5);
+            B(i2, t2, n2);
+          });
+        }
+        (v.platform === v.Platform.BAIDU_MINI_GAME && (e3 = __baiduRequire),
+          v.platform === v.Platform.TAOBAO_MINI_GAME && (e3 = globalThis.__taobaoRequire));
+        var M = p.parsePVRTex,
+          S = p.parsePKMTex,
+          D = p.parseASTCTex,
+          B = p.parsePlist;
+        ((f.downloadScript = y),
+          (f._downloadArrayBuffer = function (e4, t2, n2) {
+            b(e4, w, t2, t2.onFileProgress, n2);
+          }),
+          (f._downloadJson = x),
+          (p.parsePVRTex = A),
+          (p.parsePKMTex = k),
+          (p.parseASTCTex = O),
+          (p.parsePlist = I),
+          f.register({
+            ".js": y,
+            ".mp3": C,
+            ".ogg": C,
+            ".wav": C,
+            ".m4a": C,
+            ".png": C,
+            ".jpg": C,
+            ".bmp": C,
+            ".jpeg": C,
+            ".gif": C,
+            ".ico": C,
+            ".tiff": C,
+            ".image": C,
+            ".webp": C,
+            ".pvr": C,
+            ".pkm": C,
+            ".astc": C,
+            ".font": C,
+            ".eot": C,
+            ".ttf": C,
+            ".woff": C,
+            ".svg": C,
+            ".ttc": C,
+            ".txt": C,
+            ".xml": C,
+            ".vsh": C,
+            ".fsh": C,
+            ".atlas": C,
+            ".tmx": C,
+            ".tsx": C,
+            ".plist": C,
+            ".fnt": C,
+            ".json": x,
+            ".ExportJson": C,
+            ".binary": C,
+            ".bin": C,
+            ".dbbin": C,
+            ".skel": C,
+            ".mp4": C,
+            ".avi": C,
+            ".mov": C,
+            ".mpg": C,
+            ".mpeg": C,
+            ".rm": C,
+            ".rmvb": C,
+            bundle: function (t2, n2, r2) {
+              var c2,
+                s2,
+                d2,
+                p2 = cc.path.basename(t2),
+                m2 = (m2 = n2.version || cc.assetManager.downloader.bundleVers[p2])
+                  ? "".concat(m2, ".")
+                  : "";
+              _[p2]
+                ? ((c2 = (v.platform === v.Platform.TAOBAO_MINI_GAME ? "" : "subpackages/")
+                    .concat(p2, "/config.")
+                    .concat(m2, "json")),
+                  l(p2, n2.onFileProgress, function (e4) {
+                    e4
+                      ? r2(e4, null)
+                      : x(c2, n2, function (e5, t3) {
+                          var n3;
+                          ((n3 = t3) &&
+                            (v.platform === v.Platform.TAOBAO_MINI_GAME
+                              ? (n3.base = "".concat(p2, "/"))
+                              : (n3.base = "subpackages/".concat(p2, "/"))),
+                            r2(e5, t3));
+                        });
+                  }))
+                : (h.test(t2) || t2.startsWith(u())
+                    ? ((d2 = t2),
+                      (s2 = "src/bundle-scripts/".concat(p2, "/index.").concat(m2, "js")),
+                      i.makeBundleFolder(p2))
+                    : -1 !== f.remoteBundles.indexOf(p2)
+                      ? ((d2 = "".concat(f.remoteServerAddress, "remote/").concat(p2)),
+                        (s2 = "src/bundle-scripts/".concat(p2, "/index.").concat(m2, "js")),
+                        i.makeBundleFolder(p2))
+                      : ((d2 = "assets/".concat(p2)),
+                        (s2 = "assets/".concat(p2, "/index.").concat(m2, "js"))),
+                  v.platform === v.Platform.TAOBAO_MINI_GAME
+                    ? e3(s2)
+                    : v.platform !== v.Platform.TAOBAO_CREATIVE_APP && e3("./".concat(s2)),
+                  (n2.__cacheBundleRoot__ = p2),
+                  x("".concat(d2, "/config.").concat(m2, "json"), n2, function (e4, t3) {
+                    var c3, s3, l2;
+                    e4
+                      ? r2 && r2(e4)
+                      : t3.isZip
+                        ? ((e4 = t3.zipVersion),
+                          (e4 = "".concat(d2, "/res.").concat(e4 ? "".concat(e4, ".") : "", "zip")),
+                          (c3 = e4),
+                          (s3 = n2),
+                          (l2 = function (e5, n3) {
+                            e5
+                              ? r2 && r2(e5)
+                              : ((t3.base = "".concat(n3, "/res/")),
+                                v.platform === v.Platform.ALIPAY_MINI_GAME &&
+                                  v.os === v.OS.ANDROID &&
+                                  ((e5 = "".concat(n3, "res/")),
+                                  o.accessSync({ path: e5 }).success) &&
+                                  (t3.base = e5),
+                                r2 && r2(null, t3));
+                          }),
+                          (e4 = i.cachedFiles.get(c3))
+                            ? (i.updateLastTime(c3), l2 && l2(null, e4.url))
+                            : h.test(c3)
+                              ? a(c3, null, s3.header, s3.onFileProgress, function (e5, t4) {
+                                  e5
+                                    ? l2 && l2(e5)
+                                    : i.unzipAndCacheBundle(c3, t4, s3.__cacheBundleRoot__, l2);
+                                })
+                              : i.unzipAndCacheBundle(c3, c3, s3.__cacheBundleRoot__, l2))
+                        : ((t3.base = "".concat(d2, "/")), r2 && r2(null, t3));
+                  }));
+            },
+            default: function (e4, t2, n2) {
+              b(e4, E, t2, t2.onFileProgress, n2);
+            },
+          }),
+          p.register({
+            ".png": f.downloadDomImage,
+            ".jpg": f.downloadDomImage,
+            ".bmp": f.downloadDomImage,
+            ".jpeg": f.downloadDomImage,
+            ".gif": f.downloadDomImage,
+            ".ico": f.downloadDomImage,
+            ".tiff": f.downloadDomImage,
+            ".image": f.downloadDomImage,
+            ".webp": f.downloadDomImage,
+            ".pvr": A,
+            ".pkm": k,
+            ".astc": O,
+            ".font": P,
+            ".eot": P,
+            ".ttf": P,
+            ".woff": P,
+            ".svg": P,
+            ".ttc": P,
+            ".mp3": g,
+            ".ogg": g,
+            ".wav": g,
+            ".m4a": g,
+            ".txt": E,
+            ".xml": E,
+            ".vsh": E,
+            ".fsh": E,
+            ".atlas": E,
+            ".tmx": E,
+            ".tsx": E,
+            ".fnt": E,
+            ".plist": I,
+            ".binary": w,
+            ".bin": w,
+            ".dbbin": w,
+            ".skel": w,
+            ".ExportJson": T,
+          }),
+          cc.assetManager.transformPipeline.append(function (e4) {
+            for (var t2 = (e4.output = e4.input), n2 = 0, i2 = t2.length; n2 < i2; n2++) {
+              var o2 = t2[n2],
+                a2 = o2.options;
+              if (o2.config) a2.__cacheBundleRoot__ = o2.config.name;
+              else {
+                if ("bundle" === o2.ext) continue;
+                a2.cacheEnabled = void 0 !== a2.cacheEnabled && a2.cacheEnabled;
+              }
+              ".cconb" === o2.ext
+                ? (o2.url = o2.url.replace(o2.ext, ".bin"))
+                : ".ccon" === o2.ext && (o2.url = o2.url.replace(o2.ext, ".json"));
+            }
+          }));
+        var K = cc.assetManager.init;
+        cc.assetManager.init = function (e4) {
+          (K.call(cc.assetManager, e4),
+            (e4 = cc.settings.querySettings("assets", "subpackages")) &&
+              e4.forEach(function (e5) {
+                return (_[e5] = "subpackages/".concat(e5));
+              }),
+            i.init());
+        };
+      },
+      { "./cache-manager": 3 },
+    ],
+    2: [
+      function (e3, t, n) {
+        function i() {
+          ((this._delegate = null),
+            (this._editing = false),
+            (this._eventListeners = {
+              onKeyboardInput: null,
+              onKeyboardConfirm: null,
+              onKeyboardComplete: null,
+            }));
+        }
+        var o, a, r, c;
+        cc &&
+          cc.internal &&
+          cc.internal.EditBox &&
+          ((o = cc.internal.EditBox),
+          (a = o.KeyboardReturnType),
+          (c = r = null),
+          cc.js.extend(i, o._EditBoxImpl),
+          (o._EditBoxImpl = i),
+          Object.assign(i.prototype, {
+            init: function (e4) {
+              e4 ? (this._delegate = e4) : cc.error("EditBox init failed");
+            },
+            beginEditing: function () {
+              var e4 = this;
+              this._editing ||
+                this._ensureKeyboardHide(function () {
+                  var t2 = e4._delegate;
+                  (e4._showKeyboard(),
+                    e4._registerKeyboardEvent(),
+                    (e4._editing = true),
+                    (c = e4),
+                    t2._editBoxEditingDidBegan());
+                });
+            },
+            endEditing: function () {
+              this._hideKeyboard();
+              var e4 = this._eventListeners;
+              e4.onKeyboardComplete && e4.onKeyboardComplete();
+            },
+            _registerKeyboardEvent: function () {
+              var e4 = this,
+                t2 = this._delegate,
+                n2 = this._eventListeners;
+              ((n2.onKeyboardInput = function (e5) {
+                t2._string !== e5.value && t2._editBoxTextChanged(e5.value);
+              }),
+                (n2.onKeyboardConfirm = function (n3) {
+                  n3 && n3.value ? t2._editBoxEditingReturn(n3.value) : t2._editBoxEditingReturn();
+                  var i2 = e4._eventListeners;
+                  i2.onKeyboardComplete && i2.onKeyboardComplete(n3);
+                }),
+                (n2.onKeyboardComplete = function (n3) {
+                  ((e4._editing = false),
+                    (c = null),
+                    cc.sys.platform !== cc.sys.Platform.WECHAT_MINI_PROGRAM &&
+                      e4._unregisterKeyboardEvent(),
+                    n3 && n3.value && n3.value !== t2.string && t2._editBoxTextChanged(n3.value),
+                    n3 && n3.value
+                      ? t2._editBoxEditingDidEnded(n3.value)
+                      : t2._editBoxEditingDidEnded());
+                }),
+                __globalAdapter.onKeyboardInput(n2.onKeyboardInput),
+                __globalAdapter.onKeyboardConfirm(n2.onKeyboardConfirm),
+                __globalAdapter.onKeyboardComplete(n2.onKeyboardComplete));
+            },
+            _unregisterKeyboardEvent: function () {
+              var e4 = this._eventListeners;
+              (e4.onKeyboardInput &&
+                (__globalAdapter.offKeyboardInput(e4.onKeyboardInput), (e4.onKeyboardInput = null)),
+                e4.onKeyboardConfirm &&
+                  (__globalAdapter.offKeyboardConfirm(e4.onKeyboardConfirm),
+                  (e4.onKeyboardConfirm = null)),
+                e4.onKeyboardComplete &&
+                  (__globalAdapter.offKeyboardComplete(e4.onKeyboardComplete),
+                  (e4.onKeyboardComplete = null)));
+            },
+            _otherEditing: function () {
+              return !!c && c !== this && c._editing;
+            },
+            _ensureKeyboardHide: function (e4) {
+              var t2 = this._otherEditing();
+              if (!t2 && !r) return e4();
+              (r && clearTimeout(r),
+                t2 && c.endEditing(),
+                (r = setTimeout(function () {
+                  ((r = null), e4());
+                }, 600)));
+            },
+            _showKeyboard: function () {
+              var e4 = this._delegate,
+                t2 = e4.inputMode === o.InputMode.ANY;
+              __globalAdapter.showKeyboard({
+                defaultValue: e4.string,
+                maxLength: e4.maxLength < 0 ? 65535 : e4.maxLength,
+                multiple: t2,
+                confirmHold: false,
+                confirmType: (function (e5) {
+                  switch (e5) {
+                    case a.DEFAULT:
+                    case a.DONE:
+                      return "done";
+                    case a.SEND:
+                      return "send";
+                    case a.SEARCH:
+                      return "search";
+                    case a.GO:
+                      return "go";
+                    case a.NEXT:
+                      return "next";
+                  }
+                  return "done";
+                })(e4.returnType),
+                success: function (e5) {},
+                fail: function (e5) {
+                  cc.warn(e5.errMsg);
+                },
+              });
+            },
+            _hideKeyboard: function () {
+              __globalAdapter.hideKeyboard({
+                success: function (e4) {},
+                fail: function (e4) {
+                  cc.warn(e4.errMsg);
+                },
+              });
+            },
+          }));
+      },
+      {},
+    ],
+    3: [
+      function (e3, t, n) {
+        var i = window.fsUtils,
+          o = i.getUserDataPath,
+          a = i.readJsonSync,
+          r = i.makeDirSync,
+          c = i.writeFileSync,
+          s = i.copyFile,
+          l = i.downloadFile,
+          u = i.deleteFile,
+          d = i.rmdirSync,
+          h = i.unzip,
+          f = i.isOutOfStorage,
+          p = false,
+          m = null,
+          _ = false,
+          v = 0,
+          y = /^https?:\/\/.*/;
+        cc.assetManager.cacheManager = t.exports = {
+          cacheDir: "gamecaches",
+          cachedFileName: "cacheList.json",
+          cacheEnabled: true,
+          autoClear: true,
+          cacheInterval: 500,
+          deleteInterval: 500,
+          writeFileInterval: 2e3,
+          outOfStorage: false,
+          tempFiles: null,
+          cachedFiles: null,
+          cacheQueue: {},
+          version: "1.0",
+          getCache: function (e4) {
+            return this.cachedFiles.has(e4) ? this.cachedFiles.get(e4).url : "";
+          },
+          getTemp: function (e4) {
+            return this.tempFiles.has(e4) ? this.tempFiles.get(e4) : "";
+          },
+          init: function () {
+            this.cacheDir = o() + "/" + this.cacheDir;
+            var e4 = this.cacheDir + "/" + this.cachedFileName,
+              t2 = a(e4);
+            (t2 instanceof Error || !t2.version
+              ? (t2 instanceof Error || d(this.cacheDir, true),
+                (this.cachedFiles = new cc.AssetManager.Cache()),
+                r(this.cacheDir, true),
+                c(
+                  e4,
+                  JSON.stringify({ files: this.cachedFiles._map, version: this.version }),
+                  "utf8",
+                ))
+              : (this.cachedFiles = new cc.AssetManager.Cache(t2.files)),
+              (this.tempFiles = new cc.AssetManager.Cache()));
+          },
+          updateLastTime: function (e4) {
+            this.cachedFiles.has(e4) && (this.cachedFiles.get(e4).lastTime = Date.now());
+          },
+          _write: function () {
+            ((m = null),
+              c(
+                this.cacheDir + "/" + this.cachedFileName,
+                JSON.stringify({ files: this.cachedFiles._map, version: this.version }),
+                "utf8",
+              ));
+          },
+          writeCacheFile: function () {
+            m = m || setTimeout(this._write.bind(this), this.writeFileInterval);
+          },
+          _cache: function () {
+            p = false;
+            var e4,
+              t2,
+              n2,
+              i2,
+              o2,
+              a2,
+              r2,
+              c2 = this,
+              u2 = "";
+            for (e4 in this.cacheQueue) {
+              u2 = e4;
+              break;
+            }
+            function d2(e5) {
+              if (e5) {
+                if (f(e5.message))
+                  return ((c2.outOfStorage = true), void (c2.autoClear && c2.clearLRU()));
+              } else
+                (c2.cachedFiles.add(u2, { bundle: o2, url: r2, lastTime: a2 }),
+                  c2.writeCacheFile());
+              (delete c2.cacheQueue[u2],
+                cc.js.isEmptyObject(c2.cacheQueue) ||
+                  p ||
+                  ((p = true), setTimeout(c2._cache.bind(c2), c2.cacheInterval)));
+            }
+            u2 &&
+              ((n2 = (t2 = this.cacheQueue[u2]).srcUrl),
+              (i2 = t2.isCopy),
+              (o2 = t2.cacheBundleRoot),
+              (a2 = Date.now().toString()),
+              (r2 = ""),
+              (r2 = (
+                o2 ? "".concat(this.cacheDir, "/").concat(o2, "/") : "".concat(this.cacheDir, "/")
+              )
+                .concat(a2)
+                .concat(v++)
+                .concat(cc.path.extname(u2))),
+              i2 ? s(n2, r2, d2) : l(n2, r2, null, d2));
+          },
+          cacheFile: function (e4, t2, n2, i2, o2) {
+            !(n2 = void 0 !== n2 ? n2 : this.cacheEnabled) ||
+              this.cacheQueue[e4] ||
+              this.cachedFiles.has(e4) ||
+              ((this.cacheQueue[e4] = { srcUrl: t2, cacheBundleRoot: i2, isCopy: o2 }), p) ||
+              this.outOfStorage ||
+              ((p = true), setTimeout(this._cache.bind(this), this.cacheInterval));
+          },
+          clearCache: function () {
+            var e4 = this;
+            (d(this.cacheDir, true),
+              (this.cachedFiles = new cc.AssetManager.Cache()),
+              r(this.cacheDir, true),
+              (this.outOfStorage = false),
+              clearTimeout(m),
+              this._write(),
+              cc.assetManager.bundles.forEach(function (t2) {
+                y.test(t2.base) && e4.makeBundleFolder(t2.name);
+              }));
+          },
+          clearLRU: function () {
+            if (!_) {
+              _ = true;
+              var e4 = [],
+                t2 = this;
+              if (
+                (this.cachedFiles.forEach(function (n3, i3) {
+                  (t2._isZipFile(i3) &&
+                    cc.assetManager.bundles.find(function (e5) {
+                      return -1 !== e5.base.indexOf(n3.url);
+                    })) ||
+                    e4.push({ originUrl: i3, url: n3.url, lastTime: n3.lastTime });
+                }),
+                e4.sort(function (e5, t3) {
+                  return e5.lastTime - t3.lastTime;
+                }),
+                (e4.length = Math.floor(e4.length / 3)),
+                0 !== e4.length)
+              ) {
+                for (var n2 = 0, i2 = e4.length; n2 < i2; n2++) {
+                  var o2 = cc.assetManager.utils.getUuidFromURL(e4[n2].originUrl) + "@native";
+                  (cc.assetManager._files.remove(o2), this.cachedFiles.remove(e4[n2].originUrl));
+                }
+                (clearTimeout(m),
+                  this._write(),
+                  setTimeout(function n3() {
+                    var i3 = e4.pop();
+                    (t2._isZipFile(i3.originUrl)
+                      ? (d(i3.url, true), t2._deleteFileCB())
+                      : u(i3.url, t2._deleteFileCB.bind(t2)),
+                      0 < e4.length ? setTimeout(n3, t2.deleteInterval) : (_ = false));
+                  }, t2.deleteInterval));
+              }
+            }
+          },
+          removeCache: function (e4) {
+            var t2;
+            this.cachedFiles.has(e4) &&
+              ((t2 = this.cachedFiles.remove(e4).url),
+              clearTimeout(m),
+              this._write(),
+              this._isZipFile(e4)
+                ? (d(t2, true), this._deleteFileCB())
+                : u(t2, this._deleteFileCB.bind(this)));
+          },
+          _deleteFileCB: function (e4) {
+            e4 || (this.outOfStorage = false);
+          },
+          makeBundleFolder: function (e4) {
+            r(this.cacheDir + "/" + e4, true);
+          },
+          unzipAndCacheBundle: function (e4, t2, n2, i2) {
+            var o2 = Date.now().toString(),
+              a2 = "".concat(this.cacheDir, "/").concat(n2, "/").concat(o2).concat(v++),
+              c2 = this;
+            (r(a2, true),
+              h(t2, a2, function (t3) {
+                t3
+                  ? (d(a2, true),
+                    f(t3.message) && ((c2.outOfStorage = true), c2.autoClear) && c2.clearLRU(),
+                    i2 && i2(t3))
+                  : (c2.cachedFiles.add(e4, { bundle: n2, url: a2, lastTime: o2 }),
+                    c2.writeCacheFile(),
+                    i2 && i2(null, a2));
+              }));
+          },
+          _isZipFile: function (e4) {
+            return ".zip" === e4.slice(-4);
+          },
+        };
+      },
+      {},
+    ],
+    4: [
+      function (e3, t, n) {
+        (e3("./Editbox"), e3("./AssetManager"));
+      },
+      { "./AssetManager": 1, "./Editbox": 2 },
+    ],
+    5: [
+      function (t, n, i) {
+        function o(t2) {
+          return (o =
+            "function" == typeof Symbol && "symbol" == e(Symbol.iterator)
+              ? function (t3) {
+                  return e(t3);
+                }
+              : function (t3) {
+                  return t3 &&
+                    "function" == typeof Symbol &&
+                    t3.constructor === Symbol &&
+                    t3 !== Symbol.prototype
+                    ? "symbol"
+                    : e(t3);
+                })(t2);
+        }
+        function a(e3, t2) {
+          for (var n2 = 0; n2 < t2.length; n2++) {
+            var i2 = t2[n2];
+            ((i2.enumerable = i2.enumerable || false),
+              (i2.configurable = true),
+              "value" in i2 && (i2.writable = true),
+              Object.defineProperty(
+                e3,
+                ((a2 = (function (e4, t3) {
+                  if ("object" != o(e4) || !e4) return e4;
+                  var n3 = e4[Symbol.toPrimitive];
+                  if (void 0 === n3) return String(e4);
+                  if ("object" != o((n3 = n3.call(e4, t3)))) return n3;
+                  throw new TypeError("@@toPrimitive must return a primitive value.");
+                })((a2 = i2.key), "string")),
+                "symbol" == o(a2) ? a2 : a2 + ""),
+                i2,
+              ));
+          }
+          var a2;
+        }
+        function r(e3, t2, n2) {
+          t2 = c(t2);
+          var i2 = e3;
+          if (
+            !(t2 = (function () {
+              try {
+                var e4 = !Boolean.prototype.valueOf.call(
+                  Reflect.construct(Boolean, [], function () {}),
+                );
+              } catch (e5) {}
+              return /* @__PURE__ */ (function () {
+                return !!e4;
+              })();
+            })()
+              ? Reflect.construct(t2, n2 || [], c(e3).constructor)
+              : t2.apply(e3, n2)) ||
+            ("object" != o(t2) && "function" != typeof t2)
+          ) {
+            if (void 0 !== t2)
+              throw new TypeError("Derived constructors may only return object or undefined");
+            if (void 0 === (t2 = i2))
+              throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+          }
+          return t2;
+        }
+        function c(e3) {
+          return (c = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function (e4) {
+                return e4.__proto__ || Object.getPrototypeOf(e4);
+              })(e3);
+        }
+        function s(e3, t2) {
+          return (s = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function (e4, t3) {
+                return ((e4.__proto__ = t3), e4);
+              })(e3, t2);
+        }
+        var l, u, d, h, f, p, m;
+        cc.internal.VideoPlayer &&
+          ((l = cc.internal.VideoPlayer.EventType),
+          (u = cc.Vec3),
+          (d = cc.mat4()),
+          (h = new u()),
+          (f = new u()),
+          (p = wx.getSystemInfoSync().pixelRatio),
+          (cc.internal.VideoPlayerImplManager.getImpl = function (e3) {
+            return new m(e3);
+          }),
+          (m = (function (e3) {
+            function t2(e4) {
+              if (this instanceof t2) return r(this, t2, [e4]);
+              throw new TypeError("Cannot call a class as a function");
+            }
+            var n2 = t2;
+            if ("function" != typeof e3 && null !== e3)
+              throw new TypeError("Super expression must either be null or a function");
+            return (
+              (n2.prototype = Object.create(e3 && e3.prototype, {
+                constructor: { value: n2, writable: true, configurable: true },
+              })),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              e3 && s(n2, e3),
+              (n2 = t2),
+              (e3 = [
+                {
+                  key: "syncClip",
+                  value: function (e4) {
+                    (this.removeVideoPlayer(), e4 && this.createVideoPlayer(e4._nativeAsset));
+                  },
+                },
+                {
+                  key: "syncURL",
+                  value: function (e4) {
+                    (this.removeVideoPlayer(), e4 && this.createVideoPlayer(e4));
+                  },
+                },
+                {
+                  key: "onCanplay",
+                  value: function () {
+                    this._loaded ||
+                      ((this._loaded = true),
+                      this.setVisible(this._visible),
+                      this.dispatchEvent(l.READY_TO_PLAY),
+                      this.delayedPlay());
+                  },
+                },
+                {
+                  key: "_bindEvent",
+                  value: function () {
+                    var e4 = this._video,
+                      t3 = this;
+                    e4 &&
+                      (e4.onPlay(function () {
+                        t3._video === e4 && ((t3._playing = true), t3.dispatchEvent(l.PLAYING));
+                      }),
+                      e4.onEnded(function () {
+                        t3._video === e4 &&
+                          ((t3._playing = false),
+                          (t3._currentTime = t3._duration),
+                          t3.dispatchEvent(l.COMPLETED));
+                      }),
+                      e4.onPause(function () {
+                        t3._video === e4 && ((t3._playing = false), t3.dispatchEvent(l.PAUSED));
+                      }),
+                      e4.onTimeUpdate(function (e5) {
+                        ((t3._duration = e5.duration), (t3._currentTime = e5.position));
+                      }));
+                  },
+                },
+                {
+                  key: "_unbindEvent",
+                  value: function () {
+                    var e4 = this._video;
+                    e4 && (e4.offPlay(), e4.offEnded(), e4.offPause(), e4.offTimeUpdate());
+                  },
+                },
+                {
+                  key: "createVideoPlayer",
+                  value: function (e4) {
+                    __globalAdapter.createVideo
+                      ? (this._video ||
+                          ((this._video = __globalAdapter.createVideo()),
+                          (this._video.showCenterPlayBtn = false),
+                          (this._video.controls = false),
+                          (this._duration = 0),
+                          (this._currentTime = 0),
+                          (this._loaded = false),
+                          this.setVisible(this._visible),
+                          this._bindEvent(),
+                          (this._forceUpdate = true)),
+                        this.setURL(e4),
+                        (this._forceUpdate = true))
+                      : console.warn("VideoPlayer not supported");
+                  },
+                },
+                {
+                  key: "setURL",
+                  value: function (e4) {
+                    var t3,
+                      n3 = this._video;
+                    n3 &&
+                      n3.src !== e4 &&
+                      (n3.stop(),
+                      this._unbindEvent(),
+                      (n3.autoplay = true),
+                      (n3.src = e4),
+                      (n3.muted = true),
+                      ((t3 = this)._loaded = false),
+                      n3.onPlay(function () {
+                        (n3.offPlay(),
+                          t3._bindEvent(),
+                          n3.stop(),
+                          (n3.muted = false),
+                          (t3._loaded = true),
+                          (t3._playing = false),
+                          (t3._currentTime = 0),
+                          t3.dispatchEvent(l.READY_TO_PLAY),
+                          (n3.autoplay = false));
+                      }));
+                  },
+                },
+                {
+                  key: "removeVideoPlayer",
+                  value: function () {
+                    var e4 = this.video;
+                    e4 &&
+                      (e4.stop(),
+                      e4.destroy(),
+                      (this._playing = false),
+                      (this._loaded = false),
+                      (this._loadedMeta = false),
+                      (this._ignorePause = false),
+                      (this._cachedCurrentTime = 0),
+                      (this._video = null));
+                  },
+                },
+                {
+                  key: "setVisible",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 &&
+                      this._visible !== e4 &&
+                      ((t3.width = (e4 && this._actualWidth) || 0), (this._visible = e4));
+                  },
+                },
+                {
+                  key: "getDuration",
+                  value: function () {
+                    return this.duration();
+                  },
+                },
+                {
+                  key: "duration",
+                  value: function () {
+                    return this._duration;
+                  },
+                },
+                {
+                  key: "syncPlaybackRate",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 &&
+                      e4 !== t3.playbackRate &&
+                      ((0.5 === e4) | (0.8 === e4) | (1 === e4) | (1.25 === e4) | (1.5 === e4)
+                        ? (t3.playbackRate = e4)
+                        : console.warn("The platform does not support this PlaybackRate!"));
+                  },
+                },
+                {
+                  key: "syncVolume",
+                  value: function () {
+                    console.warn("The platform does not support");
+                  },
+                },
+                {
+                  key: "syncMute",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 && t3.muted !== e4 && (t3.muted = e4);
+                  },
+                },
+                {
+                  key: "syncLoop",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 && t3.loop !== e4 && (t3.loop = e4);
+                  },
+                },
+                {
+                  key: "syncStayOnBottom",
+                  value: function () {
+                    console.warn("The platform does not support");
+                  },
+                },
+                {
+                  key: "getCurrentTime",
+                  value: function () {
+                    return this.video ? this.currentTime() : -1;
+                  },
+                },
+                {
+                  key: "currentTime",
+                  value: function () {
+                    return this._currentTime;
+                  },
+                },
+                {
+                  key: "seekTo",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 && this._loaded && t3.seek(e4);
+                  },
+                },
+                {
+                  key: "disable",
+                  value: function (e4) {
+                    this._video &&
+                      (e4 || this._video.pause(), this.setVisible(false), (this._visible = false));
+                  },
+                },
+                {
+                  key: "enable",
+                  value: function () {
+                    this._video && (this.setVisible(true), (this._visible = true));
+                  },
+                },
+                {
+                  key: "canPlay",
+                  value: function () {
+                    (this._video.play(), this.syncCurrentTime());
+                  },
+                },
+                {
+                  key: "resume",
+                  value: function () {
+                    var e4 = this._video;
+                    !this._playing && e4 && e4.play();
+                  },
+                },
+                {
+                  key: "pause",
+                  value: function () {
+                    var e4 = this._video;
+                    this._playing && e4 && e4.pause();
+                  },
+                },
+                {
+                  key: "stop",
+                  value: function () {
+                    var e4 = this,
+                      t3 = this._video;
+                    t3 &&
+                      this._visible &&
+                      (this._playing || t3.play(),
+                      t3.stop().then(function (t4) {
+                        t4.errMsg && !t4.errMsg.includes("ok")
+                          ? console.error("failed to stop video player")
+                          : ((e4._currentTime = 0),
+                            (e4._playing = false),
+                            e4.dispatchEvent(l.STOPPED));
+                      }));
+                  },
+                },
+                {
+                  key: "canFullScreen",
+                  value: function (e4) {
+                    this._video && this.setFullScreenEnabled(e4);
+                  },
+                },
+                {
+                  key: "setFullScreenEnabled",
+                  value: function (e4) {
+                    var t3 = this._video;
+                    t3 &&
+                      this._fullScreenEnabled !== e4 &&
+                      (e4 ? t3.requestFullScreen() : t3.exitFullScreen(),
+                      (this._fullScreenEnabled = e4));
+                  },
+                },
+                {
+                  key: "syncKeepAspectRatio",
+                  value: function (e4) {
+                    console.warn("On wechat game videoPlayer is always keep the aspect ratio");
+                  },
+                },
+                {
+                  key: "syncMatrix",
+                  value: function () {
+                    var e4, t3, n3;
+                    this._video &&
+                      this._component &&
+                      this._uiTrans &&
+                      (n3 = this.UICamera) &&
+                      (this._component.node.getWorldMatrix(d),
+                      (e4 = (t3 = this._uiTrans.contentSize).width),
+                      (t3 = t3.height),
+                      (!this._forceUpdate &&
+                        this._m00 === d.m00 &&
+                        this._m01 === d.m01 &&
+                        this._m04 === d.m04 &&
+                        this._m05 === d.m05 &&
+                        this._m12 === d.m12 &&
+                        this._m13 === d.m13 &&
+                        this._w === e4 &&
+                        this._h === t3) ||
+                        ((this._m00 = d.m00),
+                        (this._m01 = d.m01),
+                        (this._m04 = d.m04),
+                        (this._m05 = d.m05),
+                        (this._m12 = d.m12),
+                        (this._m13 = d.m13),
+                        (this._w = e4),
+                        (this._h = t3),
+                        cc.game.canvas.width,
+                        (e4 = cc.game.canvas.height),
+                        (t3 = this._uiTrans.anchorPoint),
+                        u.set(h, -t3.x * this._w, (1 - t3.y) * this._h, 0),
+                        u.set(f, (1 - t3.x) * this._w, -t3.y * this._h, 0),
+                        u.transformMat4(h, h, d),
+                        u.transformMat4(f, f, d),
+                        n3.worldToScreen(h, h),
+                        n3.worldToScreen(f, f),
+                        (t3 = f.x - h.x),
+                        (n3 = h.y - f.y),
+                        (this._video.x = h.x / p),
+                        (this._video.y = (e4 - h.y) / p),
+                        (this._actualWidth = this._video.width = t3 / p),
+                        (this._video.height = n3 / p),
+                        (this._forceUpdate = false)));
+                  },
+                },
+              ]) && a(n2.prototype, e3),
+              Object.defineProperty(n2, "prototype", { writable: false }),
+              n2
+            );
+          })(cc.internal.VideoPlayerImpl)));
+      },
+      {},
+    ],
+    6: [
+      function (e3, t, n) {
+        (e3("../../../../common/engine/index"), e3("./VideoPlayer"), e3("./sprite-frame"));
+      },
+      { "../../../../common/engine/index": 4, "./VideoPlayer": 5, "./sprite-frame": 7 },
+    ],
+    7: [
+      function (e3, t, n) {
+        cc.SpriteFrame &&
+          (cc.SpriteFrame.prototype._checkPackable = function () {
+            var e4,
+              t2,
+              n2,
+              i = cc.internal.dynamicAtlasManager;
+            i &&
+              (!((e4 = this._texture) instanceof cc.Texture2D) ||
+              e4.isCompressed ||
+              ((t2 = this.width), (n2 = this.height), !e4.image) ||
+              t2 > i.maxFrameSize ||
+              n2 > i.maxFrameSize
+                ? (this._packable = false)
+                : e4.image && e4.image.getContext && (this._packable = true));
+          });
+      },
+      {},
+    ],
+  },
+  {},
+  [6],
+);

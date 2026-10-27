@@ -1,0 +1,590 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var t = require("../@babel/runtime/helpers/typeof");
+!(function (t2) {
+  "function" == typeof define && define.amd ? define(t2) : t2();
+})(function () {
+  var n,
+    e,
+    r =
+      "undefined" != typeof globalThis
+        ? globalThis
+        : "undefined" != typeof window
+          ? window
+          : "undefined" != typeof global
+            ? global
+            : "undefined" != typeof self
+              ? self
+              : {},
+    o =
+      ((n = { exports: {} }),
+      (function (n2) {
+        var e2 = {};
+        function r2(t2) {
+          if (e2[t2]) return e2[t2].exports;
+          var o2 = (e2[t2] = { i: t2, l: false, exports: {} });
+          return (n2[t2].call(o2.exports, o2, o2.exports, r2), (o2.l = true), o2.exports);
+        }
+        ((r2.m = n2),
+          (r2.c = e2),
+          (r2.d = function (t2, n3, e3) {
+            r2.o(t2, n3) || Object.defineProperty(t2, n3, { enumerable: true, get: e3 });
+          }),
+          (r2.r = function (t2) {
+            ("undefined" != typeof Symbol &&
+              Symbol.toStringTag &&
+              Object.defineProperty(t2, Symbol.toStringTag, { value: "Module" }),
+              Object.defineProperty(t2, "__esModule", { value: true }));
+          }),
+          (r2.t = function (n3, e3) {
+            if ((1 & e3 && (n3 = r2(n3)), 8 & e3)) return n3;
+            if (4 & e3 && "object" == t(n3) && n3 && n3.__esModule) return n3;
+            var o2 = /* @__PURE__ */ Object.create(null);
+            if (
+              (r2.r(o2),
+              Object.defineProperty(o2, "default", { enumerable: true, value: n3 }),
+              2 & e3 && "string" != typeof n3)
+            )
+              for (var u in n3)
+                r2.d(
+                  o2,
+                  u,
+                  function (t2) {
+                    return n3[t2];
+                  }.bind(null, u),
+                );
+            return o2;
+          }),
+          (r2.n = function (t2) {
+            var n3 =
+              t2 && t2.__esModule
+                ? function () {
+                    return t2.default;
+                  }
+                : function () {
+                    return t2;
+                  };
+            return (r2.d(n3, "a", n3), n3);
+          }),
+          (r2.o = function (t2, n3) {
+            return Object.prototype.hasOwnProperty.call(t2, n3);
+          }),
+          (r2.p = ""),
+          r2((r2.s = 0)));
+      })([
+        function (t2, n2, e2) {
+          t2.exports = e2(1);
+        },
+        function (t2, n2, e2) {
+          e2(2)({ global: true }, { globalThis: e2(3) });
+        },
+        function (n2, e2, r2) {
+          var o2 = r2(3),
+            u = r2(4).f,
+            i = r2(18),
+            f = r2(21),
+            c = r2(22),
+            a = r2(32),
+            p = r2(44);
+          n2.exports = function (n3, e3) {
+            var r3,
+              s,
+              l,
+              v,
+              d,
+              y = n3.target,
+              b = n3.global,
+              g = n3.stat;
+            if ((r3 = b ? o2 : g ? o2[y] || c(y, {}) : (o2[y] || {}).prototype))
+              for (s in e3) {
+                if (
+                  ((v = e3[s]),
+                  (l = n3.noTargetGet ? (d = u(r3, s)) && d.value : r3[s]),
+                  !p(b ? s : y + (g ? "." : "#") + s, n3.forced) && void 0 !== l)
+                ) {
+                  if (t(v) == t(l)) continue;
+                  a(v, l);
+                }
+                ((n3.sham || (l && l.sham)) && i(v, "sham", true), f(r3, s, v, n3));
+              }
+          };
+        },
+        function (n2, e2) {
+          var o2 = function (t2) {
+            return t2 && t2.Math == Math && t2;
+          };
+          n2.exports =
+            o2(
+              "object" == ("undefined" == typeof globalThis ? "undefined" : t(globalThis)) &&
+                globalThis,
+            ) ||
+            o2("object" == ("undefined" == typeof window ? "undefined" : t(window)) && window) ||
+            o2("object" == ("undefined" == typeof self ? "undefined" : t(self)) && self) ||
+            o2("object" == t(r) && r) ||
+            Function("return this")();
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(5),
+            o2 = e2(7),
+            u = e2(8),
+            i = e2(9),
+            f = e2(13),
+            c = e2(15),
+            a = e2(16),
+            p = Object.getOwnPropertyDescriptor;
+          n2.f = r2
+            ? p
+            : function (t3, n3) {
+                if (((t3 = i(t3)), (n3 = f(n3, true)), a))
+                  try {
+                    return p(t3, n3);
+                  } catch (t4) {}
+                if (c(t3, n3)) return u(!o2.f.call(t3, n3), t3[n3]);
+              };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(6);
+          t2.exports = !r2(function () {
+            return (
+              7 !=
+              Object.defineProperty({}, 1, {
+                get: function () {
+                  return 7;
+                },
+              })[1]
+            );
+          });
+        },
+        function (t2, n2) {
+          t2.exports = function (t3) {
+            try {
+              return !!t3();
+            } catch (t4) {
+              return true;
+            }
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = {}.propertyIsEnumerable,
+            o2 = Object.getOwnPropertyDescriptor,
+            u = o2 && !r2.call({ 1: 2 }, 1);
+          n2.f = u
+            ? function (t3) {
+                var n3 = o2(this, t3);
+                return !!n3 && n3.enumerable;
+              }
+            : r2;
+        },
+        function (t2, n2) {
+          t2.exports = function (t3, n3) {
+            return {
+              enumerable: !(1 & t3),
+              configurable: !(2 & t3),
+              writable: !(4 & t3),
+              value: n3,
+            };
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(10),
+            o2 = e2(12);
+          t2.exports = function (t3) {
+            return r2(o2(t3));
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(6),
+            o2 = e2(11),
+            u = "".split;
+          t2.exports = r2(function () {
+            return !Object("z").propertyIsEnumerable(0);
+          })
+            ? function (t3) {
+                return "String" == o2(t3) ? u.call(t3, "") : Object(t3);
+              }
+            : Object;
+        },
+        function (t2, n2) {
+          var e2 = {}.toString;
+          t2.exports = function (t3) {
+            return e2.call(t3).slice(8, -1);
+          };
+        },
+        function (t2, n2) {
+          t2.exports = function (t3) {
+            if (null == t3) throw TypeError("Can't call method on " + t3);
+            return t3;
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(14);
+          t2.exports = function (t3, n3) {
+            if (!r2(t3)) return t3;
+            var e3, o2;
+            if (n3 && "function" == typeof (e3 = t3.toString) && !r2((o2 = e3.call(t3)))) return o2;
+            if ("function" == typeof (e3 = t3.valueOf) && !r2((o2 = e3.call(t3)))) return o2;
+            if (!n3 && "function" == typeof (e3 = t3.toString) && !r2((o2 = e3.call(t3))))
+              return o2;
+            throw TypeError("Can't convert object to primitive value");
+          };
+        },
+        function (n2, e2) {
+          n2.exports = function (n3) {
+            return "object" == t(n3) ? null !== n3 : "function" == typeof n3;
+          };
+        },
+        function (t2, n2) {
+          var e2 = {}.hasOwnProperty;
+          t2.exports = function (t3, n3) {
+            return e2.call(t3, n3);
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(5),
+            o2 = e2(6),
+            u = e2(17);
+          t2.exports =
+            !r2 &&
+            !o2(function () {
+              return (
+                7 !=
+                Object.defineProperty(u("div"), "a", {
+                  get: function () {
+                    return 7;
+                  },
+                }).a
+              );
+            });
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3),
+            o2 = e2(14),
+            u = r2.document,
+            i = o2(u) && o2(u.createElement);
+          t2.exports = function (t3) {
+            return i ? u.createElement(t3) : {};
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(5),
+            o2 = e2(19),
+            u = e2(8);
+          t2.exports = r2
+            ? function (t3, n3, e3) {
+                return o2.f(t3, n3, u(1, e3));
+              }
+            : function (t3, n3, e3) {
+                return ((t3[n3] = e3), t3);
+              };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(5),
+            o2 = e2(16),
+            u = e2(20),
+            i = e2(13),
+            f = Object.defineProperty;
+          n2.f = r2
+            ? f
+            : function (t3, n3, e3) {
+                if ((u(t3), (n3 = i(n3, true)), u(e3), o2))
+                  try {
+                    return f(t3, n3, e3);
+                  } catch (t4) {}
+                if ("get" in e3 || "set" in e3) throw TypeError("Accessors not supported");
+                return ("value" in e3 && (t3[n3] = e3.value), t3);
+              };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(14);
+          t2.exports = function (t3) {
+            if (!r2(t3)) throw TypeError(String(t3) + " is not an object");
+            return t3;
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3),
+            o2 = e2(18),
+            u = e2(15),
+            i = e2(22),
+            f = e2(23),
+            c = e2(25),
+            a = c.get,
+            p = c.enforce,
+            s = String(String).split("String");
+          (t2.exports = function (t3, n3, e3, f2) {
+            var c2 = !!f2 && !!f2.unsafe,
+              a2 = !!f2 && !!f2.enumerable,
+              l = !!f2 && !!f2.noTargetGet;
+            ("function" == typeof e3 &&
+              ("string" != typeof n3 || u(e3, "name") || o2(e3, "name", n3),
+              (p(e3).source = s.join("string" == typeof n3 ? n3 : ""))),
+              t3 !== r2
+                ? (c2 ? !l && t3[n3] && (a2 = true) : delete t3[n3],
+                  a2 ? (t3[n3] = e3) : o2(t3, n3, e3))
+                : a2
+                  ? (t3[n3] = e3)
+                  : i(n3, e3));
+          })(Function.prototype, "toString", function () {
+            return ("function" == typeof this && a(this).source) || f(this);
+          });
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3),
+            o2 = e2(18);
+          t2.exports = function (t3, n3) {
+            try {
+              o2(r2, t3, n3);
+            } catch (e3) {
+              r2[t3] = n3;
+            }
+            return n3;
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(24),
+            o2 = Function.toString;
+          ("function" != typeof r2.inspectSource &&
+            (r2.inspectSource = function (t3) {
+              return o2.call(t3);
+            }),
+            (t2.exports = r2.inspectSource));
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3),
+            o2 = e2(22),
+            u = r2["__core-js_shared__"] || o2("__core-js_shared__", {});
+          t2.exports = u;
+        },
+        function (t2, n2, e2) {
+          var r2,
+            o2,
+            u,
+            i = e2(26),
+            f = e2(3),
+            c = e2(14),
+            a = e2(18),
+            p = e2(15),
+            s = e2(27),
+            l = e2(31),
+            v = f.WeakMap;
+          if (i) {
+            var d = new v(),
+              y = d.get,
+              b = d.has,
+              g = d.set;
+            ((r2 = function (t3, n3) {
+              return (g.call(d, t3, n3), n3);
+            }),
+              (o2 = function (t3) {
+                return y.call(d, t3) || {};
+              }),
+              (u = function (t3) {
+                return b.call(d, t3);
+              }));
+          } else {
+            var h = s("state");
+            ((l[h] = true),
+              (r2 = function (t3, n3) {
+                return (a(t3, h, n3), n3);
+              }),
+              (o2 = function (t3) {
+                return p(t3, h) ? t3[h] : {};
+              }),
+              (u = function (t3) {
+                return p(t3, h);
+              }));
+          }
+          t2.exports = {
+            set: r2,
+            get: o2,
+            has: u,
+            enforce: function (t3) {
+              return u(t3) ? o2(t3) : r2(t3, {});
+            },
+            getterFor: function (t3) {
+              return function (n3) {
+                var e3;
+                if (!c(n3) || (e3 = o2(n3)).type !== t3)
+                  throw TypeError("Incompatible receiver, " + t3 + " required");
+                return e3;
+              };
+            },
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3),
+            o2 = e2(23),
+            u = r2.WeakMap;
+          t2.exports = "function" == typeof u && /native code/.test(o2(u));
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(28),
+            o2 = e2(30),
+            u = r2("keys");
+          t2.exports = function (t3) {
+            return u[t3] || (u[t3] = o2(t3));
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(29),
+            o2 = e2(24);
+          (t2.exports = function (t3, n3) {
+            return o2[t3] || (o2[t3] = void 0 !== n3 ? n3 : {});
+          })("versions", []).push({
+            version: "3.6.5",
+            mode: r2 ? "pure" : "global",
+            copyright: "© 2020 Denis Pushkarev (zloirock.ru)",
+          });
+        },
+        function (t2, n2) {
+          t2.exports = false;
+        },
+        function (t2, n2) {
+          var e2 = 0,
+            r2 = Math.random();
+          t2.exports = function (t3) {
+            return "Symbol(" + String(void 0 === t3 ? "" : t3) + ")_" + (++e2 + r2).toString(36);
+          };
+        },
+        function (t2, n2) {
+          t2.exports = {};
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(15),
+            o2 = e2(33),
+            u = e2(4),
+            i = e2(19);
+          t2.exports = function (t3, n3) {
+            for (var e3 = o2(n3), f = i.f, c = u.f, a = 0; a < e3.length; a++) {
+              var p = e3[a];
+              r2(t3, p) || f(t3, p, c(n3, p));
+            }
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(34),
+            o2 = e2(36),
+            u = e2(43),
+            i = e2(20);
+          t2.exports =
+            r2("Reflect", "ownKeys") ||
+            function (t3) {
+              var n3 = o2.f(i(t3)),
+                e3 = u.f;
+              return e3 ? n3.concat(e3(t3)) : n3;
+            };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(35),
+            o2 = e2(3),
+            u = function (t3) {
+              return "function" == typeof t3 ? t3 : void 0;
+            };
+          t2.exports = function (t3, n3) {
+            return arguments.length < 2
+              ? u(r2[t3]) || u(o2[t3])
+              : (r2[t3] && r2[t3][n3]) || (o2[t3] && o2[t3][n3]);
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(3);
+          t2.exports = r2;
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(37),
+            o2 = e2(42).concat("length", "prototype");
+          n2.f =
+            Object.getOwnPropertyNames ||
+            function (t3) {
+              return r2(t3, o2);
+            };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(15),
+            o2 = e2(9),
+            u = e2(38).indexOf,
+            i = e2(31);
+          t2.exports = function (t3, n3) {
+            var e3,
+              f = o2(t3),
+              c = 0,
+              a = [];
+            for (e3 in f) !r2(i, e3) && r2(f, e3) && a.push(e3);
+            for (; n3.length > c;) r2(f, (e3 = n3[c++])) && (~u(a, e3) || a.push(e3));
+            return a;
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(9),
+            o2 = e2(39),
+            u = e2(41),
+            i = function (t3) {
+              return function (n3, e3, i2) {
+                var f,
+                  c = r2(n3),
+                  a = o2(c.length),
+                  p = u(i2, a);
+                if (t3 && e3 != e3) {
+                  for (; a > p;) if ((f = c[p++]) != f) return true;
+                } else for (; a > p; p++) if ((t3 || p in c) && c[p] === e3) return t3 || p || 0;
+                return !t3 && -1;
+              };
+            };
+          t2.exports = { includes: i(true), indexOf: i(false) };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(40),
+            o2 = Math.min;
+          t2.exports = function (t3) {
+            return t3 > 0 ? o2(r2(t3), 9007199254740991) : 0;
+          };
+        },
+        function (t2, n2) {
+          var e2 = Math.ceil,
+            r2 = Math.floor;
+          t2.exports = function (t3) {
+            return isNaN((t3 = +t3)) ? 0 : (t3 > 0 ? r2 : e2)(t3);
+          };
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(40),
+            o2 = Math.max,
+            u = Math.min;
+          t2.exports = function (t3, n3) {
+            var e3 = r2(t3);
+            return e3 < 0 ? o2(e3 + n3, 0) : u(e3, n3);
+          };
+        },
+        function (t2, n2) {
+          t2.exports = [
+            "constructor",
+            "hasOwnProperty",
+            "isPrototypeOf",
+            "propertyIsEnumerable",
+            "toLocaleString",
+            "toString",
+            "valueOf",
+          ];
+        },
+        function (t2, n2) {
+          n2.f = Object.getOwnPropertySymbols;
+        },
+        function (t2, n2, e2) {
+          var r2 = e2(6),
+            o2 = /#|\.prototype\./,
+            u = function (t3, n3) {
+              var e3 = f[i(t3)];
+              return e3 == a || (e3 != c && ("function" == typeof n3 ? r2(n3) : !!n3));
+            },
+            i = (u.normalize = function (t3) {
+              return String(t3).replace(o2, ".").toLowerCase();
+            }),
+            f = (u.data = {}),
+            c = (u.NATIVE = "N"),
+            a = (u.POLYFILL = "P");
+          t2.exports = u;
+        },
+      ]),
+      n.exports);
+  (e = o) && e.__esModule && Object.prototype.hasOwnProperty.call(e, "default") && e.default;
+});

@@ -1,0 +1,25 @@
+const installed = new WeakSet();
+
+// Preserve native failure callbacks (which can unlock controls or roll back
+// selection) while giving them the local server's precise condition message.
+export function patchLocalApiErrors(exports, local) {
+  const api = exports.BaseApi;
+  if (!api?.requestLogic || installed.has(api)) return;
+  installed.add(api);
+  const request = api.requestLogic;
+  api.requestLogic = function (params, success, failure, ...rest) {
+    return request.call(this, params, success, function (response) {
+      const ui = local.getExport('ApiState');
+      if (!response?.localSimulation || typeof response.message !== 'string') return failure ? failure(response) : ui?.show(response?.state);
+      if (!failure) return ui?.showText(response.message);
+      const code = response.state, previous = ui?.stateTxt?.[code];
+      if (ui?.stateTxt) ui.stateTxt[code] = response.message;
+      try { return failure(response); }
+      finally {
+        if (ui?.stateTxt) {
+          if (previous === undefined) delete ui.stateTxt[code]; else ui.stateTxt[code] = previous;
+        }
+      }
+    }, ...rest);
+  };
+}

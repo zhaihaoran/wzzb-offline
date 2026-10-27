@@ -1,0 +1,136 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+System.register([], function (e) {
+  return {
+    execute: function () {
+      e(
+        "default",
+        /* @__PURE__ */ (function () {
+          var e2,
+            t = false,
+            r = function (r2) {
+              return (
+                void 0 === r2 && (r2 = {}),
+                "function" != typeof r2
+                  ? Promise.reject(new Error("No wasm support detected"))
+                  : r2().then(function (r3) {
+                      ((t = true), (e2 = r3.instance).exports.__wasm_call_ctors());
+                    })
+              );
+            };
+          function n(t2, r2, n2, o2, s2, c2) {
+            var u2 = e2.exports.sbrk,
+              i2 = (n2 + 3) & -4,
+              a2 = u2(i2 * o2),
+              d = u2(s2.length),
+              f = new Uint8Array(e2.exports.memory.buffer);
+            f.set(s2, d);
+            var p = t2(a2, n2, o2, d, s2.length);
+            if (
+              (0 == p && c2 && c2(a2, i2, o2),
+              r2.set(f.subarray(a2, a2 + n2 * o2)),
+              u2(a2 - u2(0)),
+              0 != p)
+            )
+              throw new Error("Malformed buffer data: " + p);
+          }
+          var o = {
+              NONE: "",
+              OCTAHEDRAL: "meshopt_decodeFilterOct",
+              QUATERNION: "meshopt_decodeFilterQuat",
+              EXPONENTIAL: "meshopt_decodeFilterExp",
+            },
+            s = {
+              ATTRIBUTES: "meshopt_decodeVertexBuffer",
+              TRIANGLES: "meshopt_decodeIndexBuffer",
+              INDICES: "meshopt_decodeIndexSequence",
+            },
+            c = [],
+            u = 0;
+          function i(e3) {
+            var t2 = { object: new Worker(e3), pending: 0, requests: {} };
+            return (
+              (t2.object.onmessage = function (e4) {
+                var r2 = e4.data;
+                ((t2.pending -= r2.count),
+                  t2.requests[r2.id][r2.action](r2.value),
+                  delete t2.requests[r2.id]);
+              }),
+              t2
+            );
+          }
+          function a(t2) {
+            r.then(function () {
+              var r2 = t2.data;
+              try {
+                var o2 = new Uint8Array(r2.count * r2.size);
+                (n(e2.exports[r2.mode], o2, r2.count, r2.size, r2.source, e2.exports[r2.filter]),
+                  self.postMessage({ id: r2.id, count: r2.count, action: "resolve", value: o2 }, [
+                    o2.buffer,
+                  ]));
+              } catch (e3) {
+                self.postMessage({ id: r2.id, count: r2.count, action: "reject", value: e3 });
+              }
+            });
+          }
+          return {
+            ready: r,
+            supported: t,
+            useWorkers: function (e3) {
+              !(function (e4) {
+                for (
+                  var t2 =
+                      "var instance; var ready = WebAssembly.instantiate(new Uint8Array([" +
+                      new Uint8Array(unpack(wasm)) +
+                      "]), {}).then(function(result) { instance = result.instance; instance.exports.__wasm_call_ctors(); });self.onmessage = workerProcess;" +
+                      n.toString() +
+                      a.toString(),
+                    r2 = new Blob([t2], { type: "text/javascript" }),
+                    o2 = URL.createObjectURL(r2),
+                    s2 = 0;
+                  s2 < e4;
+                  ++s2
+                )
+                  c[s2] = i(o2);
+                URL.revokeObjectURL(o2);
+              })(e3);
+            },
+            decodeVertexBuffer: function (t2, r2, s2, c2, u2) {
+              n(e2.exports.meshopt_decodeVertexBuffer, t2, r2, s2, c2, e2.exports[o[u2]]);
+            },
+            decodeIndexBuffer: function (t2, r2, o2, s2) {
+              n(e2.exports.meshopt_decodeIndexBuffer, t2, r2, o2, s2);
+            },
+            decodeIndexSequence: function (t2, r2, o2, s2) {
+              n(e2.exports.meshopt_decodeIndexSequence, t2, r2, o2, s2);
+            },
+            decodeGltfBuffer: function (t2, r2, c2, u2, i2, a2) {
+              n(e2.exports[s[i2]], t2, r2, c2, u2, e2.exports[o[a2]]);
+            },
+            decodeGltfBufferAsync: function (t2, i2, a2, d, f) {
+              return c.length > 0
+                ? (function (e3, t3, r2, n2, o2) {
+                    for (var s2 = c[0], i3 = 1; i3 < c.length; ++i3)
+                      c[i3].pending < s2.pending && (s2 = c[i3]);
+                    return new Promise(function (c2, i4) {
+                      var a3 = new Uint8Array(r2),
+                        d2 = u++;
+                      ((s2.pending += e3),
+                        (s2.requests[d2] = { resolve: c2, reject: i4 }),
+                        s2.object.postMessage(
+                          { id: d2, count: e3, size: t3, source: a3, mode: n2, filter: o2 },
+                          [a3.buffer],
+                        ));
+                    });
+                  })(t2, i2, a2, s[d], o[f])
+                : r.then(function () {
+                    var r2 = new Uint8Array(t2 * i2);
+                    return (n(e2.exports[s[d]], r2, t2, i2, a2, e2.exports[o[f]]), r2);
+                  });
+            },
+          };
+        })(),
+      );
+    },
+  };
+});

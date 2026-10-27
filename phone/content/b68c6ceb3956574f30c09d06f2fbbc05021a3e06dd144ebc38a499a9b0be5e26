@@ -1,0 +1,80 @@
+import { PORTRAIT_MODEL_BOUNDS, PORTRAIT_THUMBNAIL_BOX } from './portrait-models.mjs';
+
+const installed = new WeakSet();
+
+// A bounded replacement for ten unavailable portrait PNGs. Render the card's
+// complete original skeletal model, never its disassembled texture atlas.
+export function installPortraitFallback(NetImage, local) {
+  const prototype = NetImage.prototype;
+  if (installed.has(prototype)) return false;
+  installed.add(prototype);
+  const start = prototype.start, destroy = prototype.onDestroy;
+  const states = new WeakMap();
+  const anchorChanged = local.cc.Node?.EventType?.ANCHOR_CHANGED || 'anchor-changed';
+  function alive(image, state) {
+    return !state.destroyed && image.node?.isValid && image.isValid !== false &&
+      (!local.cc.isValid || (local.cc.isValid(image, true) && local.cc.isValid(image.node, true)));
+  }
+  function resize(image) {
+    const model = image.localPortraitModel;
+    if (!model?.node?.isValid) return;
+    const bounds = image.localPortraitBounds;
+    const thumbnailScale = Math.min(PORTRAIT_THUMBNAIL_BOX.width / bounds.width, PORTRAIT_THUMBNAIL_BOX.height / bounds.height, 1);
+    const width = image._w >= 0 ? image._w : bounds.width * thumbnailScale;
+    const height = image._h >= 0 ? image._h : bounds.height * thumbnailScale;
+    const sx = width / bounds.width, sy = height / bounds.height;
+    const transform = image.getComponent(local.cc.UITransform);
+    transform.setContentSize(width, height);
+    // DragonBones y coordinates point down; Cocos UI coordinates point up.
+    // Native portrait consumers also set anchorY=0, so center within that rect.
+    const cx = (0.5 - transform.anchorX) * width, cy = (0.5 - transform.anchorY) * height;
+    model.node.setScale(sx, sy, 1);
+    model.node.setPosition(cx - (bounds.x + bounds.width / 2) * sx, cy + (bounds.y + bounds.height / 2) * sy, 0);
+  }
+  prototype.start = function () {
+    const id = /\/card_model\/(?:v7\/)?img_(\d+)\.png(?:\?[^#]*)?$/.exec(this.imageUrl)?.[1];
+    const bounds = PORTRAIT_MODEL_BOUNDS[id];
+    if (!bounds) return start.call(this);
+    if (states.has(this)) return;
+    const db = local.getExport('DBAssetManager');
+    const state = { id, db, destroyed: false, completed: false, resize: () => resize(this) };
+    states.set(this, state);
+    this.localPortraitBounds = bounds;
+    this.node.on(anchorChanged, state.resize);
+    state.loaded = function () {
+      if (state.completed || !alive(this, state)) return;
+      state.completed = true;
+      this.localPortraitModel = db.createDBArmature(String(id), 0, 'idle');
+      const armature = this.localPortraitModel.armature();
+      armature?.advanceTime(0);
+      armature?.animation.stop();
+      this.localPortraitModel.timeScale = 0;
+      this.localPortraitModel.node.layer = this.node.layer;
+      this.node.addChild(this.localPortraitModel.node);
+      resize(this);
+      this.loadCompleteCallBack?.apply(this.loadCompleteCallBackObj, []);
+      if (alive(this, state)) resize(this);
+    };
+    db.loadDB(String(id), state.loaded, this);
+  };
+  for (const method of ['setW', 'setH']) {
+    const original = prototype[method];
+    prototype[method] = function (value) { original.call(this, value); resize(this); };
+  }
+  prototype.onDestroy = function () {
+    const state = states.get(this);
+    if (state?.destroyed) return;
+    if (state) {
+      state.destroyed = true;
+      this.node?.off(anchorChanged, state.resize);
+      // The native loader retains callbacks until all three assets finish.
+      // Remove this one closed consumer; leave shared requests and peers alone.
+      const queue = state.db.callBackQueue?.[state.id];
+      if (queue) state.db.callBackQueue[state.id] = queue.filter(row => row[0] !== state.loaded || row[1] !== this);
+      if (this.localPortraitModel?.node?.isValid) state.db.destroyDBArmature(this.localPortraitModel);
+    }
+    this.localPortraitModel = null;
+    return destroy.call(this);
+  };
+  return true;
+}

@@ -1,0 +1,20 @@
+// Extracted module body for reading; original wrapper is preserved in original/.
+"use strict";
+var e, t;
+(System.register("chunks:///_virtual/internal", [], function () {
+  return { execute: function () {} };
+}),
+  (e = "virtual:///prerequisite-imports/internal"),
+  (t = "chunks:///_virtual/internal"),
+  System.register(e, [t], function (e2, t2) {
+    return {
+      setters: [
+        function (t3) {
+          var r = {};
+          for (var n in t3) "default" !== n && "__esModule" !== n && (r[n] = t3[n]);
+          e2(r);
+        },
+      ],
+      execute: function () {},
+    };
+  }));
