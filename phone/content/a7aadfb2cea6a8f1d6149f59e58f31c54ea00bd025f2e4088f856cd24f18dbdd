@@ -7,6 +7,7 @@
   let patchEventClient;
   let patchLocalApiErrors;
   let patchHeroDrawClient;
+  let installFeatureClientRepairs;
   local.testHeroFeatures = true;
   local.account = (new URL(location.href).searchParams.get('account') || 'local-player').trim().slice(0, 80) || 'local-player';
   local.getExport = name => [...local.exports.values()].find(exports => exports[name])?.[name];
@@ -28,6 +29,7 @@
     patchEventClient(exports, local);
     patchLocalApiErrors(exports, local);
     patchHeroDrawClient(exports, local);
+    installFeatureClientRepairs(exports, local);
     if (exports.AppConfig) Object.assign(exports.AppConfig, endpoints());
     if (exports.CfgData?.getCfgSkillById) {
       const original = exports.CfgData.getCfgSkillById;
@@ -123,6 +125,7 @@
     ({ patchEventClient } = await import("/wzzb-offline/local/event-client-repairs.js"));
     ({ patchLocalApiErrors } = await import("/wzzb-offline/local/local-api-errors.js"));
     ({ patchHeroDrawClient } = await import("/wzzb-offline/local/hero-draw-client-repairs.js"));
+    ({ installFeatureClientRepairs } = await import("/wzzb-offline/local/feature-client-repairs.js"));
     skillRepairs = new Map([...LOCAL_SKILL_REPAIRS, ...PET_BOOK_SKILL_REPAIRS, ...HERO_CARD_SKILL_REPAIRS].map(row => [String(row.id), row]));
     local.setProgress('正在初始化浏览器适配层', 12);
     require('web-adapter.0ec91.js');

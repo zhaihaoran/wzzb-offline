@@ -15,10 +15,13 @@ export function verifiedComplete(snapshot) {
 
 /** Dependency injection keeps DOM behavior testable without a server, worker,
  * filesystem, or any access to the desktop save. All game data is opaque here. */
-export async function bootPhoneInstaller({ document: doc = globalThis.document, window: host = globalThis.window, navigator: browser = globalThis.navigator, cache, transport } = {}) {
+export async function bootPhoneInstaller({ document: doc = globalThis.document, window: host = globalThis.window, navigator: browser = globalThis.navigator, cache, transport, createTransport = async () => (await import("./transport-20261027-playability1.js")).createPhoneTransport() } = {}) {
   const byId = id => { const element = doc.getElementById(id); if (!element) throw new Error(`Missing installer element: ${id}`); return element; };
   const ui = Object.fromEntries(['ready-badge', 'cache-message', 'total-size', 'downloaded-size', 'download-progress', 'file-progress', 'network-status', 'version-status', 'cache-error', 'failed-files', 'prepare-button', 'pause-button', 'enter-button', 'reload-button', 'standalone-status', 'context-message', 'storage-status', 'storage-space', 'export-button', 'choose-import-button', 'save-download-link', 'import-file', 'import-review', 'import-file-info', 'confirm-import-button', 'cancel-import-button', 'save-message', 'save-error'].map(id => [id, byId(id)]));
   const state = { snapshot: null, cacheBusy: false, saveBusy: false, pauseRequested: false, pendingImport: null, transport: null, cache: null, supported: false, disposed: false, lastCacheMessage: '', exportUrl: null };
+  const estimate = doc.querySelector?.('main[data-total-files]')?.dataset;
+  if (Number(estimate?.totalFiles) > 0) state.snapshot = { complete: false, totalFiles: Number(estimate.totalFiles), totalBytes: Number(estimate.totalBytes), downloadedFiles: 0, downloadedBytes: 0, phase: 'loading-manifest' };
+  let transportPromise;
   const removers = [];
   function listen(target, type, handler) { target?.addEventListener?.(type, handler); removers.push(() => target?.removeEventListener?.(type, handler)); }
   const text = (id, value) => { ui[id].textContent = value; };
@@ -37,7 +40,7 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
     const percent = Number(snapshot?.totalBytes) > 0 ? Math.min(100, Math.max(0, 100 * Number(snapshot.downloadedBytes || 0) / Number(snapshot.totalBytes))) : 0;
     ui['download-progress'].value = percent;
     ui['download-progress'].setAttribute('aria-valuetext', `${percent.toFixed(1)}% 已验证`);
-    text('file-progress', snapshot ? `${Number(snapshot.downloadedFiles) || 0} / ${Number(snapshot.totalFiles) || 0} 个文件已验证` : '正在检查缓存');
+    text('file-progress', snapshot?.phase === 'loading-manifest' ? (snapshot.manifestParts ? `正在读取资源清单 ${snapshot.manifestPartsLoaded || 0} / ${snapshot.manifestParts}` : '正在连接资源清单，还未开始下载') : snapshot?.phase === 'checking-cache' ? `正在核对本机缓存 ${snapshot.cacheCheckedFiles || 0} / ${snapshot.cacheFilesToCheck || 0}` : snapshot ? `${Number(snapshot.downloadedFiles) || 0} / ${Number(snapshot.totalFiles) || 0} 个文件已验证` : '正在检查缓存');
     let badge = '尚未就绪', badgeState = 'pending';
     if (enter) { badge = '可离线'; badgeState = 'ready'; }
     else if (complete && !controlled) badge = '需启用离线服务';
@@ -51,6 +54,8 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
     ui['pause-button'].hidden = !state.cacheBusy; ui['pause-button'].disabled = state.pauseRequested;
     ui['reload-button'].hidden = !complete || controlled || state.cacheBusy;
     let message = state.lastCacheMessage;
+    if (snapshot?.phase === 'loading-manifest' && !snapshot.error) message = '正在分段读取资源清单；连接失败会显示原因，可以重试，不必清除存档。';
+    if (snapshot?.phase === 'checking-cache') message = '正在核对已保存的资源，核对后只下载缺失或损坏的文件。';
     if (enter) message = '当前入口的资源已完整缓存，离线服务已启用，可以进入游戏。主屏幕入口请再次确认相同状态。';
     else if (complete && !controlled && !state.cacheBusy) message = '资源已完整缓存。请刷新本页，让离线服务接管页面后再进入游戏。';
     else if (!online() && !complete && !state.cacheBusy) message = '当前离线，资源尚未准备完整。连接网络后可从已验证的文件继续下载。';
@@ -87,9 +92,9 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
   async function refresh() {
     if (!state.cache || state.cacheBusy) return;
     showError('cache-error', ''); state.lastCacheMessage = '正在核对离线资源完整性…'; render();
-    try { updateSnapshot(await state.cache.inspect()); state.lastCacheMessage = verifiedComplete(state.snapshot) ? '' : '资源尚未准备完整，请点击按钮下载；已验证的文件可继续使用。'; }
+    try { const snapshot = await state.cache.inspect({ onProgress: value => { if (!state.cacheBusy) updateSnapshot(value); } }); if (state.cacheBusy) return; updateSnapshot(snapshot); state.lastCacheMessage = verifiedComplete(state.snapshot) ? '' : '资源尚未准备完整，请点击按钮下载；已验证的文件可继续使用。'; }
     catch (error) { state.lastCacheMessage = '未能读取完整的离线资源状态。保持联网后重试。'; showError('cache-error', errorText(error)); }
-    render();
+    render(); if (verifiedComplete(state.snapshot) && controlsPage()) await connectTransport();
   }
   async function prepare() {
     if (!state.supported || !state.cache || state.cacheBusy || !online()) return;
@@ -102,7 +107,7 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
       if (error?.snapshot) updateSnapshot(error.snapshot);
       state.lastCacheMessage = state.pauseRequested ? '下载已暂停，已验证的文件会保留，可稍后继续。' : '下载或校验未完成，当前还不能离线进入游戏。';
       if (!state.pauseRequested) showError('cache-error', `${errorText(error)}。请保持联网后继续重试。`);
-    } finally { state.cacheBusy = false; state.pauseRequested = false; render(); }
+    } finally { state.cacheBusy = false; state.pauseRequested = false; render(); if (verifiedComplete(state.snapshot) && controlsPage()) await connectTransport(); }
   }
   async function pause() {
     if (!state.cacheBusy || state.pauseRequested) return;
@@ -162,7 +167,22 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
   listen(ui['import-file'], 'change', () => chooseImport(ui['import-file'].files?.[0]));
   listen(ui['confirm-import-button'], 'click', confirmImport);
   listen(ui['cancel-import-button'], 'click', () => { state.pendingImport = null; ui['import-file'].value = ''; text('save-message', '已取消导入，未替换手机存档。'); render(); });
-  listen(browser.serviceWorker, 'controllerchange', render); listen(host, 'online', render); listen(host, 'offline', render);
+  async function connectTransport() {
+    if (state.transport) return;
+    if (transportPromise) return transportPromise;
+    transportPromise = (async () => {
+      let service;
+      try {
+        service = await (transport || createTransport());
+        const info = await (service.status ? service.status() : service.request('status'));
+        state.transport = service; showError('save-error', '');
+        text('save-message', Number.isFinite(info?.revision) ? `手机存档服务已就绪 · 版本 ${info.revision}。` : '手机存档服务已就绪，可以导入或导出本机进度。');
+      } catch (error) { service?.close?.(); state.transport = null; text('save-message', '手机存档服务尚未就绪。'); showError('save-error', errorText(error)); }
+      finally { transportPromise = null; render(); }
+    })();
+    return transportPromise;
+  }
+  listen(browser.serviceWorker, 'controllerchange', () => { render(); if (verifiedComplete(state.snapshot)) connectTransport(); }); listen(host, 'online', render); listen(host, 'offline', render);
   const standalone = browser.standalone === true || host.matchMedia?.('(display-mode: standalone)').matches;
   text('standalone-status', standalone ? '当前已从主屏幕打开。资源显示“可离线”后，可用飞行模式自行验证启动。' : '当前在浏览器中。添加后请从主屏幕联网打开，再确认同一入口显示“可离线”；需要迁移进度时，请先导出再导入。');
   state.supported = Boolean(browser.serviceWorker && secure());
@@ -170,8 +190,8 @@ export async function bootPhoneInstaller({ document: doc = globalThis.document, 
   if (!state.supported) { state.lastCacheMessage = '当前浏览器或连接不支持此离线安装方式，请使用 iPhone Safari 的 HTTPS 页面。'; showError('cache-error', '离线服务尚未启用，当前不能标记为可离线。'); }
   render();
   await Promise.allSettled([
-    (async () => { if (!state.supported) return; try { state.cache = cache || (await import('./offline-cache.js')).createOfflineCache(); await refresh(); } catch (error) { showError('cache-error', `资源准备服务尚未就绪：${errorText(error)}`); render(); } })(),
-    (async () => { try { state.transport = await (transport || (await import('./transport.js')).createPhoneTransport()); const info = await transportCall('status'); text('save-message', Number.isFinite(info?.revision) ? `手机存档服务已就绪 · 版本 ${info.revision}。` : '手机存档服务已就绪，可以导入或导出本机进度。'); } catch (error) { state.transport = null; text('save-message', '手机存档服务尚未就绪。'); showError('save-error', errorText(error)); } render(); })(),
+    (async () => { if (!state.supported) return; try { state.cache = cache || (await import("./offline-cache-20261027-playability1.js")).createOfflineCache(); await refresh(); } catch (error) { showError('cache-error', `资源准备服务尚未就绪：${errorText(error)}`); render(); } })(),
+    transport ? connectTransport() : Promise.resolve(text('save-message', '离线资源准备完成后，自动启用手机存档服务。')),
     storageInfo(),
   ]);
   return { prepare, pause, refresh, exportSave, chooseImport, confirmImport, get state() { return state; }, destroy() { state.disposed = true; for (const remove of removers) remove(); if (state.exportUrl) host.URL.revokeObjectURL(state.exportUrl); } };

@@ -10,7 +10,8 @@
   const CONTENT = 'wzzb-phone-content-v1' + base, META = 'wzzb-phone-meta-v1' + base;
   const MANIFEST_PATH = '/phone/assets-manifest.json', ACTIVE = '/__phone_cache__/active';
   const origin = self.location.origin;
-  let activePromise, running = null;
+  let activePromise, running = null, manifestPromise;
+  const manifestListeners = new Set();
   const absolute = pathname => new URL(base + pathname, origin).href;
   const forbidden = pathname => /^\/(?:api(?:\/|$)|admin(?:\/|$)|health(?:\/|$)|local\/(?:data(?:\/|$)|admin[^/]*$))/.test(pathname);
   const jsonResponse = value => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } });
@@ -29,6 +30,21 @@
     return { url, pathname };
   }
   function validateManifest(manifest) {
+    if (manifest?.schema === 2) {
+      const compact = manifest;
+      if (!Array.isArray(compact.types) || !Array.isArray(compact.files) || compact.files.length > 20000) throw new Error('精简资源清单无效。');
+      const files = compact.files.map(([sha256, bytes, type, downloadUrl]) => ({ url: '/phone/content/' + sha256, sha256, bytes, contentType: compact.types[type], ...(downloadUrl ? { downloadUrl } : {}) }));
+      const routeContentTypes = {}, expand = groups => {
+        const routes = Object.create(null);
+        for (const [prefix, rows] of Object.entries(groups || {})) for (const [tail, index, type] of rows) {
+          if (!Number.isSafeInteger(index) || !files[index] || typeof tail !== 'string') throw new Error('精简资源路由无效。');
+          const route = prefix + tail; routes[route] = files[index].url;
+          if (type) routeContentTypes[route] = type;
+        }
+        return routes;
+      };
+      manifest = { schema: 1, version: compact.version, totalBytes: compact.totalBytes, files, routes: expand(compact.routes), legacyRoutes: expand(compact.legacyRoutes), routeContentTypes, excluded: compact.excluded };
+    }
     if (manifest?.schema !== 1 || !/^[a-f0-9]{64}$/.test(manifest.version || '') || !Array.isArray(manifest.files) || !manifest.routes) throw new Error('离线资源清单无效。');
     const seen = new Set(); let total = 0;
     for (const file of manifest.files) {
@@ -51,11 +67,53 @@
     })();
     return activePromise;
   }
-  async function loadManifest() {
+  async function metadataBytes(url, run) {
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (run?.paused) throw new Error('资源准备已暂停。');
+      const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 12000);
+      run?.controllers.add(controller);
+      try {
+        const response = await fetch(absolute(url), { cache: 'no-cache', credentials: 'same-origin', signal: controller.signal });
+        if (!response.ok) throw new Error('资源清单读取失败：HTTP ' + response.status);
+        return await response.arrayBuffer();
+      } catch (error) { lastError = error; }
+      finally { clearTimeout(timeout); run?.controllers.delete(controller); }
+    }
+    throw new Error('资源清单连接超时或下载失败，请重试；已下载的游戏资源和存档会保留。' + (lastError?.message ? '（' + lastError.message + '）' : ''));
+  }
+  async function readWire(index, progress, run) {
+    if (!/^[a-f0-9]{64}$/.test(index.version || '') || !/^[a-f0-9]{64}$/.test(index.payloadSha256 || '') || !Number.isSafeInteger(index.payloadBytes) || index.payloadBytes <= 0 || index.payloadBytes > 32 * 1024 * 1024 || !Array.isArray(index.chunks) || !index.chunks.length || index.chunks.length > 512) throw new Error('资源清单索引无效。');
+    let sum = 0;
+    for (const [hash, bytes] of index.chunks) { if (!/^[a-f0-9]{64}$/.test(hash || '') || !Number.isSafeInteger(bytes) || bytes <= 0 || bytes > 128 * 1024) throw new Error('资源清单分段无效。'); sum += bytes; }
+    if (sum !== index.payloadBytes) throw new Error('资源清单分段大小不匹配。');
+    const bodies = new Array(index.chunks.length); let next = 0, completed = 0;
+    progress?.({ totalFiles: index.totalFiles, totalBytes: index.totalBytes, manifestParts: index.chunks.length, manifestPartsLoaded: completed });
+    await Promise.all(Array.from({ length: Math.min(4, bodies.length) }, async () => {
+      while (next < bodies.length) {
+        const i = next++, [hash, bytes] = index.chunks[i];
+        const body = await metadataBytes('/phone/manifest-chunks/' + index.version + '/' + hash + '.bin', run);
+        if (body.byteLength !== bytes || await sha256(body) !== hash) throw new Error('资源清单分段校验失败，请重试。');
+        bodies[i] = new Uint8Array(body); completed++;
+        progress?.({ totalFiles: index.totalFiles, totalBytes: index.totalBytes, manifestParts: index.chunks.length, manifestPartsLoaded: completed });
+      }
+    }));
+    const all = new Uint8Array(sum); let offset = 0;
+    for (const body of bodies) { all.set(body, offset); offset += body.length; }
+    if (await sha256(all) !== index.payloadSha256) throw new Error('资源清单完整性校验失败。');
+    return JSON.parse(new TextDecoder().decode(all));
+  }
+  async function loadManifest(progress, run) {
+    if (progress) manifestListeners.add(progress);
+    if (!manifestPromise) manifestPromise = readManifest(values => { for (const listener of manifestListeners) listener(values); }, run).finally(() => { manifestPromise = null; });
+    try { return await manifestPromise; }
+    finally { if (progress) manifestListeners.delete(progress); }
+  }
+  async function readManifest(progress, run) {
     try {
-      const response = await fetch(absolute(MANIFEST_PATH), { cache: 'no-store', credentials: 'same-origin' });
-      if (!response.ok) throw new Error('资源清单读取失败：' + response.status);
-      return validateManifest(await response.json());
+      let manifest = JSON.parse(new TextDecoder().decode(await metadataBytes(MANIFEST_PATH, run)));
+      if (manifest.wireVersion === 1) manifest = await readWire(manifest, progress, run);
+      return validateManifest(manifest);
     } catch (error) {
       const active = await activeManifest();
       if (active) return active;
@@ -69,25 +127,28 @@
   function validHeaders(response, file) {
     return response?.status === 200 && response.headers.get('X-Phone-SHA256') === file.sha256 && Number(response.headers.get('Content-Length')) === file.bytes;
   }
-  async function cachedStats(manifest, verify = false) {
+  async function cachedStats(manifest, verify = false, progress) {
     const cache = await caches.open(CONTENT); let downloadedFiles = 0, downloadedBytes = 0;
-    for (const file of manifest.files) {
-      const response = await cache.match(absolute(file.url));
-      if (!validHeaders(response, file)) continue;
-      if (verify) {
-        const body = await response.arrayBuffer();
-        if (body.byteLength !== file.bytes || await sha256(body) !== file.sha256) continue;
+    const keys = cache.keys ? new Set((await cache.keys()).map(key => key.url)) : null;
+    const candidates = keys ? manifest.files.filter(file => keys.has(absolute(file.url))) : manifest.files;
+    let next = 0, checked = 0;
+    await Promise.all(Array.from({ length: Math.min(12, candidates.length) }, async () => {
+      while (next < candidates.length) {
+        const file = candidates[next++], response = await cache.match(absolute(file.url));
+        let valid = validHeaders(response, file);
+        if (verify && valid) { const body = await response.arrayBuffer(); valid = body.byteLength === file.bytes && await sha256(body) === file.sha256; }
+        if (valid) { downloadedFiles++; downloadedBytes += file.bytes; }
+        checked++; if (checked % 64 === 0 || checked === candidates.length) progress?.({ cacheCheckedFiles: checked, cacheFilesToCheck: candidates.length });
       }
-      downloadedFiles++; downloadedBytes += file.bytes;
-    }
+    }));
     return { downloadedFiles, downloadedBytes };
   }
   function snapshot(manifest, stats, extras = {}) {
     return { version: manifest?.version || null, complete: false, totalFiles: manifest?.files.length || 0, totalBytes: manifest?.totalBytes || 0, downloadedFiles: stats?.downloadedFiles || 0, downloadedBytes: stats?.downloadedBytes || 0, phase: 'idle', ...extras };
   }
-  async function inspect() {
+  async function inspect(progress) {
     if (running) return { ...running.snapshot };
-    const manifest = await loadManifest(), stats = await cachedStats(manifest), active = await activeManifest();
+    const manifest = await loadManifest(values => progress?.(snapshot(null, null, { phase: 'loading-manifest', ...values }))), stats = await cachedStats(manifest, false, values => progress?.(snapshot(manifest, null, { phase: 'checking-cache', ...values }))), active = await activeManifest();
     const complete = active?.version === manifest.version && stats.downloadedFiles === manifest.files.length;
     return snapshot(manifest, stats, { complete, phase: complete ? 'ready' : 'idle', previousVersion: active?.version || null, previousComplete: Boolean(active && (active.version === manifest.version ? complete : (await cachedStats(active)).downloadedFiles === active.files.length)) });
   }
@@ -103,8 +164,10 @@
     run.promise = (async () => {
       let failed = null;
       try {
-        const manifest = await loadManifest(), active = await activeManifest(), cache = await caches.open(CONTENT), stats = { downloadedFiles: 0, downloadedBytes: 0 };
-        run.snapshot = snapshot(manifest, stats, { phase: 'verifying', previousVersion: active?.version || null, previousComplete: Boolean(active && (await cachedStats(active)).downloadedFiles === active.files.length) }); notify(run, true);
+        const manifest = await loadManifest(values => { Object.assign(run.snapshot, values); notify(run, true); }, run), active = await activeManifest(), cache = await caches.open(CONTENT), stats = { downloadedFiles: 0, downloadedBytes: 0 };
+        run.snapshot = snapshot(manifest, stats, { phase: 'checking-cache', previousVersion: active?.version || null }); notify(run, true);
+        const previousComplete = Boolean(active && (await cachedStats(active, false, values => { Object.assign(run.snapshot, values); notify(run); })).downloadedFiles === active.files.length);
+        Object.assign(run.snapshot, { phase: 'verifying', previousComplete }); notify(run, true);
         let index = 0;
         async function oneFile(file) {
           const existing = await cache.match(absolute(file.url));
@@ -209,6 +272,14 @@
     if (!parsed || !['GET', 'HEAD'].includes(request.method)) return new Response('Not part of the offline release', { status: 403 });
     if (base && parsed.url.origin === origin && !parsed.url.pathname.startsWith(base + '/')) return new Response('Outside this game installation', { status: 403 });
     const manifest = await activeManifest();
+    // Refreshing the installer online must be able to receive a fixed shell,
+    // even when a previous complete release cached its old HTML. Game files
+    // continue to switch together only after a verified prepare/commit.
+    if (request.mode === 'navigate' && ['/', '/index.html', '/phone/', '/phone/index.html', '/phone/update.html'].includes(parsed.pathname)) {
+      const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 3000);
+      try { const response = await fetch(request, { cache: 'no-cache', credentials: 'same-origin', signal: controller.signal }); if (response.ok) return response; }
+      catch {} finally { clearTimeout(timer); }
+    }
     if (parsed.url.origin === origin && parsed.pathname === MANIFEST_PATH) {
       try { return await fetch(request); } catch { return manifest ? jsonResponse(manifest) : new Response('Offline release not prepared', { status: 503 }); }
     }
@@ -230,7 +301,7 @@
     const type = event.data?.type;
     if (!['INSPECT_OFFLINE', 'PREPARE_OFFLINE', 'PAUSE_OFFLINE'].includes(type)) return;
     const port = event.ports?.[0], send = data => { try { (port || event.source)?.postMessage({ ...data, requestId: event.data.requestId }); } catch {} };
-    const operation = type === 'INSPECT_OFFLINE' ? inspect() : type === 'PAUSE_OFFLINE' ? pause() : prepare(send);
+    const operation = type === 'INSPECT_OFFLINE' ? inspect(value => send({ type: 'OFFLINE_PROGRESS', snapshot: value })) : type === 'PAUSE_OFFLINE' ? pause() : prepare(send);
     event.waitUntil(Promise.resolve(operation).then(result => send({ type: 'OFFLINE_RESULT', ok: result.phase !== 'error', snapshot: result })).catch(error => send({ type: 'OFFLINE_RESULT', ok: false, snapshot: snapshot(null, null, { phase: 'error', error: String(error.message || error) }) })));
   });
 })();
