@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#121a24">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="王者争霸">
+  <title>王者争霸 · 手机离线版</title>
+  <link rel="manifest" href="/wzzb-offline/phone/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/wzzb-offline/phone/icon.svg">
+  <link rel="apple-touch-icon" href="/wzzb-offline/original/logo.png">
+  <link rel="stylesheet" href="/wzzb-offline/phone/mobile.css">
+<script src="/wzzb-offline/phone/mount.js"></script></head>
+<body>
+  <main class="shell" data-total-files="5902" data-total-bytes="500985291">
+    <header class="brand">
+      <span class="eyebrow">手机单机 · 原版客户端与本地模拟服务</span>
+      <img class="game-logo" src="/wzzb-offline/original/logo.png" alt="王者争霸" width="1198" height="740">
+      <h1>把冒险装进口袋</h1>
+      <p class="intro">首次联网准备资源后，游戏逻辑与存档都在这台设备运行。缓存完整后，可从主屏幕断网启动。</p>
+    </header>
+
+    <section class="panel preparation" aria-labelledby="prepare-title">
+      <div class="section-heading"><h2 id="prepare-title">准备离线资源</h2><span id="ready-badge" class="badge" data-state="pending">正在检查</span></div>
+      <p id="cache-message" class="description" role="status" aria-live="polite">正在读取资源清单，统计首次下载大小…</p>
+      <p class="fine-print">建议先添加到主屏幕，再从主屏幕入口准备资源。Safari 与主屏幕 App 的资源和存档可能分开保存。</p>
+      <div class="resource-stats"><div><span>首次下载</span><strong id="total-size">正在统计</strong></div><div><span>已验证资源</span><strong id="downloaded-size">—</strong></div></div>
+      <progress id="download-progress" max="100" value="0" aria-label="离线资源准备进度"></progress>
+      <div class="progress-caption"><span id="file-progress">正在检查缓存</span><span id="network-status">正在检查网络</span></div>
+      <p id="version-status" class="fine-print"></p>
+      <p id="cache-error" class="error" role="alert" hidden></p>
+      <ul id="failed-files" class="failed-files" hidden></ul>
+      <div class="actions"><button id="prepare-button" class="button primary" disabled>准备离线资源</button><button id="pause-button" class="button quiet" hidden>暂停下载</button></div>
+      <button id="enter-button" class="button enter" disabled>进入游戏</button>
+      <button id="reload-button" class="text-button" hidden>刷新本页，启用离线服务</button>
+      <p class="fine-print">下载中断后可继续，已验证的文件会保留。首次准备请保持页面打开；下载失败或未完成时，还不能断网进入游戏。</p>
+    </section>
+
+    <section class="panel installation" aria-labelledby="install-title">
+      <div class="section-heading"><h2 id="install-title">添加到 iPhone 主屏幕</h2><span class="step-number" aria-hidden="true">02</span></div>
+      <ol class="install-steps"><li>用 <strong>Safari</strong> 打开此页，轻点<strong>分享</strong>，选择<strong>“添加到主屏幕”</strong>；如有<strong>“作为网页 App 打开”</strong>选项，请开启后添加。</li><li>从主屏幕<strong>联网打开一次</strong>，点击上方“准备离线资源”，直到同一入口显示<strong>“可离线”</strong>。</li><li>关闭后再从主屏幕打开，开启飞行模式验证离线启动。建议横屏游玩。</li></ol>
+      <p id="standalone-status" class="fine-print">添加后请从主屏幕联网打开，再确认资源已完整准备。</p>
+      <p class="fine-print"><a href="https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios" target="_blank" rel="noopener">Apple 添加到主屏幕操作说明</a></p>
+      <p id="context-message" class="fine-print"></p>
+    </section>
+
+    <section class="panel saves" aria-labelledby="saves-title">
+      <div class="section-heading"><h2 id="saves-title">手机存档</h2><span class="step-number" aria-hidden="true">03</span></div>
+      <p class="description">手机进度单独保存在本设备，不会自动同步或上传到电脑。导出文件可用于备份或换设备恢复。</p>
+      <p id="storage-status" class="fine-print" role="status">正在检查浏览器存储许可…</p>
+      <p id="storage-space" class="fine-print"></p>
+      <div class="actions"><button id="export-button" class="button secondary" disabled>导出存档</button><button id="choose-import-button" class="button quiet" disabled>导入存档</button></div>
+      <a id="save-download-link" class="button secondary download-link" hidden>保存导出的存档文件</a>
+      <input id="import-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="选择手机存档 JSON 文件">
+      <div id="import-review" class="import-review" hidden><p id="import-file-info"></p><p>导入会替换这台设备的本地游戏存档。建议先导出当前进度。</p><div class="actions"><button id="confirm-import-button" class="button secondary">导入这个存档</button><button id="cancel-import-button" class="button quiet">取消</button></div></div>
+      <p id="save-message" class="fine-print" role="status" aria-live="polite">正在连接手机存档服务…</p>
+      <p id="save-error" class="error" role="alert" hidden></p>
+    </section>
+
+    <p class="fine-print">安装器 20261027-playability1</p><footer class="page-footer">个人学习测试 · 与原版运营方无关联 · 使用已缓存的原版资源与单机模拟规则<br>部分地城地图资源仍有缺失，离线包完整不代表所有玩法素材齐全。</footer>
+    <noscript><p class="error">此安装页和游戏需要 JavaScript，请在 Safari 设置中启用后重新打开。</p></noscript>
+  </main>
+  <script type="module" src="/wzzb-offline/phone/install-20261027-playability1.js"></script>
+</body>
+</html>

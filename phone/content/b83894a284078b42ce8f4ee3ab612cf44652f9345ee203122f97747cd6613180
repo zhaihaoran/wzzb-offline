@@ -1,0 +1,106 @@
+/** Local-only guild admission and reward UI. Uses the shipped panels/API and
+ * explicit completion proof from the simulator, preserving actual costs,
+ * membership permissions, saved guild level and the cached configuration. */
+const installed = new WeakMap();
+export function installGuildClientRepairs(exports, local) {
+  if (typeof local?.getExport !== 'function') throw new TypeError('Guild repairs require the client export registry');
+  const enabled = () => local.testHeroFeatures === true;
+  let changed = false;
+  function wrap(target, key, replacement) {
+    if (typeof target?.[key] !== 'function') return;
+    let keys = installed.get(target); if (!keys) installed.set(target, keys = new Set());
+    if (keys.has(key)) return;
+    const original = target[key];
+    target[key] = function (...args) { return enabled() ? replacement.call(this, original, args) : original.apply(this, args); };
+    keys.add(key); changed = true;
+  }
+  const get = name => local.getExport(name);
+  const nativeConfig = id => get('CfgData')?.getGuildCopyCfgById?.(id);
+  const metadata = data => {
+    const value = data?.localGuildCopyRewards;
+    return value && Number(value.guildId) === Number(data.guildInfo?.id) ? value : null;
+  };
+  const completed = data => (metadata(data)?.completedLevels || []).map(Number).filter(id => nativeConfig(id));
+  function canGarrison(data) {
+    const value = metadata(data);
+    const time = Number(get('App')?.serverTime?.getTime?.()), start = Number(value?.garrisonStartedAt), minimum = Number(value?.minimumSeconds);
+    return Boolean(value && completed(data).length && !data.copyDayOnHook && !value.claimedToday && start > 0 && minimum > 0 && time - start >= minimum);
+  }
+  function receive(data, response, reset = false) {
+    if (reset) data.localGuildCopyRewards = null;
+    if (!response || typeof response !== 'object') return;
+    if (response.localGuildCopyRewards) data.localGuildCopyRewards = { ...response.localGuildCopyRewards, completedLevels: [...(response.localGuildCopyRewards.completedLevels || [])] };
+    for (const key of ['copy_id', 'copyDayOnHook', 'playerCopyLeave', 'openCopyTime']) if (Object.hasOwn(response, key)) data[key] = response[key];
+    if (response.playerCopyFirstReward) data.recievedPassRewardMap = { ...response.playerCopyFirstReward };
+  }
+  function refreshRewards() {
+    const api = get('BaseApi'), data = get('GuildsData');
+    if (!api?.requestLogic || !data) return Promise.resolve(false);
+    return new Promise(resolve => api.requestLogic({ api: 'guild', c: 'getGuildInfo' }, response => { data.initData(response); resolve(true); }, error => {
+      get('ApiState')?.showText?.(error?.message || '本地公会状态读取失败，请重试'); resolve(false);
+    }));
+  }
+
+  // The original GuildCopyListItem reads guild_level directly, independently
+  // of FunctionData. Supply a local admission view, never mutate its table.
+  wrap(exports.CfgData, 'getGuildCopyCfgById', function (original, args) { const cfg = original.apply(this, args); return cfg ? { ...cfg, guild_level: 1 } : cfg; });
+  wrap(exports.CfgData, 'getGuildCopyAllCfg', function (original, args) {
+    const rows = original.apply(this, args);
+    return rows && Object.fromEntries(Object.entries(rows).map(([id, cfg]) => [id, cfg ? { ...cfg, guild_level: 1 } : cfg]));
+  });
+  const data = exports.GuildsData;
+  for (const key of ['initData', 'joinGuild', 'onGetGarrisonRewardData', 'onGetPassRewardData', 'onSetGuildCopyLevelData', 'onGetGuildCopyLevelData', 'onGuildCopyLevel', 'onLeaveMapData']) wrap(data, key, function (original, args) {
+    receive(this, args[0], key === 'initData' || key === 'joinGuild');
+    const result = original.apply(this, args);
+    this.onUpdateGarrisonRed?.(); this.onUpdateCopyPassRewardRed?.();
+    return result;
+  });
+  wrap(data, 'getCanRecieveCopyPassReward', function (_original, [id]) {
+    return Boolean(this.guildInfo && completed(this).includes(Number(id)) && !this.recievedPassRewardMap?.[id]);
+  });
+  wrap(data, 'onUpdateGarrisonRed', function () {
+    const command = get('GuilsdRedCmd')?.GuildsCopyGarrisonReward || 'GuildsCopyGarrisonReward';
+    get('RedPointManager')?.setRed?.(command, canGarrison(this));
+  });
+  wrap(data, 'onQuitGuild', function (original, args) { this.localGuildCopyRewards = null; return original.apply(this, args); });
+  wrap(exports.GuildsTool, 'onCheckGarrisonRewardPop', async function () {
+    // The old rule assumes weekly closed raid hours. Local raids are available
+    // all day, so eligibility must come from the actual daily proof instead.
+    if (!await refreshRewards()) return false;
+    const guild = get('GuildsData'); if (!canGarrison(guild)) return false;
+    const level = Math.max(...completed(guild)), node = await get('GuildCopyGarrisonRewardPop').createInstance(level);
+    get('Alert').alert(node); return true;
+  });
+
+  const panel = exports.GuildCopyListItem?.prototype;
+  wrap(panel, 'onShow', function (original, [cfg, ...rest]) { return original.call(this, cfg && nativeConfig(cfg.id) || cfg, ...rest); });
+  wrap(panel, 'onInitCard', function (original, args) { this._localGuildCardId = this.cfg?.id; return original.apply(this, args); });
+  wrap(panel, 'onUpdateData', function (original, args) {
+    const guild = get('GuildsData'), cfg = this.cfg;
+    if (!cfg || !guild?.guildInfo) return;
+    const result = original.apply(this, args);
+    if (!nativeConfig(cfg.id)) return result;
+    const cleared = completed(guild).includes(Number(cfg.id)), highest = Math.max(0, ...completed(guild));
+    this.isCardGary = false;
+    for (const key of ['node_card_bg', 'node_card_1', 'node_card_2', 'node_card_3']) if (this[key]) this[key].active = !cleared;
+    if (this.node_pass) this.node_pass.active = cleared;
+    if (this.node_suo) this.node_suo.active = false;
+    if (this.lbl_lock_tips?.node) this.lbl_lock_tips.node.active = false;
+    if (this.lbl_garrison?.node) this.lbl_garrison.node.active = cleared && Number(cfg.id) === highest;
+    if (!cleared && this._localGuildCardId !== cfg.id) this.onInitCard?.();
+    const role = get('RoleData')?.getRole?.(), owner = guild.getMember?.(role?.uid), selected = Number(guild.guildInfo.copyLevel) === Number(cfg.id);
+    if (this.node_fight_target) this.node_fight_target.active = true;
+    if (this.node_cur_fight) this.node_cur_fight.active = selected;
+    if (this.btn_change_fight?.node) this.btn_change_fight.node.active = Number(owner?.position) === Number(get('PositionType')?.president || 1) && !selected;
+    return result;
+  });
+  wrap(panel, 'on_btn_enter', function (original, args) {
+    const guild = get('GuildsData');
+    if (!this.cfg || !nativeConfig(this.cfg.id) || !guild?.guildInfo || Number(guild.CanEnterCopyLevel) !== Number(this.cfg.id)) return original.apply(this, args);
+    if (guild.playerCopyLeave && metadata(guild)?.localAllDay) {
+      return get('GuildsCopyApi').joinGuildCopy(() => get('GuildsTool').onEnterGuildCopyScene());
+    }
+    return original.apply(this, args);
+  });
+  return changed;
+}
